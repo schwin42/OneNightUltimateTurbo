@@ -274,6 +274,7 @@ public class RealizedPrompt {
 			break;
 		case OptionsSet.May_OtherPlayer: //Robber, mystic wolf
 			Debug.Log("Not implemented: may other player");
+			buttons.Add(new ButtonInfo(-1, "Ready"));
 			break;
 		default:
 			Debug.LogError("Unhandled options set: " + options);
