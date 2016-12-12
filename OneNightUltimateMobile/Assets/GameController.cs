@@ -6,7 +6,7 @@ using System.Linq;
 
 public class GameController : MonoBehaviour {
 
-	public enum GameState {
+	public enum GamePhase {
 		Pregame = 0, //Actions: Player entry, select roles
 		Night_Input = 1, //Actions: Take night action
 		Night_Reveal = 2, //Actions: Confirm night reveal
@@ -24,42 +24,61 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private static GameState _currentState = GameState.Pregame;
-	public static GameState currentState {
-		get {
-			return _currentState;
-		}
-	}
+	public GamePhase currentPhase;
 
-	//Configuration
-	[SerializeField]
-	public List<Card> deck =
-		new List<Card> ()
-	{ Card.Werewolf, Card.Werewolf, Card.Troublemaker, Card.Robber, Card.Villager, Card.Villager, Card.Seer, Card.Minion, Card.Tanner }
-		; //The deck will be selected/ randomly generated before game start
+	//The deck will be selected/ randomly generated before game start
+	public List<RealCard> deck;
+
 	public static string[] playerNames = { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", };
 
 	//Game state
-	public static List<Player> players;
-	public static List<Card> centerCards { get; private set; }
-	public static List<OnuGameObject> ogusById = new List<OnuGameObject>();
+
+	public List<Player> players;
+	public List<CenterCardSlot> centerCards;
+
 
 	//Bookkeeping
 	List<PlayerUi> playerUis;
 	static Dictionary<Player, PlayerUi> playerUisByPlayer;
 	List<Player> playersChoosingNightAction;
+	public List<IGamePiece> gamePiecesById = new List<IGamePiece>();
+	public List<ILocation> locationsById = new List<ILocation>();
 
 	void Start() {
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 
-		SetState(GameState.Night_Input);
+		deck =
+			new List<RealCard> () {
+			new RealCard(Role.Werewolf),
+			new RealCard(Role.Villager), 
+			new RealCard(Role.Drunk	), 
+			new RealCard(Role.Minion), 
+			new RealCard(Role.Seer), 
+			new RealCard(Role.Tanner), 
+			new RealCard(Role.Robber), 
+			new RealCard(Role.Mason), 
+			new RealCard(Role.Insomniac), 
+//			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager),
+//			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), 
+
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+//			new RealCard(Role.Werewolf),
+		};
+
+		SetPhase(GamePhase.Night_Input);
 	}
 
-	private static void SetState(GameState targetState) {
-		if(targetState == currentState) return;
-		_currentState = targetState;
+	private static void SetPhase(GamePhase targetState) {
+		if(targetState == instance.currentPhase) return;
+		instance.currentPhase = targetState;
 		switch(targetState) {
-		case GameState.Night_Input:
+		case GamePhase.Night_Input:
 			if(instance.deck.Count != playerNames.Length + 3) {
 				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + playerNames.Length + ", deck = " + instance.deck.Count);
 				return;
@@ -69,10 +88,10 @@ public class GameController : MonoBehaviour {
 
 			//Create players
 			playerUisByPlayer = new Dictionary<Player, PlayerUi>();
-			players = new List<Player>();
+			instance.players = new List<Player>();
 			for(int i = 0; i < playerNames.Length; i++) {
 				Player player = new Player(playerNames[i]);
-				players.Add(player);
+				instance.players.Add(player);
 				instance.playerUis[i].Initialize(player);
 				playerUisByPlayer.Add(player, instance.playerUis[i]);
 			}
@@ -82,13 +101,14 @@ public class GameController : MonoBehaviour {
 			instance.deck = instance.deck.OrderBy(item => rnd.Next()).ToList();
 
 			//Deal cards
-			foreach(Player player in players) {
-				player.dealtCard = PullFirstCardFromDeck();
+			foreach(Player player in instance.players) {
+				player.ReceiveDealtCard(PullFirstCardFromDeck());
 				playerUisByPlayer[player].WriteRoleToTitle();
 			}
-			centerCards = new List<Card>();
+			instance.centerCards = new List<CenterCardSlot>();
 			for(int i = 0; i < 3; i++) {
-				centerCards.Add(PullFirstCardFromDeck());
+				instance.centerCards.Add(new CenterCardSlot(i, PullFirstCardFromDeck()));
+//				instance.centerCards.Add(PullFirstCardFromDeck());
 			}
 			if(instance.deck.Count != 0) {
 				Debug.LogError("Deal left cards remaining in deck");
@@ -96,76 +116,242 @@ public class GameController : MonoBehaviour {
 			}
 
 			//Print player cards
-			foreach(Player player in players) {
-				print(player.playerName + " is the " + player.dealtCard.ToString() + " " + player.dealtCard.order.ToString());
+			foreach(Player player in instance.players) {
+				print(player.playerName + " is the " + player.dealtCard.role.ToString() + " " + player.dealtCard.order.ToString());
 			}
-			foreach(Card card in centerCards) {
-				print(card.ToString() + " is in the center");
+			foreach(CenterCardSlot slot in instance.centerCards) {
+				print(slot.currentCard.role.ToString() + " is in the center");
 			}
 
 			//Prompt players for action and set controls
-			foreach(Player player in players) {
+			foreach(Player player in instance.players) {
+				player.prompt = new RealizedPrompt(player);
 				playerUisByPlayer[player].DisplayDescription();
 			}
 
 			//Wait for responses
-			instance.playersChoosingNightAction = new List<Player>(players);
+			instance.playersChoosingNightAction = new List<Player>(instance.players);
 
 			break;
-		case GameState.Night_Reveal:
-			//Execute actions in order
+		case GamePhase.Night_Reveal:
+			instance.ExecuteNightActionsInOrder();
 
 			//Reveal information to seer roles
 
 			break;
-		case GameState.Day:
+		case GamePhase.Day:
 
 			break;
-		case GameState.Result:
+		case GamePhase.Result:
 
 			break;
 		}
 	}
 
-	private static Card PullFirstCardFromDeck() {
-		Card card = instance.deck[0];
+	private void ExecuteNightActionsInOrder ()
+	{
+		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => p.dealtCard.order.primary.HasValue).OrderBy (p => p.dealtCard.order.primary).
+			ThenBy (p => p.dealtCard.order.secondary).ToList ();
+		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
+			Player actingPlayer = actingPlayersByTurnOrder [i];
+			actingPlayer.observations = new List<Observation>();
+			for (int j = 0; j < actingPlayer.dealtCard.nightActions.Length; j++) {
+				if(actingPlayer.dealtCard.nightActions[j] is ViewOneNightAction) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+					ViewOneNightAction vonAction = ((ViewOneNightAction)actingPlayer.dealtCard.nightActions[j]);
+					int targetLocationId = vonAction.target == TargetType.Self ? actingPlayer.locationId : 
+						actingPlayer.nightLocationSelection.locationIds[((int)vonAction.target)];
+					actingPlayer.observations.Add(new Observation(targetLocationId, locationsById[targetLocationId].currentCard.gamePieceId));
+				} else if(actingPlayer.dealtCard.nightActions[j] is SwapTwoNightAction) { //Robber 1st, troublemaker, drunk
+
+				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoNightAction) { //Seer
+
+				}
+//				switch (actingPlayer.dealtCard.nightActions [i].type) {
+//				case NightActionType.Swap: 
+//
+//					break;
+//				case NightActionType.View: 
+//
+//					break;
+//				}
+			}
+		}
+	}
+
+	private static RealCard PullFirstCardFromDeck() {
+		RealCard card = instance.deck[0];
 		instance.deck.Remove(card);
 		return card;
 	}
 
-	public static Prompt GetPrompt (Player player)
-	{
-		if (player.dealtCard.inputInfo == null)
-			return null;
+//	public static RealizedPrompt GetRealizedPrompt (Player player)
+//	{
+		
+//		switch (player.dealtCard.inputInfo.condition) {
+//		case StateCondition.Always:
+//			return player.dealtCard.inputInfo.promptIfTrue;
+//		case StateCondition.AtLeastOneOtherWerewolf:
+//			return players.Where (p => p.dealtCard is Werewolf && p.playerName != player.playerName).Count () > 0 ? 
+//				player.dealtCard.inputInfo.promptIfTrue : player.dealtCard.inputInfo.promptIfFalse; 
+//		default:
+//			Debug.LogError ("Unhandled condition: " + player.dealtCard.inputInfo.condition);
+//			return null;
+//		}
+//	}
 
-		switch (player.dealtCard.inputInfo.condition) {
-		case StateCondition.Always:
-			return player.dealtCard.inputInfo.promptIfTrue;
-		case StateCondition.AtLeastOneOtherWerewolf:
-			return players.Where (p => p.dealtCard is Werewolf && p.playerName != player.playerName).Count () > 0 ? 
-				player.dealtCard.inputInfo.promptIfTrue : player.dealtCard.inputInfo.promptIfFalse; 
-		default:
-			Debug.LogError ("Unhandled condition: " + player.dealtCard.inputInfo.condition);
-			return null;
-		}
+	public static int RegisterGamePiece(IGamePiece gamePiece) {
+		instance.gamePiecesById.Add(gamePiece);
+		return instance.gamePiecesById.Count - 1;
 	}
 
-	public static int RegisterOnuGameObject(OnuGameObject ogu) {
-		ogusById.Add(ogu);
-		return ogusById.Count - 1;
+	public static int RegisterLocation(ILocation location) {
+		instance.locationsById.Add(location);
+		return instance.locationsById.Count - 1;
 	}
 
-	public static void SubmitNightAction(Player player, int[] targetOguIds) {
-		if(currentState != GameState.Night_Input) {
+	public static void SubmitNightAction(Player player, int[] targetLocationIds) {
+		if(instance.currentPhase != GamePhase.Night_Input) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
 		}
-		player.nightAction = targetOguIds;
+		player.nightLocationSelection = new Selection(targetLocationIds);
 		instance.playersChoosingNightAction.Remove(player);
 
 		if(instance.playersChoosingNightAction.Count == 0) {
-			SetState(GameState.Night_Reveal);
+			SetPhase(GamePhase.Night_Reveal);
 		}
 	}
+}
 
+[System.Serializable]
+public class RealizedPrompt {
+	public string cohortString = "";
+	public OptionsSet options;
+	public List<ButtonInfo> buttons = new List<ButtonInfo>();
+
+	public RealizedPrompt(Player player) {
+		//Evalutate cohort and realize strings
+		switch(player.dealtCard.cohort) {
+		case CohortType.None:
+			if(player.dealtCard.prompt != null) {
+				cohortString = player.dealtCard.prompt.explanation;
+				options = player.dealtCard.prompt.options;
+			}
+			break;
+		case CohortType.WerewolfNature:
+			List<Player> cohorts = GameController.instance.players.Where (p => p.dealtCard.nature == Nature.Werewolf && p.playerName != player.playerName).ToList();
+			if(cohorts.Count == 0) {
+				cohortString = player.dealtCard.prompt.explanation;
+				options = player.dealtCard.prompt.options;
+			} else {
+				for(int i = 0; i < cohorts.Count; i++) {
+					if( i != 0) {
+						cohortString += " ";
+					}
+					cohortString += string.Format(player.dealtCard.promptIfCohort.explanation, cohorts[i].playerName);
+				}
+				options = player.dealtCard.promptIfCohort.options;
+			}
+			break;
+		}
+
+		switch(options) {
+		case OptionsSet.None:
+			buttons.Add(new ButtonInfo(-1, "Ready"));
+			break;
+		case OptionsSet.May_CenterCard: //Apprentice seer, lone werewolf
+			for (int i = 0; i < GameController.instance.centerCards.Count; i++) {
+				CenterCardSlot slot = GameController.instance.centerCards[i];
+				buttons.Add(new ButtonInfo(slot.locationId, "Center Card #" + (i + 1).ToString()));
+			}
+			buttons.Add(new ButtonInfo(-1, "Pass"));
+			break;
+		case OptionsSet.Must_CenterCard: //Drunk and copycat
+			for (int i = 0; i < GameController.instance.centerCards.Count; i++) {
+				CenterCardSlot slot = GameController.instance.centerCards[i];
+				buttons.Add(new ButtonInfo(slot.locationId, "Center Card #" + (i + 1).ToString()));
+			}
+			break;
+		case OptionsSet.May_OtherPlayer: //Robber, mystic wolf
+			Debug.Log("Not implemented: may other player");
+			break;
+		default:
+			Debug.LogError("Unhandled options set: " + options);
+			break;
+		}
+
+//		this.options = player.dealtCard.prom prompt.options;
+
+		//Derive cohort string from abstract prompt and game state
+	}
+}
+
+[System.Serializable]
+public struct ButtonInfo {
+	public int ogoId;
+	public string label;
+	public ButtonInfo(int ogoId, string label) {
+		this.ogoId = ogoId;
+		this.label = label;
+	}
+}
+
+[System.Serializable]
+public class RealCard : Card, IGamePiece {
+
+	//Runtime state
+	private int _gamePieceId;
+	public int gamePieceId {
+		get {
+			return _gamePieceId;
+		}
+	}
+	//any viewed roles
+
+	public RealCard(Role role) : base(role) {
+		_gamePieceId = GameController.RegisterGamePiece(this);
+		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
+	}
+}
+
+[System.Serializable]
+public class CenterCardSlot : ILocation {
+	private int _locationId;
+	public int locationId { get {
+			return _locationId;
+		}
+	}
+	public int centerCardIndex;
+	public RealCard dealtCard;
+	private RealCard _currentCard;
+	public RealCard currentCard {
+		get {
+			return _currentCard;
+		}
+	}
+	public CenterCardSlot(int index, RealCard card) {
+		this.centerCardIndex = index;
+		this.dealtCard = card;
+		this._currentCard = card;
+		_locationId = GameController.RegisterLocation(this);
+		Debug.Log("Registered center card #" + (index + 1) + " as locationId = " + _locationId);
+	}
+}
+
+[System.Serializable]
+public struct Observation {
+	public int locationId;
+	public int gamePieceId;
+	public Observation(int locationId, int gamePieceId) {
+		this.locationId = locationId;
+		this.gamePieceId = gamePieceId;
+	}
+}
+
+[System.Serializable]
+public struct Selection {
+	public int[] locationIds;
+	public Selection(params int[] locationIds) {
+		this.locationIds = locationIds;
+	}
 }

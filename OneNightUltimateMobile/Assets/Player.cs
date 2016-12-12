@@ -1,17 +1,49 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 
 [System.Serializable]
-public class Player : OnuGameObject
+public class Player : ILocation
 {
+	//Assigned in order
+
+	//0. Pregame
+	private int _locationId = -1;
+	public int locationId { 
+		get {
+			return _locationId;
+		}
+	}
 	public string playerName;
 
-	public Card dealtCard;
+	//1. Deal cards
+	public RealCard dealtCard;
 
-	public int[] nightAction;
+	//2. Display prompts
+	public RealizedPrompt prompt;
+
+	//3. Collect night actions - one selection per night action, in corresponding order
+	public Selection nightLocationSelection;	
+
+	//4. Manipulate cards
+	private RealCard _currentCard;
+	public RealCard currentCard { get {
+			return _currentCard;
+		}
+	}
+	//public Mark currentMark;
+
+	//5. Notify seers
+	public List<Observation> observations;
+
+	//6. Enable voting
 	public int dayVote;
+
+	//7. Result
+	public bool didWin;
+
 	//	public Role originalRole;
 
 	//	public Mark currentMark;
@@ -20,5 +52,13 @@ public class Player : OnuGameObject
 	public Player (string playerName)
 	{
 		this.playerName = playerName;
+
+		this._locationId = GameController.RegisterLocation(this);
+		Debug.Log("Registered player " + playerName + " as locationId = " + locationId);
+	}
+
+	public void ReceiveDealtCard(RealCard card) {
+		this.dealtCard = card;
+		this._currentCard = card;
 	}
 }

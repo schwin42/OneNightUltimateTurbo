@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class PlayerUi : MonoBehaviour {
 
@@ -34,44 +35,53 @@ public class PlayerUi : MonoBehaviour {
 	}
 
 	public void WriteRoleToTitle() {
-		title.text = "You are the " + player.dealtCard.ToString();
+		title.text = "You are the " + player.dealtCard.role.ToString();
 	}
 
 	public void DisplayDescription() { //Show team alliegence, explain night action, and describe any special rules
-		Prompt prompt = GameController.GetPrompt(player);
-		if(prompt == null) return;
-		print("writing description: " + prompt.description);
-		description.text = prompt.description;
-		switch(prompt.options) {
-		case OptionsSet.May_CenterCard:
-			for(int i = 0; i < 3; i++) {
-				AddNightActionButton("Card #" + (i + 1).ToString(), GameController.centerCards[0].runtimeId);
-				AddNightActionButton("Card #" + (i + 1).ToString(), GameController.centerCards[1].runtimeId);
-				AddNightActionButton("Card #" + (i + 1).ToString(), GameController.centerCards[2].runtimeId);
-				AddNightActionButton("Pass", -1);
-			}
-			break;
+		//Team allegiance- You are on the werewolf team.
+		//Nature clarity if relevant- You are a villageperson.
+		//Special win conditions- If there are no other werewolves, you win if an *other* player dies.
+		//Cohort type- You can see other werewolves.
+		//Cohort players- Allen is a werewolf.
+		//Ogo selection- You may look at the card of another player or two cards from the center.
+		//Selection controls- [Buttons for the three center cards]
+
+		List<string> descriptionStrings = new List<string>();
+		descriptionStrings.Add(player.dealtCard.team.description);
+		descriptionStrings.Add(player.prompt.cohortString);
+		description.text = string.Join(" ", descriptionStrings.ToArray());
+
+		foreach(ButtonInfo info in player.prompt.buttons) {
+			AddNightActionButton(info.label, info.ogoId);
 		}
 	}
 
-	private void AddNightActionButton(string s, int oguId) {
+	private void AddNightActionButton(string label, int oguId) {
 		GameObject go = Instantiate(PrefabResource.instance.nightActionButton) as GameObject;
 		go.transform.SetParent(buttonBox.transform);
-		OnuButton button = go.GetComponent<OnuButton>();
-		button.Initialize(this, oguId);
+		Text uiText = go.GetComponentInChildren<Text>();
+		uiText.text = label;
+		OnuButton onuButton = go.GetComponent<OnuButton>();
+		onuButton.Initialize(this, oguId);
 	}
 
-	private void HandleButtonClick(int oguId) {
-		switch(GameController.GetPrompt(player).options) {
+	public void HandleButtonClick(int oguId) {
+		switch(player.prompt.options) {
+		case OptionsSet.None:
 		case OptionsSet.May_CenterCard:
+		case OptionsSet.Must_CenterCard:
 			SubmitNightAction(new int[] { oguId });
+			break;
+		default:
+			Debug.LogError("Unhandled options set: " + player.prompt.options);
 			break;
 		}
 	}
 
 	private void SubmitNightAction(int[] oguIds) {
-		foreach(GameObject button in buttonBox.transform) {
-			Destroy(button);
+		foreach(Transform button in buttonBox.transform) {
+			Destroy(button.gameObject);
 		}
 		GameController.SubmitNightAction(player, oguIds);
 	}
