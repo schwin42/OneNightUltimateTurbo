@@ -7,6 +7,7 @@ using System.Linq;
 public interface IGamePiece
 {
 	int gamePieceId { get; }
+	string name { get; }
 }
 
 

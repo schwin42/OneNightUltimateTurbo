@@ -51,15 +51,15 @@ public class GameController : MonoBehaviour {
 			new List<RealCard> () {
 			new RealCard(Role.Werewolf),
 			new RealCard(Role.Villager), 
-			new RealCard(Role.Drunk	), 
-			new RealCard(Role.Minion), 
-			new RealCard(Role.Seer), 
-			new RealCard(Role.Tanner), 
-			new RealCard(Role.Robber), 
-			new RealCard(Role.Mason), 
-			new RealCard(Role.Insomniac), 
-//			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager),
-//			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), 
+//			new RealCard(Role.Drunk	), 
+//			new RealCard(Role.Minion), 
+//			new RealCard(Role.Seer), 
+//			new RealCard(Role.Tanner), 
+//			new RealCard(Role.Robber), 
+//			new RealCard(Role.Mason), 
+//			new RealCard(Role.Insomniac), 
+			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager),
+			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), 
 
 //			new RealCard(Role.Werewolf),
 //			new RealCard(Role.Werewolf),
@@ -74,10 +74,11 @@ public class GameController : MonoBehaviour {
 		SetPhase(GamePhase.Night_Input);
 	}
 
-	private static void SetPhase(GamePhase targetState) {
-		if(targetState == instance.currentPhase) return;
-		instance.currentPhase = targetState;
-		switch(targetState) {
+	private static void SetPhase(GamePhase targetPhase) {
+		if(targetPhase == instance.currentPhase) return;
+		instance.currentPhase = targetPhase;
+		print("Entering " + targetPhase + " phase.");
+		switch(targetPhase) {
 		case GamePhase.Night_Input:
 			if(instance.deck.Count != playerNames.Length + 3) {
 				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + playerNames.Length + ", deck = " + instance.deck.Count);
@@ -108,7 +109,6 @@ public class GameController : MonoBehaviour {
 			instance.centerCards = new List<CenterCardSlot>();
 			for(int i = 0; i < 3; i++) {
 				instance.centerCards.Add(new CenterCardSlot(i, PullFirstCardFromDeck()));
-//				instance.centerCards.Add(PullFirstCardFromDeck());
 			}
 			if(instance.deck.Count != 0) {
 				Debug.LogError("Deal left cards remaining in deck");
@@ -117,7 +117,7 @@ public class GameController : MonoBehaviour {
 
 			//Print player cards
 			foreach(Player player in instance.players) {
-				print(player.playerName + " is the " + player.dealtCard.role.ToString() + " " + player.dealtCard.order.ToString());
+				print(player.name + " is the " + player.dealtCard.role.ToString() + " " + player.dealtCard.order.ToString());
 			}
 			foreach(CenterCardSlot slot in instance.centerCards) {
 				print(slot.currentCard.role.ToString() + " is in the center");
@@ -126,7 +126,7 @@ public class GameController : MonoBehaviour {
 			//Prompt players for action and set controls
 			foreach(Player player in instance.players) {
 				player.prompt = new RealizedPrompt(player);
-				playerUisByPlayer[player].DisplayDescription();
+				playerUisByPlayer[player].DisplayPrompt();
 			}
 
 			//Wait for responses
@@ -137,6 +137,9 @@ public class GameController : MonoBehaviour {
 			instance.ExecuteNightActionsInOrder();
 
 			//Reveal information to seer roles
+			foreach(Player player in instance.players) {
+				playerUisByPlayer[player].DisplayObservation();
+			}
 
 			break;
 		case GamePhase.Day:
@@ -154,7 +157,6 @@ public class GameController : MonoBehaviour {
 			ThenBy (p => p.dealtCard.order.secondary).ToList ();
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			Player actingPlayer = actingPlayersByTurnOrder [i];
-			actingPlayer.observations = new List<Observation>();
 			for (int j = 0; j < actingPlayer.dealtCard.nightActions.Length; j++) {
 				if(actingPlayer.dealtCard.nightActions[j] is ViewOneNightAction) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
 					ViewOneNightAction vonAction = ((ViewOneNightAction)actingPlayer.dealtCard.nightActions[j]);
@@ -166,13 +168,6 @@ public class GameController : MonoBehaviour {
 				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoNightAction) { //Seer
 
 				}
-//				switch (actingPlayer.dealtCard.nightActions [i].type) {
-//				case NightActionType.Swap: 
-//
-//					break;
-//				case NightActionType.View: 
-//
-//					break;
 //				}
 			}
 		}
@@ -183,21 +178,6 @@ public class GameController : MonoBehaviour {
 		instance.deck.Remove(card);
 		return card;
 	}
-
-//	public static RealizedPrompt GetRealizedPrompt (Player player)
-//	{
-		
-//		switch (player.dealtCard.inputInfo.condition) {
-//		case StateCondition.Always:
-//			return player.dealtCard.inputInfo.promptIfTrue;
-//		case StateCondition.AtLeastOneOtherWerewolf:
-//			return players.Where (p => p.dealtCard is Werewolf && p.playerName != player.playerName).Count () > 0 ? 
-//				player.dealtCard.inputInfo.promptIfTrue : player.dealtCard.inputInfo.promptIfFalse; 
-//		default:
-//			Debug.LogError ("Unhandled condition: " + player.dealtCard.inputInfo.condition);
-//			return null;
-//		}
-//	}
 
 	public static int RegisterGamePiece(IGamePiece gamePiece) {
 		instance.gamePiecesById.Add(gamePiece);
@@ -239,7 +219,7 @@ public class RealizedPrompt {
 			}
 			break;
 		case CohortType.WerewolfNature:
-			List<Player> cohorts = GameController.instance.players.Where (p => p.dealtCard.nature == Nature.Werewolf && p.playerName != player.playerName).ToList();
+			List<Player> cohorts = GameController.instance.players.Where (p => p.dealtCard.nature == Nature.Werewolf && p.name != player.name).ToList();
 			if(cohorts.Count == 0) {
 				cohortString = player.dealtCard.prompt.explanation;
 				options = player.dealtCard.prompt.options;
@@ -248,7 +228,7 @@ public class RealizedPrompt {
 					if( i != 0) {
 						cohortString += " ";
 					}
-					cohortString += string.Format(player.dealtCard.promptIfCohort.explanation, cohorts[i].playerName);
+					cohortString += string.Format(player.dealtCard.promptIfCohort.explanation, cohorts[i].name);
 				}
 				options = player.dealtCard.promptIfCohort.options;
 			}
@@ -289,25 +269,29 @@ public class RealizedPrompt {
 
 [System.Serializable]
 public struct ButtonInfo {
-	public int ogoId;
+	public int locationId;
 	public string label;
 	public ButtonInfo(int ogoId, string label) {
-		this.ogoId = ogoId;
+		this.locationId = ogoId;
 		this.label = label;
 	}
 }
 
 [System.Serializable]
 public class RealCard : Card, IGamePiece {
-
-	//Runtime state
+	
 	private int _gamePieceId;
 	public int gamePieceId {
 		get {
 			return _gamePieceId;
 		}
 	}
-	//any viewed roles
+	public string name {
+		get {
+			return role.ToString();
+		}
+	}
+	//any viewed roles (e.g., Doppleganger, paranormal investigator, copycat)
 
 	public RealCard(Role role) : base(role) {
 		_gamePieceId = GameController.RegisterGamePiece(this);
@@ -320,6 +304,11 @@ public class CenterCardSlot : ILocation {
 	private int _locationId;
 	public int locationId { get {
 			return _locationId;
+		}
+	}
+	public string name { 
+		get {
+			return "center card #" + (centerCardIndex + 1);
 		}
 	}
 	public int centerCardIndex;

@@ -8,6 +8,7 @@ public interface ILocation
 {
 	int locationId { get; }
 	RealCard currentCard { get; }
+	string name { get; }
 	//int currentMark { get; }
 }
 

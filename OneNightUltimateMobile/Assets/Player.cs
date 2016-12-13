@@ -9,14 +9,20 @@ public class Player : ILocation
 {
 	//Assigned in order
 
-	//0. Pregame
+	//0. Game init_namezation
 	private int _locationId = -1;
 	public int locationId { 
 		get {
 			return _locationId;
 		}
 	}
-	public string playerName;
+
+	private string _name;
+	public string name { 
+		get {
+			return _name;
+		}
+	}
 
 	//1. Deal cards
 	public RealCard dealtCard;
@@ -51,10 +57,11 @@ public class Player : ILocation
 
 	public Player (string playerName)
 	{
-		this.playerName = playerName;
+		this._name = playerName;
 
 		this._locationId = GameController.RegisterLocation(this);
 		Debug.Log("Registered player " + playerName + " as locationId = " + locationId);
+		this.observations = new List<Observation>();
 	}
 
 	public void ReceiveDealtCard(RealCard card) {
