@@ -147,15 +147,21 @@ public class GameController : MonoBehaviour {
 			//Tally votes
 			List<Votee> votees = new List<Votee>();
 			foreach(Player voter in instance.players) {
+				if(voter.locationIdVote == -1) continue;
 				if(votees.Count(v => v.player == voter.locationIdVote) > 0) { 
-					votees[voter.locationIdVote].count ++;
+					votees.Single(v => v.player == voter.locationIdVote).count ++;
 				} else {
 					votees.Add(new Votee(voter.locationIdVote));
 				}
 			}
 
 			//Sort by descending votes
-			votees.OrderByDescending(v => v.count);
+			votees = votees.OrderByDescending(v => v.count).ToList();
+
+			for(int i = 0; i < votees.Count; i++ ) {
+				Votee votee = votees[i];
+				print(instance.locationsById[votee.player].name + " received " + votee.count + " votes.");
+			}
 
 			//Determine most number of votes
 			int mostVotes = votees[0].count;
@@ -166,12 +172,17 @@ public class GameController : MonoBehaviour {
 
 			//Kill all players with the highest number of votes (greater than one)
 			foreach(int locationId in playersToKill) {
-				instance.players.Single(p => p.locationId == locationId).killed = true;
+				Player playerToKill = instance.players.Single(p => p.locationId == locationId);
+				playerToKill.killed = true;
+				print("Killed " + playerToKill);
 			}
 
 			//Determine winners
 			foreach(Player player in instance.players) {
 				player.didWin = DidPlayerWin(player.currentCard.winRequirements);
+				if(player.didWin) { print(player.name + " won."); } else {
+					print(player.name + " lost.");
+				}
 			}
 
 			break;
@@ -181,7 +192,7 @@ public class GameController : MonoBehaviour {
 	private static bool DidPlayerWin(WinRequirement[] requirements) {
 		foreach(WinRequirement requirement in requirements) {
 			//Get role criteria list
-			List<Player> criteriaPlayers = new List<Player>(); //TODO Select relevant players
+			List<Player> criteriaPlayers = SelectRelevantPlayers(requirement);
 
 			bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
 			if(requirement.predicate == WinPredicate.MustDie) {
@@ -201,6 +212,17 @@ public class GameController : MonoBehaviour {
 		return true;
 	}
 
+	private static List<Player> SelectRelevantPlayers(WinRequirement requirement) {
+		if(requirement.nature != Nature.None) {
+			return instance.players.Where(p => p.currentCard.nature == requirement.nature).ToList();
+		} else if (requirement.role != Role.None) {
+			return instance.players.Where(p => p.currentCard.role == requirement.role).ToList();
+		} else {
+			Debug.LogError("No role or nature specified in win requirement.");
+			return null;
+		}
+	}
+
 	private void ExecuteNightActionsInOrder ()
 	{
 		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => p.dealtCard.order.primary.HasValue).OrderBy (p => p.dealtCard.order.primary).
@@ -218,7 +240,6 @@ public class GameController : MonoBehaviour {
 				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoNightAction) { //Seer
 
 				}
-//				}
 			}
 		}
 	}
