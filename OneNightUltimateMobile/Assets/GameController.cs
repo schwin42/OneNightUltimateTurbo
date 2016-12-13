@@ -9,7 +9,7 @@ public class GameController : MonoBehaviour {
 	public enum GamePhase {
 		Pregame = 0, //Actions: Player entry, select roles
 		Night_Input = 1, //Actions: Take night action
-		Night_Reveal = 2, //Actions: Confirm night reveal
+//		Night_Reveal = 2, //Actions: Confirm night reveal
 		Day = 4, //Actions: Manipulate tokens, vote for players
 		Result = 5, //Start new game, return to lobby
 	}
@@ -40,7 +40,7 @@ public class GameController : MonoBehaviour {
 	//Bookkeeping
 	List<PlayerUi> playerUis;
 	static Dictionary<Player, PlayerUi> playerUisByPlayer;
-	List<Player> playersChoosingNightAction;
+	List<Player> playersAwaitingResponseFrom;
 	public List<IGamePiece> gamePiecesById = new List<IGamePiece>();
 	public List<ILocation> locationsById = new List<ILocation>();
 
@@ -130,25 +130,75 @@ public class GameController : MonoBehaviour {
 			}
 
 			//Wait for responses
-			instance.playersChoosingNightAction = new List<Player>(instance.players);
+			instance.playersAwaitingResponseFrom = new List<Player>(instance.players);
 
 			break;
-		case GamePhase.Night_Reveal:
+		case GamePhase.Day:
 			instance.ExecuteNightActionsInOrder();
 
 			//Reveal information to seer roles
 			foreach(Player player in instance.players) {
-				playerUisByPlayer[player].DisplayObservation();
+				playerUisByPlayer[player].EnableVoting();
+			}
+
+			instance.playersAwaitingResponseFrom = new List<Player>(instance.players);
+			break;
+		case GamePhase.Result:
+			//Tally votes
+			List<Votee> votees = new List<Votee>();
+			foreach(Player voter in instance.players) {
+				if(votees.Count(v => v.player == voter.locationIdVote) > 0) { 
+					votees[voter.locationIdVote].count ++;
+				} else {
+					votees.Add(new Votee(voter.locationIdVote));
+				}
+			}
+
+			//Sort by descending votes
+			votees.OrderByDescending(v => v.count);
+
+			//Determine most number of votes
+			int mostVotes = votees[0].count;
+			print("Most votes:" + instance.locationsById[votees[0].player].name + ", " + votees[0].count);
+
+			//Select votees with most number of votes over one
+			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
+
+			//Kill all players with the highest number of votes (greater than one)
+			foreach(int locationId in playersToKill) {
+				instance.players.Single(p => p.locationId == locationId).killed = true;
+			}
+
+			//Determine winners
+			foreach(Player player in instance.players) {
+				player.didWin = DidPlayerWin(player.currentCard.winRequirements);
 			}
 
 			break;
-		case GamePhase.Day:
-
-			break;
-		case GamePhase.Result:
-
-			break;
 		}
+	}
+
+	private static bool DidPlayerWin(WinRequirement[] requirements) {
+		foreach(WinRequirement requirement in requirements) {
+			//Get role criteria list
+			List<Player> criteriaPlayers = new List<Player>(); //TODO Select relevant players
+
+			bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
+			if(requirement.predicate == WinPredicate.MustDie) {
+				if(relevantPlayerDied) {
+					continue;
+				} else {
+					return false;
+				}
+			} else if(requirement.predicate == WinPredicate.MustNotDie) {
+				if(relevantPlayerDied) {
+					return false;
+				} else {
+					continue;
+				}
+			}
+		}
+		return true;
 	}
 
 	private void ExecuteNightActionsInOrder ()
@@ -195,10 +245,24 @@ public class GameController : MonoBehaviour {
 			return;
 		}
 		player.nightLocationSelection = new Selection(targetLocationIds);
-		instance.playersChoosingNightAction.Remove(player);
+		instance.playersAwaitingResponseFrom.Remove(player);
 
-		if(instance.playersChoosingNightAction.Count == 0) {
-			SetPhase(GamePhase.Night_Reveal);
+		if(instance.playersAwaitingResponseFrom.Count == 0) {
+			SetPhase(GamePhase.Day);
+		}
+	}
+
+	public static void SubmitVote(Player player, int locationId) {
+		if(instance.currentPhase != GamePhase.Day) {
+			Debug.LogError("Received night action outside of Night_Input phase");
+			return;
+		}
+
+		player.locationIdVote = locationId;
+		instance.playersAwaitingResponseFrom.Remove(player);
+
+		if(instance.playersAwaitingResponseFrom.Count == 0) {
+			SetPhase(GamePhase.Result);
 		}
 	}
 }
@@ -343,5 +407,15 @@ public struct Selection {
 	public int[] locationIds;
 	public Selection(params int[] locationIds) {
 		this.locationIds = locationIds;
+	}
+}
+
+[System.Serializable]
+public class Votee {
+	public int player;
+	public int count;
+	public Votee(int player) {
+		this.player = player;
+		this.count = 1;
 	}
 }

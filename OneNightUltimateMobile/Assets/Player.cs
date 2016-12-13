@@ -45,9 +45,10 @@ public class Player : ILocation
 	public List<Observation> observations;
 
 	//6. Enable voting
-	public int dayVote;
+	public int locationIdVote;
 
 	//7. Result
+	public bool killed = false;
 	public bool didWin;
 
 	//	public Role originalRole;

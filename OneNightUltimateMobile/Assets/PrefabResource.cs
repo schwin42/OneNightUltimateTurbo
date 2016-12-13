@@ -13,7 +13,7 @@ public class PrefabResource : MonoBehaviour {
 		}
 	}
 
-	public GameObject nightActionButton;
+	public GameObject locationButton;
 
 	// Use this for initialization
 	void Start () {

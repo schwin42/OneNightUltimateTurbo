@@ -5,18 +5,18 @@ using UnityEngine.UI;
 public class OnuButton : MonoBehaviour {
 
 	PlayerUi playerUi;
-	int oguId;
+	int locationId;
 
 	void Start() {
 		GetComponent<Button>().onClick.AddListener(HandleClick);
 	}
 
-	public void Initialize(PlayerUi playerUi, int oguId) {
+	public void Initialize(PlayerUi playerUi, int locationId) {
 		this.playerUi = playerUi;
-		this.oguId = oguId;
+		this.locationId = locationId;
 	}
 
 	void HandleClick () {
-		playerUi.HandleButtonClick(oguId);
+		playerUi.HandleButtonClick(locationId);
 	}
 }
