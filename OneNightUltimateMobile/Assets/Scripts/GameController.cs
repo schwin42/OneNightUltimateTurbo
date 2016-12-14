@@ -164,22 +164,24 @@ public class GameController : MonoBehaviour {
 			}
 
 			//Determine most number of votes
-			int mostVotes = votees[0].count;
-			print("Most votes:" + instance.locationsById[votees[0].player].name + ", " + votees[0].count);
+			if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
+				int mostVotes = votees[0].count;
+				print("Most votes:" + instance.locationsById[votees[0].player].name + ", " + votees[0].count);
 
-			//Select votees with most number of votes over one
-			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
+				//Select votees with most number of votes over one
+				List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
 
-			//Kill all players with the highest number of votes (greater than one)
-			foreach(int locationId in playersToKill) {
-				Player playerToKill = instance.players.Single(p => p.locationId == locationId);
-				playerToKill.killed = true;
-				print("Killed " + playerToKill);
+				//Kill all players with the highest number of votes (greater than one)
+				foreach(int locationId in playersToKill) {
+					Player playerToKill = instance.players.Single(p => p.locationId == locationId);
+					playerToKill.killed = true;
+					print("Killed " + playerToKill.name);
+				}
 			}
 
 			//Determine winners
 			foreach(Player player in instance.players) {
-				player.didWin = DidPlayerWin(player.currentCard.winRequirements);
+				player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
 				if(player.didWin) { print(player.name + " won."); } else {
 					print(player.name + " lost.");
 				}
@@ -189,36 +191,79 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private static bool DidPlayerWin(WinRequirement[] requirements) {
+	private static bool EvaluateRequirementRecursive(Player evaluatedPlayer, WinRequirement[] requirements) {
+		//Get requirement relevant players
 		foreach(WinRequirement requirement in requirements) {
-			//Get role criteria list
-			List<Player> criteriaPlayers = SelectRelevantPlayers(requirement);
-
-			bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
-			if(requirement.predicate == WinPredicate.MustDie) {
-				if(relevantPlayerDied) {
-					continue;
+			bool passed;
+			List<Player> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
+			if(criteriaPlayers.Count == 0) { 
+				passed = EvaluateRequirementRecursive(evaluatedPlayer, requirement.fallback);
+			} else {
+				bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
+				if(requirement.predicate == WinPredicate.MustDie) {
+					if(relevantPlayerDied) {
+						passed = true;
+					} else {
+						passed = false;
+					}
+				} else if(requirement.predicate == WinPredicate.MustNotDie) {
+					if(relevantPlayerDied) {
+						passed = false;
+					} else {
+						passed = true;
+					}
 				} else {
+					Debug.LogError("Unexpected predicate: " + requirement.predicate);
 					return false;
-				}
-			} else if(requirement.predicate == WinPredicate.MustNotDie) {
-				if(relevantPlayerDied) {
-					return false;
-				} else {
-					continue;
 				}
 			}
+
+			if(passed) {
+				continue;
+			} else {
+				return false;
+			}
 		}
-		return true;
+		return true; //If evaluted all requirements without returning false, then return true
 	}
 
-	private static List<Player> SelectRelevantPlayers(WinRequirement requirement) {
-		if(requirement.nature != Nature.None) {
-			return instance.players.Where(p => p.currentCard.nature == requirement.nature).ToList();
-		} else if (requirement.role != Role.None) {
-			return instance.players.Where(p => p.currentCard.role == requirement.role).ToList();
+//			//Get role criteria list
+//			List<Player> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
+//			if(criteriaPlayers.Count == 0) criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement.fallback);
+//
+//			bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
+//			if(requirement.predicate == WinPredicate.MustDie) {
+//				if(relevantPlayerDied) {
+//					continue;
+//				} else {
+//					return false;
+//				}
+//			} else if(requirement.predicate == WinPredicate.MustNotDie) {
+//				if(relevantPlayerDied) {
+//					return false;
+//				} else {
+//					continue;
+//				}
+//			}
+//		}
+//		return true;
+//	}
+
+	private static List<Player> SelectRelevantPlayers(Player evaluatedPlayer, WinRequirement requirement) {
+		if(requirement is NatureWinRequirement) {
+			return instance.players.Where(p => p.currentCard.nature == ((NatureWinRequirement)requirement).nature).ToList();
+		} else if (requirement is RoleWinRequirement) {
+			return instance.players.Where(p => p.currentCard.role == ((RoleWinRequirement)requirement).role).ToList();
+		} else if (requirement is RelationWinRequirement) {
+			RelationWinRequirement relationRequirement = requirement as RelationWinRequirement;
+			if(relationRequirement.relation == Relation.Self) {
+			return instance.players.Where(p => p.locationId == evaluatedPlayer.locationId).ToList();
+			} else {
+				Debug.LogError("Unhandled relation: " + relationRequirement.relation);
+				return null;
+			}
 		} else {
-			Debug.LogError("No role or nature specified in win requirement.");
+			Debug.LogError("Unhandled win requirement type.");
 			return null;
 		}
 	}
@@ -230,14 +275,14 @@ public class GameController : MonoBehaviour {
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			Player actingPlayer = actingPlayersByTurnOrder [i];
 			for (int j = 0; j < actingPlayer.dealtCard.nightActions.Length; j++) {
-				if(actingPlayer.dealtCard.nightActions[j] is ViewOneNightAction) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
-					ViewOneNightAction vonAction = ((ViewOneNightAction)actingPlayer.dealtCard.nightActions[j]);
+				if(actingPlayer.dealtCard.nightActions[j] is ViewOneAction) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+					ViewOneAction vonAction = ((ViewOneAction)actingPlayer.dealtCard.nightActions[j]);
 					int targetLocationId = vonAction.target == TargetType.Self ? actingPlayer.locationId : 
 						actingPlayer.nightLocationSelection.locationIds[((int)vonAction.target)];
 					actingPlayer.observations.Add(new Observation(targetLocationId, locationsById[targetLocationId].currentCard.gamePieceId));
-				} else if(actingPlayer.dealtCard.nightActions[j] is SwapTwoNightAction) { //Robber 1st, troublemaker, drunk
+				} else if(actingPlayer.dealtCard.nightActions[j] is SwapTwoAction) { //Robber 1st, troublemaker, drunk
 
-				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoNightAction) { //Seer
+				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoAction) { //Seer
 
 				}
 			}

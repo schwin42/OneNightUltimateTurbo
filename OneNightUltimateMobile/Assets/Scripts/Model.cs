@@ -20,7 +20,8 @@ public class VillageTeam : Team
 	public VillageTeam () {
 		description = "You are on the village team.";
 		winRequirements = new WinRequirement[] {
-			new WinRequirement (Nature.Werewolf, WinPredicate.MustDie)
+			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
+				new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
 		};
 	}
 }
@@ -31,8 +32,11 @@ public class WerewolfTeam : Team
 	public WerewolfTeam () {
 		description = "You are on the werewolf team.";
 		winRequirements = new WinRequirement[] {
-			new WinRequirement (Nature.Werewolf, WinPredicate.MustNotDie),
-			new WinRequirement (Role.Tanner, WinPredicate.MustNotDie)
+			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustNotDie, new WinRequirement[] {
+				new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
+				new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
+			}),
+			new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
 		};
 	}
 //	public override WinRequirement[] winRequirements { get { return new WinRequirement[] { 
@@ -95,7 +99,7 @@ public class Card
 			cohort = CohortType.WerewolfNature;
 			promptIfCohort = new Prompt("{0} is a werewolf.");
 			prompt = new Prompt("There are no other werewolves. You may look at a card from the center.", OptionsSet.May_CenterCard);
-			nightActions = new NightAction[] { new ViewOneNightAction(TargetType.SelectionA) };
+			nightActions = new NightAction[] { new ViewOneAction(TargetType.SelectionA) };
 			maxQuantity = 2;
 			break;
 		case Role.Villager:
@@ -111,8 +115,8 @@ public class Card
 			order = new Order(6);
 			prompt = new Prompt("You may swap cards with another player, then view your new card.", OptionsSet.May_OtherPlayer);
 			nightActions = new NightAction[] {
-				new SwapTwoNightAction (TargetType.Self, TargetType.SelectionA),
-				new ViewOneNightAction(TargetType.Self),
+				new SwapTwoAction (TargetType.Self, TargetType.SelectionA),
+				new ViewOneAction(TargetType.Self),
 			};
 			break;
 		case Role.Drunk:
@@ -120,7 +124,7 @@ public class Card
 			nature = Nature.Villageperson;
 			order = new Order(8);
 			prompt = new Prompt("You must swap your card with a card in the center and may not view your new card.", OptionsSet.Must_CenterCard);
-			nightActions = new NightAction[] { new SwapTwoNightAction(TargetType.Self, TargetType.SelectionA) };
+			nightActions = new NightAction[] { new SwapTwoAction(TargetType.Self, TargetType.SelectionA) };
 			break;
 		}
 	
@@ -219,21 +223,41 @@ public enum WinPredicate
 	MustDie = 1,
 }
 
-public class WinRequirement
+public enum Relation {
+	None = -1,
+	Self = 0,
+}
+
+public abstract class WinRequirement
 {
-	public Role role = Role.None;
-	public Nature nature = Nature.None;
 	public WinPredicate predicate;
+	public WinRequirement[] fallback; //Requirement to use if selected role doesn't exist (use for villagers, minion, apprentice tanner, apprentice assassin)
 
-	public WinRequirement (Role role, WinPredicate predicate) {
-		this.role = role;
-		this.predicate = predicate;
-	}
-
-	public WinRequirement (Nature nature, WinPredicate predicate)
+	public WinRequirement (WinPredicate predicate, WinRequirement[] fallback)
 	{
-		this.nature = nature;
 		this.predicate = predicate;
+		this.fallback = fallback;
+	}
+}
+
+public class RoleWinRequirement : WinRequirement {
+	public Role role = Role.None;
+	public RoleWinRequirement (Role role, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
+		this.role = role;
+	}
+}
+
+public class NatureWinRequirement : WinRequirement {
+	public Nature nature = Nature.None;
+	public NatureWinRequirement (Nature nature, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
+		this.nature = nature;
+	}
+}
+
+public class RelationWinRequirement : WinRequirement {
+	public Relation relation = Relation.None;
+	public RelationWinRequirement (Relation relation, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
+		this.relation = relation;
 	}
 }
 
@@ -282,12 +306,6 @@ public class Prompt {
 	}
 }
 
-public enum NightActionType {
-	ViewOne = 0,
-	SwapTwo = 1,
-	ViewUpToTwo = 2,
-}
-
 public enum TargetType {
 	Self = -1,
 	SelectionA = 0,
@@ -295,29 +313,27 @@ public enum TargetType {
 }
 
 public abstract class NightAction {
-
-
 }
 
-public class ViewOneNightAction : NightAction {
+public class ViewOneAction : NightAction {
 	public TargetType target;
-	public ViewOneNightAction(TargetType target) {
+	public ViewOneAction(TargetType target) {
 		this.target = target;
 	}
 }
 
-public class SwapTwoNightAction : NightAction {
+public class SwapTwoAction : NightAction {
 	public TargetType targetA;
 	public TargetType targetB;
-	public SwapTwoNightAction(TargetType targetA, TargetType targetB) {
+	public SwapTwoAction(TargetType targetA, TargetType targetB) {
 		this.targetA = targetA;
 		this.targetB = targetB;
 	}
 }
 
-public class ViewUpToTwoNightAction : NightAction {
+public class ViewUpToTwoAction : NightAction {
 	public TargetType[] targets;
-	public ViewUpToTwoNightAction(params TargetType[] targets) {
+	public ViewUpToTwoAction(params TargetType[] targets) {
 		this.targets = targets;
 	}
 }
