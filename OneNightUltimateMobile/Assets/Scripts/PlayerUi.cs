@@ -35,8 +35,11 @@ public class PlayerUi : MonoBehaviour {
 	Transform dayVoting_VoteButtonBox;
 	Text dayVoting_Timer;
 
+	//Result
+	Text result_Title;
+	Text result_Description;
+
 	void Start () {
-//		var thing= Enum.GetValues(typeof(UiScreen));
 		foreach(UiScreen screen in Enum.GetValues(typeof(UiScreen))) {
 			if(screen == UiScreen.Uninitialized) continue;
 			screenGosByEnum[screen] = transform.Find(screen.ToString()).gameObject;

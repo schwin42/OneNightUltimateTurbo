@@ -29,7 +29,7 @@ public class GameController : MonoBehaviour {
 	//The deck will be selected/ randomly generated before game start
 	public List<RealCard> deck;
 
-	public static string[] playerNames = { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", };
+	public string[] playerNames;
 
 	//Game state
 
@@ -47,29 +47,20 @@ public class GameController : MonoBehaviour {
 	void Start() {
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 
-		deck =
-			new List<RealCard> () {
-			new RealCard(Role.Werewolf),
-			new RealCard(Role.Villager), 
-//			new RealCard(Role.Drunk	), 
-//			new RealCard(Role.Minion), 
-//			new RealCard(Role.Seer), 
-//			new RealCard(Role.Tanner), 
-//			new RealCard(Role.Robber), 
-//			new RealCard(Role.Mason), 
-//			new RealCard(Role.Insomniac), 
-			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager),
-			new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), new RealCard(Role.Villager), 
+		StartGame(
+			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
+			new Role[] { Role.Werewolf, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager } 
+			);
 
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-//			new RealCard(Role.Werewolf),
-		};
+	}
+
+	public void StartGame(string[] playerNames, Role[] deckList) {
+		deck = new List<RealCard>();
+		this.playerNames = playerNames;
+		foreach(Role role in deckList) {
+			deck.Add(new RealCard(role));
+		}
+
 
 		SetPhase(GamePhase.Night_Input);
 	}
@@ -80,8 +71,9 @@ public class GameController : MonoBehaviour {
 		print("Entering " + targetPhase + " phase.");
 		switch(targetPhase) {
 		case GamePhase.Night_Input:
-			if(instance.deck.Count != playerNames.Length + 3) {
-				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + playerNames.Length + ", deck = " + instance.deck.Count);
+			if(instance.deck.Count != instance.playerNames.Length + 3) {
+				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + instance.playerNames.Length + 
+					", deck = " + instance.deck.Count);
 				return;
 			}
 
@@ -90,8 +82,8 @@ public class GameController : MonoBehaviour {
 			//Create players
 			playerUisByPlayer = new Dictionary<Player, PlayerUi>();
 			instance.players = new List<Player>();
-			for(int i = 0; i < playerNames.Length; i++) {
-				Player player = new Player(playerNames[i]);
+			for(int i = 0; i < instance.playerNames.Length; i++) {
+				Player player = new Player(instance.playerNames[i]);
 				instance.players.Add(player);
 				instance.playerUis[i].Initialize(player);
 				playerUisByPlayer.Add(player, instance.playerUis[i]);
@@ -191,7 +183,7 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private static bool EvaluateRequirementRecursive(Player evaluatedPlayer, WinRequirement[] requirements) {
+	public static bool EvaluateRequirementRecursive(Player evaluatedPlayer, WinRequirement[] requirements) {
 		//Get requirement relevant players
 		foreach(WinRequirement requirement in requirements) {
 			bool passed;
