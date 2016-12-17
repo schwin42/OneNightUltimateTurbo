@@ -42,14 +42,14 @@ public class GameController : MonoBehaviour {
 	static Dictionary<Player, PlayerUi> playerUisByPlayer;
 	List<Player> playersAwaitingResponseFrom;
 	public List<IGamePiece> gamePiecesById = new List<IGamePiece>();
-	public List<ILocation> locationsById = new List<ILocation>();
+	public List<ILocation> idsToLocations = new List<ILocation>();
 
 	void Start() {
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] { Role.Werewolf, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager } 
+			new Role[] { Role.Werewolf, Role.Werewolf, Role.Mason, Role.Mason, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager } 
 			);
 
 	}
@@ -60,7 +60,6 @@ public class GameController : MonoBehaviour {
 		foreach(Role role in deckList) {
 			deck.Add(new RealCard(role));
 		}
-
 
 		SetPhase(GamePhase.Night_Input);
 	}
@@ -118,7 +117,7 @@ public class GameController : MonoBehaviour {
 			//Prompt players for action and set controls
 			foreach(Player player in instance.players) {
 				player.prompt = new RealizedPrompt(player);
-				playerUisByPlayer[player].DisplayPrompt();
+				playerUisByPlayer[player].SetState(PlayerUi.UiScreen.Night_InputControl);
 			}
 
 			//Wait for responses
@@ -130,66 +129,74 @@ public class GameController : MonoBehaviour {
 
 			//Reveal information to seer roles
 			foreach(Player player in instance.players) {
-				playerUisByPlayer[player].EnableVoting();
+				playerUisByPlayer[player].SetState(PlayerUi.UiScreen.Day_Voting);
 			}
 
 			instance.playersAwaitingResponseFrom = new List<Player>(instance.players);
 			break;
 		case GamePhase.Result:
-			//Tally votes
-			List<Votee> votees = new List<Votee>();
-			foreach(Player voter in instance.players) {
-				if(voter.locationIdVote == -1) continue;
-				if(votees.Count(v => v.player == voter.locationIdVote) > 0) { 
-					votees.Single(v => v.player == voter.locationIdVote).count ++;
-				} else {
-					votees.Add(new Votee(voter.locationIdVote));
-				}
+			KillPlayers();
+			DetermineWinners();
+			foreach(Player displayPlayer in GameController.instance.players) {
+				playerUisByPlayer[displayPlayer].SetState(PlayerUi.UiScreen.Result);
 			}
-
-			//Sort by descending votes
-			votees = votees.OrderByDescending(v => v.count).ToList();
-
-			for(int i = 0; i < votees.Count; i++ ) {
-				Votee votee = votees[i];
-				print(instance.locationsById[votee.player].name + " received " + votee.count + " votes.");
-			}
-
-			//Determine most number of votes
-			if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
-				int mostVotes = votees[0].count;
-				print("Most votes:" + instance.locationsById[votees[0].player].name + ", " + votees[0].count);
-
-				//Select votees with most number of votes over one
-				List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
-
-				//Kill all players with the highest number of votes (greater than one)
-				foreach(int locationId in playersToKill) {
-					Player playerToKill = instance.players.Single(p => p.locationId == locationId);
-					playerToKill.killed = true;
-					print("Killed " + playerToKill.name);
-				}
-			}
-
-			//Determine winners
-			foreach(Player player in instance.players) {
-				player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
-				if(player.didWin) { print(player.name + " won."); } else {
-					print(player.name + " lost.");
-				}
-			}
-
 			break;
 		}
 	}
 
-	public static bool EvaluateRequirementRecursive(Player evaluatedPlayer, WinRequirement[] requirements) {
+	public static void KillPlayers() {
+		//Tally votes
+		List<Votee> votees = new List<Votee>();
+		foreach(Player voter in instance.players) {
+			if(voter.locationIdVote == -1) continue;
+			if(votees.Count(v => v.player == voter.locationIdVote) > 0) { 
+				votees.Single(v => v.player == voter.locationIdVote).count ++;
+			} else {
+				votees.Add(new Votee(voter.locationIdVote));
+			}
+		}
+
+		//Sort by descending votes
+		votees = votees.OrderByDescending(v => v.count).ToList();
+
+		for(int i = 0; i < votees.Count; i++ ) {
+			Votee votee = votees[i];
+			print(instance.idsToLocations[votee.player].name + " received " + votee.count + " votes.");
+		}
+
+		//Determine most number of votes
+		if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
+			int mostVotes = votees[0].count;
+			print("Most votes:" + instance.idsToLocations[votees[0].player].name + ", " + votees[0].count);
+
+			//Select votees with most number of votes over one
+			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
+
+			//Kill all players with the highest number of votes (greater than one)
+			foreach(int locationId in playersToKill) {
+				Player playerToKill = instance.players.Single(p => p.locationId == locationId);
+				playerToKill.killed = true;
+				print("Killed " + playerToKill.name);
+			}
+		}
+	}
+
+	public static void DetermineWinners() {
+		foreach(Player player in instance.players) {
+			player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
+			if(player.didWin) { print(player.name + " won."); } else {
+				print(player.name + " lost.");
+			}
+		}
+	}
+
+	private static bool EvaluateRequirementRecursive(Player evaluatedPlayer, WinRequirement[] requirements) {
 		//Get requirement relevant players
 		foreach(WinRequirement requirement in requirements) {
 			bool passed;
 			List<Player> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
 			if(criteriaPlayers.Count == 0) { 
-				passed = EvaluateRequirementRecursive(evaluatedPlayer, requirement.fallback);
+				passed = requirement.fallback == null ? true : EvaluateRequirementRecursive(evaluatedPlayer, requirement.fallback);
 			} else {
 				bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
 				if(requirement.predicate == WinPredicate.MustDie) {
@@ -271,7 +278,11 @@ public class GameController : MonoBehaviour {
 					ViewOneAction vonAction = ((ViewOneAction)actingPlayer.dealtCard.nightActions[j]);
 					int targetLocationId = vonAction.target == TargetType.Self ? actingPlayer.locationId : 
 						actingPlayer.nightLocationSelection.locationIds[((int)vonAction.target)];
-					actingPlayer.observations.Add(new Observation(targetLocationId, locationsById[targetLocationId].currentCard.gamePieceId));
+					if(targetLocationId == -1) {
+						//TODO Notify "You chose not to view a card."
+					} else {
+						actingPlayer.observations.Add(new Observation(targetLocationId, idsToLocations[targetLocationId].currentCard.gamePieceId));
+					}
 				} else if(actingPlayer.dealtCard.nightActions[j] is SwapTwoAction) { //Robber 1st, troublemaker, drunk
 
 				} else if(actingPlayer.dealtCard.nightActions[j] is ViewUpToTwoAction) { //Seer
@@ -293,8 +304,8 @@ public class GameController : MonoBehaviour {
 	}
 
 	public static int RegisterLocation(ILocation location) {
-		instance.locationsById.Add(location);
-		return instance.locationsById.Count - 1;
+		instance.idsToLocations.Add(location);
+		return instance.idsToLocations.Count - 1;
 	}
 
 	public static void SubmitNightAction(Player player, int[] targetLocationIds) {
@@ -333,15 +344,22 @@ public class RealizedPrompt {
 
 	public RealizedPrompt(Player player) {
 		//Evalutate cohort and realize strings
-		switch(player.dealtCard.cohort) {
-		case CohortType.None:
+		if(player.dealtCard.cohort == CohortType.None) {
 			if(player.dealtCard.prompt != null) {
 				cohortString = player.dealtCard.prompt.explanation;
 				options = player.dealtCard.prompt.options;
 			}
-			break;
-		case CohortType.WerewolfNature:
-			List<Player> cohorts = GameController.instance.players.Where (p => p.dealtCard.nature == Nature.Werewolf && p.name != player.name).ToList();
+		} else {
+			List<Player> cohorts = null;
+			switch(player.dealtCard.cohort) {
+			case CohortType.WerewolfNature:
+				cohorts = GameController.instance.players.Where (p => p.dealtCard.nature == Nature.Werewolf && p.name != player.name).ToList();
+				break;
+			case CohortType.Mason:
+				cohorts = GameController.instance.players.Where (p => p.dealtCard.role == Role.Mason && p.name != player.name).ToList();
+				break;
+			}
+			player.cohortLocations = cohorts.Select(p => p.locationId).ToArray();
 			if(cohorts.Count == 0) {
 				cohortString = player.dealtCard.prompt.explanation;
 				options = player.dealtCard.prompt.options;
@@ -354,7 +372,6 @@ public class RealizedPrompt {
 				}
 				options = player.dealtCard.promptIfCohort.options;
 			}
-			break;
 		}
 
 		switch(options) {

@@ -4,17 +4,18 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class PlayerUi : MonoBehaviour {
 
-	private enum UiScreen {
+	public enum UiScreen {
 		Uninitialized = -1,
 		Night_InputControl = 0,
 //		Night_InputWait = 1,
 //		Night_ObservationConfirm = 2,
 //		Night_ObservationWait = 3,
 		Day_Voting = 4,
-//		Day_Result = 5,
+		Result = 5,
 
 	}
 
@@ -32,8 +33,9 @@ public class PlayerUi : MonoBehaviour {
 	Transform nightInput_ButtonBox;
 
 	//Day voting
-	Transform dayVoting_VoteButtonBox;
-	Text dayVoting_Timer;
+	Transform day_VoteButtonBox;
+	Text day_Description;
+	Text day_Timer;
 
 	//Result
 	Text result_Title;
@@ -59,8 +61,13 @@ public class PlayerUi : MonoBehaviour {
 		nightInput_ButtonBox = transform.Find("Night_InputControl/InputPanel/Grid").transform;
 
 		//Day_Voting
-		dayVoting_VoteButtonBox = transform.Find("Day_Voting/VotePanel/Grid/");
-		dayVoting_Timer = transform.Find("Day_Voting/Timer").GetComponent<Text>();
+		day_VoteButtonBox = transform.Find("Day_Voting/VotePanel/Grid/");
+		day_Description = transform.Find("Day_Voting/Description").GetComponent<Text>();
+		day_Timer = transform.Find("Day_Voting/Timer").GetComponent<Text>();
+
+		//Result
+		result_Title = transform.Find("Result/Title").GetComponent<Text>();
+		result_Description = transform.Find("Result/Description").GetComponent<Text>();
 
 		this.player = player;
 		playerName.text = player.name;
@@ -68,14 +75,6 @@ public class PlayerUi : MonoBehaviour {
 
 	public void WriteRoleToTitle() {
 		nightInput_Title.text = "You are the " + player.dealtCard.role.ToString() + " " + player.dealtCard.order.ToString();
-	}
-
-	public void DisplayPrompt() { //Show team alliegence, explain night action, and describe any special rules
-		SetState(UiScreen.Night_InputControl);
-	}
-
-	public void EnableVoting() {
-		SetState(UiScreen.Day_Voting);
 	}
 
 	private void AddLocationButton(string label, int locationId, Transform parent) {
@@ -104,7 +103,7 @@ public class PlayerUi : MonoBehaviour {
 		}
 	}
 
-	private void SetState(UiScreen targetScreen) {
+	public void SetState(UiScreen targetScreen) {
 		if(targetScreen == currentScreen) return;
 
 		switch(targetScreen) {
@@ -125,24 +124,57 @@ public class PlayerUi : MonoBehaviour {
 			}
 			break;
 		case UiScreen.Day_Voting:
-			string observationString = "";
-			foreach(Observation observation in player.observations) {
-				string locationString = GameController.instance.locationsById[observation.locationId].name;
-				string gamePieceString = GameController.instance.gamePiecesById[observation.gamePieceId].name;
-				observationString += " You observed " + locationString + " to be the " + gamePieceString + ".";
-			}
-			nightInput_Description.text += observationString;
 
 			//Create buttons
 //			print("adding " + GameController.instance.players.Count + " buttons");
 			foreach(Player p in GameController.instance.players) {
 				if(p == player) continue;
-				AddLocationButton(p.name, p.locationId, dayVoting_VoteButtonBox);
+				AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
 			}
-			AddLocationButton("[No one]", -1, dayVoting_VoteButtonBox);
+			AddLocationButton("[No one]", -1, day_VoteButtonBox);
+
+			string descriptionText = "";
+			//Write description
+			//Dealt role- "You were dealt the werewolf."
+			descriptionText += "You were dealt the " + player.dealtCard.role.ToString() + ". ";
+			//Team allegiance- "The werewolf is on the werewolf team"
+			descriptionText += "The " + player.dealtCard.role.ToString() + " is on the " + player.dealtCard.team + ". ";
+			//Nature clarity if relevant- "The minion is a villageperson."
+			descriptionText += "The " + player.dealtCard.role.ToString() + " is a " + player.dealtCard.nature + ". ";
+			//Special win conditions- "If there are no other werewolves, the minion wins if an *other* player dies."
+			//Cohort type- "You can see other werewolves."
+			//Cohort players- "Allen was dealt the werewolf."
+			if(player.cohortLocations != null) {
+				if(player.cohortLocations.Length == 0) {
+					descriptionText += "You observed that no one was dealt a " + player.dealtCard.cohort.ToString() + ". ";
+				} else {
+					foreach(int locationId in player.cohortLocations) {
+						descriptionText += "You observed that " + GameController.instance.idsToLocations[locationId].name + " was dealt a " + player.dealtCard.cohort.ToString() + ". ";
+					}
+				}
+			}
+			//Observation- "You observed center card #2 to be the seer at +2";
+			foreach(Observation observation in player.observations) {
+				descriptionText += "You observed " + GameController.instance.idsToLocations[observation.locationId].name + " to be the " + 
+					GameController.instance.gamePiecesById[observation.gamePieceId].name + " at " + player.dealtCard.order.ToString();
+			}
+			day_Description.text = descriptionText;
 
 			//Set timer
 
+			break;
+		case UiScreen.Result:
+			result_Title.text = player.didWin ? "You won!" : "You lost!";
+			string descriptionString = "";
+			//Current player's identity "You are the werewolf."
+			descriptionString += "You are the " + player.currentCard.name + ". ";
+			//Player(s) that died "Frank and Ellen died."
+			//Dying players' identities "Frank was the werewolf. Ellen was the mason."
+			Player[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
+			for(int i = 0; i < killedPlayers.Length; i++) {
+				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
+			}
+			result_Description.text = descriptionString;
 			break;
 		}
 
@@ -165,7 +197,7 @@ public class PlayerUi : MonoBehaviour {
 	}
 
 	private void SubmitVote(int locationId) {
-		foreach(Transform button in dayVoting_VoteButtonBox.transform) {
+		foreach(Transform button in day_VoteButtonBox.transform) {
 			Destroy(button.gameObject);
 		}
 		GameController.SubmitVote(player, locationId);

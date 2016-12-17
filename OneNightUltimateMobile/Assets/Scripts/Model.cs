@@ -88,7 +88,6 @@ public class Card
 	public Role seedRequirement = Role.None;
 	public int maxQuantity = 1;
 
-
 	public Card (Role role) {
 		this.role = role;
 		switch(role) {
@@ -97,7 +96,7 @@ public class Card
 			nature = Nature.Werewolf;
 			order = new Order(2);
 			cohort = CohortType.WerewolfNature;
-			promptIfCohort = new Prompt("{0} is a werewolf.");
+			promptIfCohort = new Prompt("{0} is the other werewolf.");
 			prompt = new Prompt("There are no other werewolves. You may look at a card from the center.", OptionsSet.May_CenterCard);
 			nightActions = new NightAction[] { new ViewOneAction(TargetType.SelectionA) };
 			maxQuantity = 2;
@@ -109,7 +108,7 @@ public class Card
 			maxQuantity = 3;
 			seedRequirement = Role.Villager;
 			break;
-		case Role.Robber:
+		case Role.Robber: //Not implemented
 			team = Team.Village;
 			nature = Nature.Villageperson;
 			order = new Order(6);
@@ -119,15 +118,49 @@ public class Card
 				new ViewOneAction(TargetType.Self),
 			};
 			break;
-		case Role.Drunk:
+		case Role.Drunk: //Not implemented
 			team = Team.Village;
 			nature = Nature.Villageperson;
 			order = new Order(8);
 			prompt = new Prompt("You must swap your card with a card in the center and may not view your new card.", OptionsSet.Must_CenterCard);
 			nightActions = new NightAction[] { new SwapTwoAction(TargetType.Self, TargetType.SelectionA) };
 			break;
+		case Role.Mason:
+			team = Team.Village;
+			nature = Nature.Villageperson;
+			order = new Order(4);
+			cohort = CohortType.Mason;
+			promptIfCohort = new Prompt("{0} is the other mason.");
+			prompt = new Prompt("There are no other masons.");
+			maxQuantity = 2;
+			seedRequirement = Role.Mason;
+			break;
+		case Role.Minion:
+			team = Team.Werewolf;
+			nature = Nature.Villageperson;
+			order = new Order(3);
+			cohort = CohortType.WerewolfNature;
+			promptIfCohort = new Prompt("{0} is a werewolf.");
+			prompt = new Prompt("There are no werewolves. You win only if another villager dies.");
+			maxQuantity = 1;
+			break;
 		}
-	
+
+		//Role ideas
+		//The outcast- nature: villageperson, team: village, if the outcast dies, the villagers and the werewolves win, but the outcast loses
+		//The halfblood/ daywalker
+
+		//
+		//[System.Serializable]
+		//public class Mason : Card { //When randomly selecting cards, always use both Masons
+		//	public Mason () : base() {
+		//		team = Team.Village;
+		//		nature = Nature.Villageperson;
+		//		quantity = 2;
+		//		order = new Order(4);
+		//		seedRequirement = Role.Mason;
+		//	}
+		//}
 	}
 //	public static Card Robber { get { return new Robber(); } }
 //	public static Card Seer { get { return new Seer(); } }
@@ -171,14 +204,7 @@ public enum Role {
 //	}
 //}
 //
-//[System.Serializable]
-//public class Minion : Card
-//{
-//	public Minion () : base() {
-//		team = Team.Werewolf;
-//		nature = Nature.Villageperson;
-//		order = new Order(3);
-//	}
+
 //}
 //
 //[System.Serializable]
@@ -197,17 +223,7 @@ public enum Role {
 //		}
 //	}
 //}
-//
-//[System.Serializable]
-//public class Mason : Card { //When randomly selecting cards, always use both Masons
-//	public Mason () : base() {
-//		team = Team.Village;
-//		nature = Nature.Villageperson;
-//		quantity = 2;
-//		order = new Order(4);
-//		seedRequirement = Role.Mason;
-//	}
-//}
+
 //
 //public class Insomniac : Card {
 //	public Insomniac () : base() {
@@ -271,7 +287,10 @@ public class Order {
 		}
 	}
 
-	public Order() { }
+	public Order() {
+		this.primary = null;
+		this.secondary = "";
+	}
 
 	public Order(int primary, string secondary = "") {
 		this.primary = primary;

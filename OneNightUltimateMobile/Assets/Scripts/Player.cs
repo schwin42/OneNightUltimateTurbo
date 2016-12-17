@@ -28,6 +28,7 @@ public class Player : ILocation
 	public RealCard dealtCard;
 
 	//2. Display prompts
+	public int[] cohortLocations;
 	public RealizedPrompt prompt;
 
 	//3. Collect night actions - one selection per night action, in corresponding order
