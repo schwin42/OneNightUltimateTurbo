@@ -82,7 +82,7 @@ public class Card
 	public Prompt promptIfCohort = null;
 	public Prompt prompt = null;
 	public NightAction[] nightActions = new NightAction[] { };
-	public NightAction[] nightActionsIfCohort = new NightAction[] { }; //Needed for vampires placing mark of the vampire?
+	public NightAction[] nightActionsIfCohort = new NightAction[] { };
 
 	//Deckbuilding
 	public Role seedRequirement = Role.None;
@@ -170,17 +170,51 @@ public class Card
 }
 
 public enum Role {
-	None = -1,
-	Werewolf = 0,
-	Mason = 1,
-	Tanner = 2,
-	Villager = 3,
-	Robber = 4,
-	Drunk = 5,
-	Minion = 6,
-	Seer = 7,
-	Troublemaker = 8,
-	Insomniac = 9,
+	None,
+	Werewolf,
+	Villager,
+	Robber,
+	Drunk,
+	Mason,
+	Minion,
+	Insomniac,
+	Seer,
+	Troublemaker,
+	Tanner,
+	Hunter,
+	MysticWolf,
+	ApprenticeSeer,
+	AlphaWolf,
+	ParanormalInvestigator,
+	Bodyguard,
+	Copycat,
+	Doppelgänger,
+	Vampire,
+	TheCount,
+	Renfield,
+	Diseased,
+	Cupid,
+	Instigator,
+	Priest,
+	Assassin,
+	ApprenticeAssassin,
+	Sentinel,
+	ApprenticeTanner,
+	Thing,
+	Marksman,
+	Witch,
+	Pickpocket,
+	VillageIdiot,
+	AuraSeer,
+	Gremlin,
+	Squire,
+	Beholder,
+	Revealer,
+	Curator,
+	DreamWolf,
+	Cursed,
+	Prince,
+	TheMaster,
 }
 
 //

@@ -54,6 +54,16 @@ public class GameController : MonoBehaviour {
 
 	}
 
+	public static List<Card> GenerateRandomDeck(int cardCount) {
+		List<Role> randomPool = GameData.instance.rolePool.OrderBy(x => Random.value).ToList();
+		List<Card> deck = new List<Card>();
+		for(int i = 0; i < cardCount; i++) {
+			deck.Add(new Card(randomPool[0]));
+			randomPool.RemoveAt(0);
+		}
+		return deck;
+	}
+
 	public void StartGame(string[] playerNames, Role[] deckList) {
 		deck = new List<RealCard>();
 		this.playerNames = playerNames;
@@ -89,8 +99,7 @@ public class GameController : MonoBehaviour {
 			}
 
 			//Shuffle cards
-			System.Random rnd = new System.Random();
-			instance.deck = instance.deck.OrderBy(item => rnd.Next()).ToList();
+			instance.deck = instance.deck.OrderBy( x => Random.value ).ToList();
 
 			//Deal cards
 			foreach(Player player in instance.players) {
@@ -225,28 +234,6 @@ public class GameController : MonoBehaviour {
 		}
 		return true; //If evaluted all requirements without returning false, then return true
 	}
-
-//			//Get role criteria list
-//			List<Player> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
-//			if(criteriaPlayers.Count == 0) criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement.fallback);
-//
-//			bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
-//			if(requirement.predicate == WinPredicate.MustDie) {
-//				if(relevantPlayerDied) {
-//					continue;
-//				} else {
-//					return false;
-//				}
-//			} else if(requirement.predicate == WinPredicate.MustNotDie) {
-//				if(relevantPlayerDied) {
-//					return false;
-//				} else {
-//					continue;
-//				}
-//			}
-//		}
-//		return true;
-//	}
 
 	private static List<Player> SelectRelevantPlayers(Player evaluatedPlayer, WinRequirement requirement) {
 		if(requirement is NatureWinRequirement) {
