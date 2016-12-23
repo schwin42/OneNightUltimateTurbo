@@ -1,0 +1,45 @@
+Role	Status	Team	Nature	Order	Cohort	TargetIfCohort	Target	NightActions	NightActionsIfCohort	WinConditions	VoteAction	SeedRequirement	MaxQuantity	Expansion
+Vampire	IncompleteEntry		Vampire	-6									1	Vampire
+The Count	IncompleteEntry		Vampire	-6B									1	Vampire
+Paranormal Investigator	IncompleteEntry		Variable	5C									1	Daybreak
+Copycat	IncompleteEntry		Variable	-8									1	Vampire
+Doppelgänger	IncompleteEntry		Variable	-7									1	Werewolf
+Cursed	IncompleteEntry		Variable										1	
+Villager	Implemented	Village	Villageperson									Villager	3	Werewolf
+Robber	ReadyForImplementation	Village	Villageperson	6			May_OtherPlayer	SwapTwo(Self, Target), ViewOne(Self)					1	Werewolf
+Drunk	ReadyForImplementation	Village	Villageperson	8			Must_CenterCard	SwapTwo(Self, Target)					1	Werewolf
+Mason	Implemented	Village	Villageperson	4	Mason							Mason	2	Werewolf
+Minion	ReadyForImplementation	Werewolf	Villageperson	3	NatureWerewolf							NatureWerewolf	1	Werewolf
+Insomniac	ReadyForImplementation	Village	Villageperson	9				ViewOne(Self)				CardSwapper	1	Werewolf
+Seer	ReadyForImplementation	Village	Villageperson	5			May_TwoCenterCardsOrOneOtherPlayer	ViewUpToTwo(TargetA, TargetB)					1	Werewolf
+Troublemaker	ReadyForImplementation	Village	Villageperson	7			May_TwoOtherPlayers	SwapTwo(TargetA, TargetB)					1	Werewolf
+Tanner	ReadyForImplementation	NoTeam	Villageperson							Tanner_MustDie			1	Werewolf
+Hunter	Needs Implementation	Village	Villageperson								KillsVoteeIfKilled		1	Werewolf
+Apprentice Seer	IncompleteEntry	Village	Villageperson	5B			May_CenterCard	ViewOne(Target)					1	Daybreak
+Bodyguard	IncompleteEntry	Village	Villageperson								VoteeCantDie		1	Daybreak
+Renfield	IncompleteEntry		Villageperson	-6C								NatureVampire	1	Vampire
+Diseased	IncompleteEntry		Villageperson	-5									1	Vampire
+Cupid	IncompleteEntry		Villageperson	-4									1	Vampire
+Instigator	IncompleteEntry		Villageperson	-3									1	Vampire
+Priest	IncompleteEntry		Villageperson	-2								MarkGivingCard	1	Vampire
+Assassin	IncompleteEntry		Villageperson	-1									1	Vampire
+Apprentice Assassin	IncompleteEntry		Villageperson	-1B								Assassin	1	Vampire
+Sentinel	IncompleteEntry		Villageperson	0									1	Daybreak
+Apprentice Tanner	IncompleteEntry		Villageperson	3B								Tanner	1	
+Thing	IncompleteEntry		Villageperson	4B									1	
+Marksman	IncompleteEntry		Villageperson	5D								MarkGivingCard	1	Vampire
+Witch	IncompleteEntry		Villageperson	6B									1	Daybreak
+Pickpocket	IncompleteEntry		Villageperson	6C								MarkGivingCard	1	Vampire
+Village Idiot	IncompleteEntry		Villageperson	7B									1	Daybreak
+Aura Seer	IncompleteEntry		Villageperson	7C								MoveOrViewer	1	
+Gremlin	IncompleteEntry		Villageperson	7D								MarkGivingCard	1	Vampire
+Squire	IncompleteEntry		Villageperson	9C								NatureWerewolf	1	
+Beholder	IncompleteEntry		Villageperson	9Z								SeerOrApprenticeSeer	1	
+Revealer	IncompleteEntry		Villageperson	10									1	Daybreak
+Curator	IncompleteEntry		Villageperson	11									1	Daybreak
+Prince	IncompleteEntry		Villageperson										1	
+Werewolf	Implemented	Werewolf	Werewolf	2	NatureWerewolf		May_CenterCard	ViewOne(Target)					2	Werewolf
+Mystic Wolf	IncompleteEntry	Werewolf	Werewolf	2C	NatureWerewolf		May_OtherPlayer	ViewOne(Target)					1	Daybreak
+Alpha Wolf	IncompleteEntry		Werewolf	2B									1	Daybreak
+Dream Wolf	IncompleteEntry		Werewolf									NatureWerewolf	1	Daybreak
+The Master	IncompleteEntry		Vampire									NatureVampire	1	Vampire
