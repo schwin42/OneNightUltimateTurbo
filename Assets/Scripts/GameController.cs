@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour {
 
 	public enum GamePhase {
 		Pregame = 0, //Actions: Player entry, select roles
-		Night_Input = 1, //Actions: Take night action
+		Night = 1, //Actions: Take night action
 //		Night_Reveal = 2, //Actions: Confirm night reveal
 		Day = 4, //Actions: Manipulate tokens, vote for players
 		Result = 5, //Start new game, return to lobby
@@ -54,60 +54,6 @@ public class GameController : MonoBehaviour {
 
 	}
 
-	public static List<CardData> CurateRandomDeck(int cardCount) {
-		List<CardData> instancePool = GameData.instance.cardPool.OrderBy(x => Random.value).ToList();
-		List<CardData> deck = new List<CardData>();
-		for(int i = 0; i < cardCount; i++) {
-			if (i != cardCount - 1) {
-				CardData card = instancePool [0];
-				deck.Add(card);
-				print ("Adding: " + card.role.ToString ());
-				instancePool.RemoveAt(0);
-				if (!card.seedRequirement.isEmpty) {
-					int seedIndex = card.seedRequirement.GetFirstIndex(instancePool);
-					deck.Add (instancePool [seedIndex]);
-					print("Adding " + card.role.ToString() + "'s seed requirement: " + instancePool[seedIndex].role.ToString()); 
-					instancePool.RemoveAt (seedIndex);
-					i++;
-				}
-			} else {
-				//Find next card with no seed requirement
-				int nextSeedIndex = instancePool.IndexOf(instancePool.First(cd => cd.seedRequirement.isEmpty));
-				CardData card = instancePool [nextSeedIndex];
-				deck.Add (card);
-				print("Adding seedless card: " + card.role.ToString());
-				instancePool.RemoveAt (nextSeedIndex);
-			}
-		}
-
-		//Completed initial draft, fix deck
-		//Ensure that at least two werewolves or vampires are present
-		//TODO Allow these cards to check seed requirements as well
-		//TODO These cards should only swap out non-seed-requiring and non-seed-required cards
-		int werewolfOrVampireCount = deck.Count(cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire);
-		if (werewolfOrVampireCount < 2) {
-			print ("Fixing deck");
-			for (int i = 0; i < 2 - werewolfOrVampireCount; i++) {
-				int index = instancePool.IndexOf(instancePool.First (cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire));
-				print ("Swapping " + deck [i].role.ToString () + " for " + instancePool [index].role.ToString ());
-				deck.RemoveAt (i);
-				deck.Insert (i, instancePool [index]);
-				instancePool.RemoveAt(index);
-
-			}
-		} else {
-			print ("Deck already valid, no need to fix");
-		}
-		string finalDeckString = "Final deck: ";
-		foreach (CardData card in deck) {
-			finalDeckString += card.role.ToString ();
-			finalDeckString += ", ";
-		}
-		print (finalDeckString);
-
-		return deck;
-	}
-
 	public void StartGame(string[] playerNames, Role[] deckList) {
 		deck = new List<RealCard>();
 		this.playerNames = playerNames;
@@ -115,7 +61,7 @@ public class GameController : MonoBehaviour {
 			deck.Add(new RealCard(role));
 		}
 
-		SetPhase(GamePhase.Night_Input);
+		SetPhase(GamePhase.Night);
 	}
 
 	private static void SetPhase(GamePhase targetPhase) {
@@ -123,7 +69,7 @@ public class GameController : MonoBehaviour {
 		instance.currentPhase = targetPhase;
 		print("Entering " + targetPhase + " phase.");
 		switch(targetPhase) {
-		case GamePhase.Night_Input:
+		case GamePhase.Night:
 			if(instance.deck.Count != instance.playerNames.Length + 3) {
 				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + instance.playerNames.Length + 
 					", deck = " + instance.deck.Count);
@@ -340,7 +286,7 @@ public class GameController : MonoBehaviour {
 	}
 
 	public static void SubmitNightAction(Player player, int[] targetLocationIds) {
-		if(instance.currentPhase != GamePhase.Night_Input) {
+		if(instance.currentPhase != GamePhase.Night) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
 		}

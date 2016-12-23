@@ -83,8 +83,10 @@ public class CardData
 	public CohortType cohort = CohortType.None;
 	public Prompt promptIfCohort = null;
 	public Prompt prompt = null;
-	public NightAction[] nightActions = new NightAction[] { };
-	public NightAction[] nightActionsIfCohort = new NightAction[] { };
+	public HiddenAction[] nightActions = new HiddenAction[] { };
+	public HiddenAction[] nightActionsIfCohort = new HiddenAction[] { };
+	public string duskActions = null;
+	public string duskActionsIfCohort = null;
 
 	//Deckbuilding
 	public Selector seedRequirement = null;
@@ -318,17 +320,17 @@ public enum TargetType {
 	SelectionB = 1,
 }
 
-public abstract class NightAction {
+public abstract class HiddenAction {
 }
 
-public class ViewOneAction : NightAction {
+public class ViewOneAction : HiddenAction {
 	public TargetType target;
 	public ViewOneAction(TargetType target) {
 		this.target = target;
 	}
 }
 
-public class SwapTwoAction : NightAction {
+public class SwapTwoAction : HiddenAction {
 	public TargetType targetA;
 	public TargetType targetB;
 	public SwapTwoAction(TargetType targetA, TargetType targetB) {
@@ -337,7 +339,7 @@ public class SwapTwoAction : NightAction {
 	}
 }
 
-public class ViewUpToTwoAction : NightAction {
+public class ViewUpToTwoAction : HiddenAction {
 	public TargetType[] targets;
 	public ViewUpToTwoAction(params TargetType[] targets) {
 		this.targets = targets;
@@ -346,7 +348,7 @@ public class ViewUpToTwoAction : NightAction {
 
 public enum SpecialSelection {
 	None = -1,
-	MarkGivingCard = 0,
+	MarkPlacer = 0,
 	CardSwapper = 1,
 	MoveOrViewer = 2,
 	SeerOrApprenticeSeer = 3,
@@ -407,11 +409,22 @@ public class Selector {
 		} else if (nature != Nature.None) {
 			return cardData.IndexOf (cardData.First (cd => cd.nature == nature));
 		} else if (specialSelection != SpecialSelection.None) {
-			//TODO Implement special cases
-			Debug.Log ("Special selection not implemented.");
-			return -1;
+			switch(specialSelection) {
+			case SpecialSelection.MarkPlacer:
+				return cardData.IndexOf(cardData.First(cd => cd.duskActions.Contains("Place")));
+			case SpecialSelection.CardSwapper:
+				Debug.Log("Special selection not handled: " + specialSelection);
+				return -1;
+			case SpecialSelection.MoveOrViewer:
+				Debug.Log("Special selection not handled: " + specialSelection);
+				return -1;
+			case SpecialSelection.SeerOrApprenticeSeer:
+				return cardData.IndexOf(cardData.First(cd => cd.role == Role.Seer || cd.role == Role.ApprenticeSeer));
+			default:
+				Debug.LogError("Special selection not handled: " + specialSelection);
+				return -1;
+			}
 		} else {
-			Debug.LogError ("Filter called on empty selector");
 			return -1;
 		}
 	}

@@ -8,6 +8,12 @@ public class TempDeck : MonoBehaviour {
 	public List<CardData> deck;
 
 	void Start() {
-		deck = GameController.CurateRandomDeck(cardsInDeck);
+		deck = DeckGenerator.GenerateRandomizedDeck(cardsInDeck);
+		string finalDeckString = "Final deck: ";
+		foreach (CardData card in deck) {
+			finalDeckString += card.role.ToString ();
+			finalDeckString += ", ";
+		}
+		print (finalDeckString);
 	}
 }

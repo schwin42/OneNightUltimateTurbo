@@ -69,6 +69,7 @@ public class GameData : MonoBehaviour {
 					cardSeedRequirement = new Selector (((SpecialSelection)Enum.Parse (typeof(SpecialSelection), seedRequirement)));
 				}
 			}
+			string cardDuskActions = dict["DuskActions"];
 			int cardMaxQuantity = int.Parse(dict["MaxQuantity"]);
 			CardData card = new CardData(cardRole) {
 //				team = cardTeam,
@@ -78,8 +79,10 @@ public class GameData : MonoBehaviour {
 //				public CohortType cohort = CohortType.None;
 //				public Prompt promptIfCohort = null;
 //				public Prompt prompt = null;
+
 //				public NightAction[] nightActions = new NightAction[] { };
 //				public NightAction[] nightActionsIfCohort = new NightAction[] { };
+				duskActions = cardDuskActions,
 				seedRequirement = cardSeedRequirement,
 				maxQuantity = cardMaxQuantity,
 			};
