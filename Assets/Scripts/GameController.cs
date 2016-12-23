@@ -246,7 +246,7 @@ public class GameController : MonoBehaviour {
 
 	private void ExecuteNightActionsInOrder ()
 	{
-		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => p.dealtCard.data.order.primary.HasValue).OrderBy (p => p.dealtCard.data.order.primary).
+		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
 			ThenBy (p => p.dealtCard.data.order.secondary).ToList ();
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			Player actingPlayer = actingPlayersByTurnOrder [i];
@@ -417,7 +417,7 @@ public class RealCard : IGamePiece {
 	}
 
 	public RealCard(Role role) {
-		_data = GameData.instance.cardData.Single (cd => cd.role == role);
+		_data = GameData.instance.cardData.Single (cd => cd.role == role); //TODO Add better indication of card data being uninitialized
 		_gamePieceId = GameController.RegisterGamePiece(this);
 		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
 	}

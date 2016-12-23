@@ -69,12 +69,31 @@ public class GameData : MonoBehaviour {
 					cardSeedRequirement = new Selector (((SpecialSelection)Enum.Parse (typeof(SpecialSelection), seedRequirement)));
 				}
 			}
+			Order cardOrder;
+			string cardOrderString = dict["Order"];
+			if(cardOrderString.Length == 0) {
+				cardOrder = new Order();
+			} else {
+				bool isNegative = false;
+				if(cardOrderString[0] == '-') {
+					isNegative = true;
+					cardOrderString = cardOrderString.Substring(1);
+				}
+				int number = Convert.ToInt32(cardOrderString.Substring(0, 1));
+				cardOrderString = cardOrderString.Substring(1);
+				string letter = "";
+				if(cardOrderString.Length > 0) {
+					letter = cardOrderString.Substring(0, 1);
+				}
+				cardOrder = new Order(number * (isNegative ? -1 : 1), letter);
+			}
 			string cardDuskActions = dict["DuskActions"];
 			int cardMaxQuantity = int.Parse(dict["MaxQuantity"]);
 			CardData card = new CardData(cardRole) {
 //				team = cardTeam,
 				nature = cardNature,
 //				public virtual WinRequirement[] winRequirements { get { return team.winRequirements; } }
+				order = cardOrder,
 //				public Order order = Order.None;
 //				public CohortType cohort = CohortType.None;
 //				public Prompt promptIfCohort = null;

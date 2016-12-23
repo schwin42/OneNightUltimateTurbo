@@ -38,8 +38,11 @@ public class DeckGenerator {
 				Debug.Log ("Adding: " + card.role.ToString ());
 				instancePool.RemoveAt(0);
 
-				//Add seed requirement if it exists
+
 				//TODO Check if seed requirement already exists
+//				List<Card> deckIndex = card.seedRequirement.GetFirstIndex(deck);
+
+				//Add seed requirement if it exists
 				int seedIndex = card.seedRequirement.GetFirstIndex(instancePool);
 				if(seedIndex != -1) {
 					deck.Add (instancePool [seedIndex]);

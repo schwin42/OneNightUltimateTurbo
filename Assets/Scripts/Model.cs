@@ -266,9 +266,11 @@ public class RelationWinRequirement : WinRequirement {
 	}
 }
 
+[System.Serializable]
 public class Order {
-	public int? primary;
-	public string secondary;
+	public bool isEmpty = false;
+	public int primary;
+	public string secondary = "";
 
 	public static Order None {
 		get {
@@ -276,9 +278,8 @@ public class Order {
 		}
 	}
 
-	public Order() {
-		this.primary = null;
-		this.secondary = "";
+	public Order() { 
+		this.isEmpty = true;
 	}
 
 	public Order(int primary, string secondary = "") {
@@ -288,7 +289,7 @@ public class Order {
 
 	public override string ToString() {
 		
-		return primary.HasValue ? "(+" +  primary.ToString() + secondary + ")" : "";
+		return primary != -1 ? "(+" +  primary.ToString() + secondary + ")" : "";
 	}
 }
 
