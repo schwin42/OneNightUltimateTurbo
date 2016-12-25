@@ -67,7 +67,7 @@ public class DeckGenerator {
 	private static List<CardData> ReplaceUnseededCardsWithWerewolfOrVampire(List<CardData> deck, List<CardData> instancePool, List<int> replacementIndeces, int count) {
 		//TODO Allow these cards to check seed requirements as well
 		Debug.Log ("Replacing " + count + " cards with werewolves or vampires" );
-		for (int i = 0; i < 2 - count; i++) {
+		for (int i = 0; i < count; i++) {
 			int nextWovCard = instancePool.IndexOf(instancePool.First (cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire));
 			Debug.Log ("Swapping " + deck [i].role.ToString () + " for " + instancePool [nextWovCard].role.ToString ());
 			deck.RemoveAt (replacementIndeces[i]);
