@@ -20,6 +20,9 @@ public class GameController : MonoBehaviour {
 			if(_instance == null) {
 				_instance = GameObject.FindObjectOfType<GameController>();
 			}
+			if(_instance == null) {
+				Debug.LogError("Couldn't find GameController in scene. Please add.");
+			}
 			return _instance;
 		}
 	}
@@ -182,7 +185,7 @@ public class GameController : MonoBehaviour {
 
 	public static void DetermineWinners() {
 		foreach(Player player in instance.players) {
-			player.didWin = EvaluateRequirementRecursive(player, player.currentCard.data.winRequirements);
+			player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
 			if(player.didWin) { print(player.name + " won."); } else {
 				print(player.name + " lost.");
 			}
@@ -251,18 +254,18 @@ public class GameController : MonoBehaviour {
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			Player actingPlayer = actingPlayersByTurnOrder [i];
 			for (int j = 0; j < actingPlayer.dealtCard.data.nightActions.Length; j++) {
-				if(actingPlayer.dealtCard.data.nightActions[j] is ViewOneAction) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
-					ViewOneAction vonAction = ((ViewOneAction)actingPlayer.dealtCard.data.nightActions[j]);
-					int targetLocationId = vonAction.target == TargetType.Self ? actingPlayer.locationId : 
-						actingPlayer.nightLocationSelection.locationIds[((int)vonAction.target)];
+				HiddenAction hiddenAction = actingPlayer.dealtCard.data.nightActions[j];
+				if(hiddenAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+					int targetLocationId = hiddenAction.targets[0] == TargetType.Self ? actingPlayer.locationId : 
+						actingPlayer.nightLocationSelection.locationIds[((int)hiddenAction.targets[0])];
 					if(targetLocationId == -1) {
 						//TODO Notify "You chose not to view a card."
 					} else {
 						actingPlayer.observations.Add(new Observation(targetLocationId, idsToLocations[targetLocationId].currentCard.gamePieceId));
 					}
-				} else if(actingPlayer.dealtCard.data.nightActions[j] is SwapTwoAction) { //Robber 1st, troublemaker, drunk
+				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
 
-				} else if(actingPlayer.dealtCard.data.nightActions[j] is ViewUpToTwoAction) { //Seer
+//				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.ViewUpToTwo) { //Seer
 
 				}
 			}
@@ -407,17 +410,19 @@ public class RealCard : IGamePiece {
 			return data.role.ToString();
 		}
 	}
-	//any viewed roles (e.g., Doppleganger, paranormal investigator, copycat)
 
-	private CardData _data;
-	public CardData data {
+	public WinRequirement[] winRequirements {
 		get {
-			return _data;
+			return data.winRequirements != null && data.winRequirements.Length != 0 ? data.winRequirements : Team.teams.Single(t => t.name == data.team).winRequirements;
 		}
 	}
 
+	//any viewed roles (e.g., Doppleganger, paranormal investigator, copycat)
+
+	public CardData data;
+
 	public RealCard(Role role) {
-		_data = GameData.instance.cardData.Single (cd => cd.role == role); //TODO Add better indication of card data being uninitialized
+		data = GameData.instance.cardData.Single (cd => cd.role == role);
 		_gamePieceId = GameController.RegisterGamePiece(this);
 		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
 	}

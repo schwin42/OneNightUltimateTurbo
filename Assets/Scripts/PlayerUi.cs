@@ -116,7 +116,7 @@ public class PlayerUi : MonoBehaviour {
 			//Location selection- You may look at the card of another player or two cards from the center.
 			//Selection controls- [Buttons for the three center cards]
 			List<string> descriptionStrings = new List<string>();
-			descriptionStrings.Add(player.dealtCard.data.team.description);
+			descriptionStrings.Add(Team.teams.Single(t => t.name == player.dealtCard.data.team).description);
 			descriptionStrings.Add(player.prompt.cohortString);
 			nightInput_Description.text = string.Join(" ", descriptionStrings.ToArray());
 			foreach(ButtonInfo info in player.prompt.buttons) {

@@ -48,9 +48,26 @@ public class GameData : MonoBehaviour {
 
 		instance.cardData = new List<CardData>();
 		instance.cardPool = new List<CardData>();
+		TeamName cardTeam = TeamName.None;
 		foreach(Dictionary<string, string> dict in roleDicts) {
 			Role cardRole = ((Role)Enum.Parse(typeof(Role), dict["Role"].Replace(" ", "")));
-//			Team cardTeam = ((Team)Enum.Parse(typeof(Team), dict["Team"]) as Team);
+			switch(dict["Team"]) {
+			case "Werewolf":
+				cardTeam = TeamName.Werewolf;
+				break;
+			case "Vampire":
+				cardTeam = TeamName.Vampire;
+				break;
+			case "Village":
+				cardTeam = TeamName.Village;
+				break;
+			case "NoTeam":
+				cardTeam = TeamName.None;
+				break;
+				default:
+				Debug.LogError("Unhandled team: " + dict["Team"]);
+				break;
+			}
 			Nature cardNature = ((Nature)Enum.Parse(typeof(Nature), dict["Nature"]));
 			Selector cardSeedRequirement = Selector.None;
 			if(!string.IsNullOrEmpty(dict["SeedRequirement"])) {
@@ -88,10 +105,28 @@ public class GameData : MonoBehaviour {
 				}
 				cardOrder = new Order(number * (isNegative ? -1 : 1), letter);
 			}
+			string nightActionsString = dict["NightActions"];
+			if(nightActionsString != "") {
+				string[] nightActionStrings = nightActionsString.Split(';');
+				List<HiddenAction> cardNightActions = new List<HiddenAction>();
+				for(int i = 0; i < nightActionStrings.Length; i++) {
+					string[] nightActionComponents = nightActionStrings[i].Split('(');
+					string nightActionType = nightActionComponents[0];
+					string targetString = nightActionComponents[1].Remove(nightActionComponents[1].IndexOf(')'));
+					string[] stringTargets = targetString.Split(',');
+					List<TargetType> actionTargets = new List<TargetType>();
+					for(int j = 0; j < stringTargets.Length; j++) {
+						TargetType targetType = (TargetType)Enum.Parse(typeof(TargetType), targetString);
+						actionTargets.Add(targetType);
+					}
+					ActionType actionType = (ActionType)Enum.Parse(typeof(ActionType), nightActionType);
+					cardNightActions.Add(new HiddenAction(actionType, actionTargets));
+				}
+			}
 			string cardDuskActions = dict["DuskActions"];
 			int cardMaxQuantity = int.Parse(dict["MaxQuantity"]);
 			CardData card = new CardData(cardRole) {
-//				team = cardTeam,
+				team = cardTeam,
 				nature = cardNature,
 //				public virtual WinRequirement[] winRequirements { get { return team.winRequirements; } }
 				order = cardOrder,

@@ -4,52 +4,81 @@ using System.Linq;
 using System.Collections.Generic;
 
 [System.Serializable]
-public abstract class Team
+public class Team
 {
-	public static VillageTeam Village { get { return new VillageTeam (); } }
-	public static WerewolfTeam Werewolf { get { return new WerewolfTeam (); } }
-	public static NoTeam None { get { return new NoTeam (); } }
-
-
+	public TeamName name;
 	public string description;
 	public WinRequirement[] winRequirements;
-}
 
-[System.Serializable]
-public class VillageTeam : Team
-{
-	public VillageTeam () {
-		description = "You are on the village team.";
-		winRequirements = new WinRequirement[] {
-			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
-				new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
-		};
-	}
-}
+	public static List<Team> teams = new List<Team> () {
+		new Team() {
+			name = TeamName.Village,
+			description = "You are on the village team.",
+			winRequirements = new WinRequirement[] {
+				new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
+					new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
+			}
+		},
+		new Team() {
+			name = TeamName.Werewolf,
+			description = "You are on the werewolf team.",
+			winRequirements = new WinRequirement[] {
+				new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustNotDie, new WinRequirement[] {
+					new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
+					new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
+				}),
+				new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
+			}
+		},
+		new Team() {
+			name = TeamName.Vampire,
+			description = "You are on the vampire team.",
+			winRequirements = new WinRequirement[] {
+				new NatureWinRequirement (Nature.Vampire, WinPredicate.MustNotDie, new WinRequirement[] {
+					new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
+					new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
+				}),
+				new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
+			}
+		},
+		new Team() {
+			name = TeamName.None,
+			description = "You are not on a team.",
+			winRequirements = new WinRequirement[] { },
+		},
+	};
 
-[System.Serializable]
-public class WerewolfTeam : Team
-{
-	public WerewolfTeam () {
-		description = "You are on the werewolf team.";
-		winRequirements = new WinRequirement[] {
-			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustNotDie, new WinRequirement[] {
-				new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
-				new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
-			}),
-			new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
-		};
-	}
-//	public override WinRequirement[] winRequirements { get { return new WinRequirement[] { 
-//			new WinRequirement (Nature.Werewolf, WinPredicate.MustNotDie),
-//			new WinRequirement(Role.Tanner, WinPredicate.MustNotDie),
-//		}; } }
+//	public static Team Village = new Team() {
+//		name = TeamName.Village,
+//		description = "You are on the village team.",
+//		winRequirements = new WinRequirement[] {
+//			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
+//				new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
+//		}
+//	};
+
+//	public static Team Werewolf = new Team() {
+//
+//	};
+
+//	public static Team Vampire = new Team() {
+//
+//	};
 }
 
 public class NoTeam : Team {
 	public NoTeam() {
 		description = "You are not on the villager team or the werewolf team.";
 	}
+}
+
+[System.Serializable]
+public enum TeamName
+{
+	None = -1,
+	Village = 0,
+	Werewolf = 1,
+	Vampire = 2,
 }
 
 [System.Serializable]
@@ -76,9 +105,9 @@ public class CardData
 {
 	//Game rules
 	public Role role = Role.None;
-	public Team team = Team.None;
+	public TeamName team = TeamName.None;
 	public Nature nature;
-	public virtual WinRequirement[] winRequirements { get { return team.winRequirements; } }
+	public WinRequirement[] winRequirements;
 	public Order order = Order.None;
 	public CohortType cohort = CohortType.None;
 	public Prompt promptIfCohort = null;
@@ -94,62 +123,6 @@ public class CardData
 
 	public CardData (Role role) {
 		this.role = role;
-//		switch(role) {
-//		case Role.Werewolf:
-//			team = Team.Werewolf;
-//			nature = Nature.Werewolf;
-//			order = new Order(2);
-//			cohort = CohortType.WerewolfNature;
-//			promptIfCohort = new Prompt("{0} is the other werewolf.");
-//			prompt = new Prompt("There are no other werewolves. You may look at a card from the center.", OptionsSet.May_CenterCard);
-//			nightActions = new NightAction[] { new ViewOneAction(TargetType.SelectionA) };
-//			maxQuantity = 2;
-//			break;
-//		case Role.Villager:
-//			team = Team.Village;
-//			nature = Nature.Villageperson;
-//			prompt = new Prompt("You have no special abilities.");
-//			maxQuantity = 3;
-//			seedRequirement = Role.Villager;
-//			break;
-//		case Role.Robber: //Not implemented
-//			team = Team.Village;
-//			nature = Nature.Villageperson;
-//			order = new Order(6);
-//			prompt = new Prompt("You may swap cards with another player, then view your new card.", OptionsSet.May_OtherPlayer);
-//			nightActions = new NightAction[] {
-//				new SwapTwoAction (TargetType.Self, TargetType.SelectionA),
-//				new ViewOneAction(TargetType.Self),
-//			};
-//			break;
-//		case Role.Drunk: //Not implemented
-//			team = Team.Village;
-//			nature = Nature.Villageperson;
-//			order = new Order(8);
-//			prompt = new Prompt("You must swap your card with a card in the center and may not view your new card.", OptionsSet.Must_CenterCard);
-//			nightActions = new NightAction[] { new SwapTwoAction(TargetType.Self, TargetType.SelectionA) };
-//			break;
-//		case Role.Mason:
-//			team = Team.Village;
-//			nature = Nature.Villageperson;
-//			order = new Order(4);
-//			cohort = CohortType.Mason;
-//			promptIfCohort = new Prompt("{0} is the other mason.");
-//			prompt = new Prompt("There are no other masons.");
-//			maxQuantity = 2;
-//			seedRequirement = Role.Mason;
-//			break;
-//		case Role.Minion:
-//			team = Team.Werewolf;
-//			nature = Nature.Villageperson;
-//			order = new Order(3);
-//			cohort = CohortType.WerewolfNature;
-//			promptIfCohort = new Prompt("{0} is a werewolf.");
-//			prompt = new Prompt("There are no werewolves. You win only if another villager dies.");
-//			maxQuantity = 1;
-//			break;
-//		}
-
 		//Role ideas
 		//The outcast- nature: villageperson, team: village, if the outcast dies, the villagers and the werewolves win, but the outcast loses
 		//The halfblood/ daywalker
@@ -224,6 +197,7 @@ public enum Role {
 
 public enum WinPredicate
 {
+	None = -1,
 	MustNotDie = 0,
 	MustDie = 1,
 }
@@ -237,6 +211,11 @@ public abstract class WinRequirement
 {
 	public WinPredicate predicate;
 	public WinRequirement[] fallback; //Requirement to use if selected role doesn't exist (use for villagers, minion, apprentice tanner, apprentice assassin)
+	public bool isEmpty {
+		get {
+			return predicate == WinPredicate.None;
+		}
+	}
 
 	public WinRequirement (WinPredicate predicate, WinRequirement[] fallback)
 	{
@@ -289,7 +268,7 @@ public class Order {
 
 	public override string ToString() {
 		
-		return primary != -1 ? "(+" +  primary.ToString() + secondary + ")" : "";
+		return !isEmpty ? "(+" +  primary.ToString() + secondary + ")" : "";
 	}
 }
 
@@ -321,31 +300,50 @@ public enum TargetType {
 	SelectionB = 1,
 }
 
-public abstract class HiddenAction {
+[System.Serializable]
+public enum ActionType {
+	None = -1,
+	ViewOne = 0,
+	SwapTwo = 1,
+	ViewUpToTwo = 2,
 }
 
-public class ViewOneAction : HiddenAction {
-	public TargetType target;
-	public ViewOneAction(TargetType target) {
-		this.target = target;
-	}
-}
+[System.Serializable]
+public class HiddenAction {
+	public ActionType actionType;
+	public List<TargetType> targets;
 
-public class SwapTwoAction : HiddenAction {
-	public TargetType targetA;
-	public TargetType targetB;
-	public SwapTwoAction(TargetType targetA, TargetType targetB) {
-		this.targetA = targetA;
-		this.targetB = targetB;
-	}
-}
-
-public class ViewUpToTwoAction : HiddenAction {
-	public TargetType[] targets;
-	public ViewUpToTwoAction(params TargetType[] targets) {
+	public HiddenAction(ActionType actionType, List<TargetType> targets) {
+		this.actionType = actionType;
 		this.targets = targets;
 	}
 }
+
+//[System.Serializable]
+//public class ViewOneAction : HiddenAction {
+//	public TargetType target;
+//	public ViewOneAction(TargetType target) {
+//		this.target = target;
+//	}
+//}
+//
+//[System.Serializable]
+//public class SwapTwoAction : HiddenAction {
+//	public TargetType targetA;
+//	public TargetType targetB;
+//	public SwapTwoAction(TargetType targetA, TargetType targetB) {
+//		this.targetA = targetA;
+//		this.targetB = targetB;
+//	}
+//}
+//
+//[System.Serializable]
+//public class ViewUpToTwoAction : HiddenAction {
+//	public TargetType[] targets;
+//	public ViewUpToTwoAction(params TargetType[] targets) {
+//		this.targets = targets;
+//	}
+//}
 
 public enum SpecialSelection {
 	None = -1,
