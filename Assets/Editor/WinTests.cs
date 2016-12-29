@@ -3,7 +3,7 @@ using UnityEditor;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-public class EditorTest {
+public class WinTests {
 
 	[Test]
 	public void VillagersWinIfNoWerewolvesPresentAndNoOneDies()

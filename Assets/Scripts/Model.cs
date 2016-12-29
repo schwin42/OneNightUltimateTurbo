@@ -404,11 +404,12 @@ public class Selector {
 //		}
 //	}
 
-	public int GetFirstIndex(List<CardData> cardData) {
+	public int TryGetFirstIndex(List<CardData> cardData) { //Currently assumes selectee exists in the list
+		CardData cardAtFirstIndex;
 		if (role != Role.None) {
-			return cardData.IndexOf (cardData.First (cd => cd.role == role));
+			cardAtFirstIndex = cardData.FirstOrDefault (cd => cd.role == role);
 		} else if (nature != Nature.None) {
-			return cardData.IndexOf (cardData.First (cd => cd.nature == nature));
+			cardAtFirstIndex = cardData.FirstOrDefault (cd => cd.nature == nature);
 		} else if (specialSelection != SpecialSelection.None) {
 			switch(specialSelection) {
 			case SpecialSelection.MarkPlacer:
@@ -425,6 +426,13 @@ public class Selector {
 				Debug.LogError("Special selection not handled: " + specialSelection);
 				return -1;
 			}
+		} else {
+			Debug.LogError("Called filter on empty selector. Check if selector is empty.");
+			return -1;
+		}
+
+		if(cardAtFirstIndex != null) {
+			return cardData.IndexOf(cardAtFirstIndex);
 		} else {
 			return -1;
 		}

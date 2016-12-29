@@ -10,7 +10,7 @@ public class DeckGenerator {
 		List<CardData> deck;
 		List<int> replacementIndeces;
 		for(int i = 0; i < 100; i++) { //Iterate to 100 instead of while loop, to prevent infinite loops
-			deck = GenerateRandomUnfixedDeck(cardCount, out instancePool, out replacementIndeces);
+			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces);
 			int werewolfOrVampireCount = deck.Count(cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire);
 			if (werewolfOrVampireCount < 2) {
 				if(replacementIndeces.Count < 2 - werewolfOrVampireCount) {
@@ -27,41 +27,53 @@ public class DeckGenerator {
 		return null;
 	}
 
-	private static List<CardData> GenerateRandomUnfixedDeck(int cardCount, out List<CardData> instancePool, out List<int> replacementIndeces) {
-		instancePool = GameData.instance.cardPool.OrderBy(x => Random.value).ToList();
+	public static List<CardData> GenerateNewUnfixedDeck(int cardCount, List<CardData> inputInstancePool, out List<CardData> resultantInstancePool, out List<int> replacementIndeces) {
+
 		replacementIndeces = new List<int>();
 		List<CardData> deck = new List<CardData>();
 		for(int i = 0; i < cardCount; i++) {
 			if (i != cardCount - 1) {
-				CardData card = instancePool [0];
+				CardData card = inputInstancePool [0];
 				deck.Add(card);
-				Debug.Log ("Adding: " + card.role.ToString ());
-				instancePool.RemoveAt(0);
+				Debug.Log ("Adding: " + card.role.ToString());
+				inputInstancePool.RemoveAt(0);
 
+				//If seed requirement does not exist, continue
+				if(card.seedRequirement.isEmpty) continue;
 
-				//TODO Check if seed requirement already exists
-//				List<Card> deckIndex = card.seedRequirement.GetFirstIndex(deck);
+				// Check if seed requirement already exists in the deck
+				int index = card.seedRequirement.TryGetFirstIndex(deck);
+				if(index != -1 && index != i) { //If seed req exists and deck and is not the current card
+					Debug.Log("Seed requirement already exists in deck, continuing...");
+					continue;
+				}
 
-				//Add seed requirement if it exists
-				int seedIndex = card.seedRequirement.GetFirstIndex(instancePool);
+				//Find seed requirement from pool and add
+				int seedIndex = card.seedRequirement.TryGetFirstIndex(inputInstancePool);
 				if(seedIndex != -1) {
-					deck.Add (instancePool [seedIndex]);
-					Debug.Log("Adding " + card.role.ToString() + "'s seed requirement: " + instancePool[seedIndex].role.ToString()); 
-					instancePool.RemoveAt (seedIndex);
+					deck.Add (inputInstancePool [seedIndex]);
+					Debug.Log("Adding " + card.role.ToString() + "'s seed requirement: " + inputInstancePool[seedIndex].role.ToString()); 
+					inputInstancePool.RemoveAt (seedIndex);
 					i++;
 				} else {
 					replacementIndeces.Add(i);
 				}
 			} else {
 				//Move next card with no seed requirement from pool to deck
-				int nextSeedIndex = instancePool.IndexOf(instancePool.First(cd => cd.seedRequirement.isEmpty));
-				CardData card = instancePool [nextSeedIndex];
+				int nextSeedIndex = inputInstancePool.IndexOf(inputInstancePool.First(cd => cd.seedRequirement.isEmpty));
+				CardData card = inputInstancePool [nextSeedIndex];
 				deck.Add (card);
 				Debug.Log("Adding seedless card: " + card.role.ToString());
-				instancePool.RemoveAt (nextSeedIndex);
+				inputInstancePool.RemoveAt (nextSeedIndex);
 			}
 		}
+		resultantInstancePool = inputInstancePool;
 		return deck;
+	}
+
+	private static List<CardData> GenerateNewUnfixedDeck(int cardCount, out List<CardData> resultantInstancePool, out List<int> replacementIndeces) {
+		List<CardData> newRandomInstancePool = GameData.instance.cardPool.OrderBy(x => Random.value).ToList();
+		return GenerateNewUnfixedDeck(cardCount, newRandomInstancePool, out resultantInstancePool, out replacementIndeces); 
 	}
 
 	private static List<CardData> ReplaceUnseededCardsWithWerewolfOrVampire(List<CardData> deck, List<CardData> instancePool, List<int> replacementIndeces, int count) {

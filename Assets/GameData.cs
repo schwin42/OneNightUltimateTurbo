@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using UnityEditor;
+using System.Linq;
 
 public class GameData : MonoBehaviour {
 
@@ -110,5 +111,6 @@ public class GameData : MonoBehaviour {
 				instance.cardPool.Add(card);
 			}
 		}
+		instance.cardData = instance.cardData.OrderBy(cd => cd.role.ToString()).ToList();
 	}
 }
