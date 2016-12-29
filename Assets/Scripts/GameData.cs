@@ -133,7 +133,7 @@ public class GameData : MonoBehaviour {
 //				public Order order = Order.None;
 //				public CohortType cohort = CohortType.None;
 //				public Prompt promptIfCohort = null;
-//				public Prompt prompt = null;
+//				public Prompt prompt = null; //TODO Implement prompt
 
 				nightActions = cardNightActions,
 //				nightActionsIfCohort = cardNightActionsIfCohort;
