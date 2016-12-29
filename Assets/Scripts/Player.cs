@@ -39,6 +39,9 @@ public class Player : ILocation
 	public RealCard currentCard { get {
 			return _currentCard;
 		}
+		set {
+			_currentCard = value;
+		}
 	}
 	//public Mark currentMark;
 

@@ -106,9 +106,9 @@ public class GameData : MonoBehaviour {
 				cardOrder = new Order(number * (isNegative ? -1 : 1), letter);
 			}
 			string nightActionsString = dict["NightActions"];
+			List<HiddenAction> cardNightActions = new List<HiddenAction>();
 			if(nightActionsString != "") {
 				string[] nightActionStrings = nightActionsString.Split(';');
-				List<HiddenAction> cardNightActions = new List<HiddenAction>();
 				for(int i = 0; i < nightActionStrings.Length; i++) {
 					string[] nightActionComponents = nightActionStrings[i].Split('(');
 					string nightActionType = nightActionComponents[0];
@@ -116,7 +116,7 @@ public class GameData : MonoBehaviour {
 					string[] stringTargets = targetString.Split(',');
 					List<TargetType> actionTargets = new List<TargetType>();
 					for(int j = 0; j < stringTargets.Length; j++) {
-						TargetType targetType = (TargetType)Enum.Parse(typeof(TargetType), targetString);
+						TargetType targetType = (TargetType)Enum.Parse(typeof(TargetType), stringTargets[j]);
 						actionTargets.Add(targetType);
 					}
 					ActionType actionType = (ActionType)Enum.Parse(typeof(ActionType), nightActionType);
@@ -135,8 +135,8 @@ public class GameData : MonoBehaviour {
 //				public Prompt promptIfCohort = null;
 //				public Prompt prompt = null;
 
-//				public NightAction[] nightActions = new NightAction[] { };
-//				public NightAction[] nightActionsIfCohort = new NightAction[] { };
+				nightActions = cardNightActions,
+//				nightActionsIfCohort = cardNightActionsIfCohort;
 				duskActions = cardDuskActions,
 				seedRequirement = cardSeedRequirement,
 				maxQuantity = cardMaxQuantity,

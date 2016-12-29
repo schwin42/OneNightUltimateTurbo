@@ -52,7 +52,7 @@ public class GameController : MonoBehaviour {
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] { Role.Werewolf, Role.Werewolf, Role.Mason, Role.Mason, Role.Villager, Role.Villager, Role.Villager, Role.Villager, Role.Villager } 
+			new Role[] { Role.Werewolf, Role.Werewolf, Role.Mason, Role.Mason, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, Role.Villager } 
 			);
 
 	}
@@ -247,13 +247,13 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private void ExecuteNightActionsInOrder ()
+	public void ExecuteNightActionsInOrder ()
 	{
 		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
 			ThenBy (p => p.dealtCard.data.order.secondary).ToList ();
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			Player actingPlayer = actingPlayersByTurnOrder [i];
-			for (int j = 0; j < actingPlayer.dealtCard.data.nightActions.Length; j++) {
+			for (int j = 0; j < actingPlayer.dealtCard.data.nightActions.Count; j++) {
 				HiddenAction hiddenAction = actingPlayer.dealtCard.data.nightActions[j];
 				if(hiddenAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
 					int targetLocationId = hiddenAction.targets[0] == TargetType.Self ? actingPlayer.locationId : 
@@ -263,10 +263,21 @@ public class GameController : MonoBehaviour {
 					} else {
 						actingPlayer.observations.Add(new Observation(targetLocationId, idsToLocations[targetLocationId].currentCard.gamePieceId));
 					}
-				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
+				} else if(hiddenAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
+					//Get cards to swap
+					List<int> targetLocationIds = GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
+					ILocation firstTargetLocation = idsToLocations[targetLocationIds[0]];
+					ILocation secondTargetLocation = idsToLocations[targetLocationIds[1]];
+					RealCard firstTargetCard = firstTargetLocation.currentCard;
+					RealCard secondTargetCard = secondTargetLocation.currentCard;
+					firstTargetLocation.currentCard = secondTargetCard;
+					secondTargetLocation.currentCard = firstTargetCard;
+
 
 //				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.ViewUpToTwo) { //Seer
 
+				} else {
+					Debug.LogError("Unhandled action type: " + hiddenAction.actionType);
 				}
 			}
 		}
@@ -313,6 +324,20 @@ public class GameController : MonoBehaviour {
 		if(instance.playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Result);
 		}
+	}
+
+	private List<int> GetLocationIdsFromTargetInfo(int playerId, List<TargetType> targetTypes, List<int> specifiedTargets) {
+		List<int> locationsIds = new List<int>();
+		for(int i = 0; i < targetTypes.Count; i++) {
+			if(targetTypes[i] == TargetType.Self) {
+				locationsIds.Add(playerId);
+			} else {
+				locationsIds.Add(specifiedTargets[0]);
+				specifiedTargets.RemoveAt(0);
+
+			}
+		}
+		return locationsIds;
 	}
 }
 
@@ -446,6 +471,9 @@ public class CenterCardSlot : ILocation {
 	public RealCard currentCard {
 		get {
 			return _currentCard;
+		}
+		set {
+			_currentCard = value;
 		}
 	}
 	public CenterCardSlot(int index, RealCard card) {

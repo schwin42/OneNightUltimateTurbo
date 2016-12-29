@@ -112,8 +112,8 @@ public class CardData
 	public CohortType cohort = CohortType.None;
 	public Prompt promptIfCohort = null;
 	public Prompt prompt = null;
-	public HiddenAction[] nightActions = new HiddenAction[] { };
-	public HiddenAction[] nightActionsIfCohort = new HiddenAction[] { };
+	public List<HiddenAction> nightActions = new List<HiddenAction>();
+	public List<HiddenAction> nightActionsIfCohort = new List<HiddenAction>();
 	public string duskActions = null;
 	public string duskActionsIfCohort = null;
 
