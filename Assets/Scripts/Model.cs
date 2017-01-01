@@ -47,23 +47,6 @@ public class Team
 			winRequirements = new WinRequirement[] { },
 		},
 	};
-
-//	public static Team Village = new Team() {
-//		name = TeamName.Village,
-//		description = "You are on the village team.",
-//		winRequirements = new WinRequirement[] {
-//			new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
-//				new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
-//		}
-//	};
-
-//	public static Team Werewolf = new Team() {
-//
-//	};
-
-//	public static Team Vampire = new Team() {
-//
-//	};
 }
 
 public class NoTeam : Team {
@@ -91,14 +74,14 @@ public enum Nature
 	Variable = 3,
 }
 
-[System.Serializable]
-public enum CohortType {
-	None = -1,
-	WerewolfNature = 0,
-	Mason = 1,
-	VampireNature = 2,
-	Assassin = 3,
-}
+//[System.Serializable]
+//public enum CohortType {
+//	None = -1,
+//	WerewolfNature = 0,
+//	Mason = 1,
+//	VampireNature = 2,
+//	Assassin = 3,
+//}
 
 [System.Serializable]
 public class CardData
@@ -109,7 +92,7 @@ public class CardData
 	public Nature nature;
 	public WinRequirement[] winRequirements;
 	public Order order = Order.None;
-	public CohortType cohort = CohortType.None;
+	public Selector cohort = Selector.None;
 	public Prompt promptIfCohort = null;
 	public Prompt prompt = null;
 	public List<HiddenAction> nightActions = new List<HiddenAction>();
@@ -139,11 +122,6 @@ public class CardData
 		//	}
 		//}
 	}
-//	public static Card Robber { get { return new Robber(); } }
-//	public static Card Seer { get { return new Seer(); } }
-//	public static Card Troublemaker { get { return new Troublemaker(); } }
-//	public static Card Minion { get { return new Minion(); } }
-//	public static Card Tanner { get { return new Tanner(); } }
 }
 
 [System.Serializable]
@@ -285,10 +263,14 @@ public enum OptionsSet {
 
 [System.Serializable]
 public class Prompt {
+	public bool isEmpty = true;
 	public string explanation;
 	public OptionsSet options;
 
+	public Prompt() { }
+
 	public Prompt(string explanation, OptionsSet options = OptionsSet.None) {
+		this.isEmpty = false;
 		this.explanation = explanation;
 		this.options = options;
 	}
@@ -319,32 +301,6 @@ public class HiddenAction {
 	}
 }
 
-//[System.Serializable]
-//public class ViewOneAction : HiddenAction {
-//	public TargetType target;
-//	public ViewOneAction(TargetType target) {
-//		this.target = target;
-//	}
-//}
-//
-//[System.Serializable]
-//public class SwapTwoAction : HiddenAction {
-//	public TargetType targetA;
-//	public TargetType targetB;
-//	public SwapTwoAction(TargetType targetA, TargetType targetB) {
-//		this.targetA = targetA;
-//		this.targetB = targetB;
-//	}
-//}
-//
-//[System.Serializable]
-//public class ViewUpToTwoAction : HiddenAction {
-//	public TargetType[] targets;
-//	public ViewUpToTwoAction(params TargetType[] targets) {
-//		this.targets = targets;
-//	}
-//}
-
 public enum SpecialSelection {
 	None = -1,
 	MarkPlacer = 0,
@@ -359,14 +315,11 @@ public class Selector {
 	public Role role = Role.None;
 	public Nature nature = Nature.None;
 	public SpecialSelection specialSelection = SpecialSelection.None;
+	public bool isEmpty = true;
 
 	public static Selector None {
 		get {
-			return new Selector () {
-				role = Role.None,
-				nature = Nature.None,
-				specialSelection = SpecialSelection.None,
-			};
+			return new Selector ();
 		}
 	}
 
@@ -374,20 +327,17 @@ public class Selector {
 
 	public Selector(Role role) {
 		this.role = role;
+		this.isEmpty = false;
 	}
 
 	public Selector(Nature nature) {
 		this.nature = nature;
+		this.isEmpty = false;
 	}
 
 	public Selector(SpecialSelection specialSelection) {
 		this.specialSelection = specialSelection;
-	}
-
-	public bool isEmpty {
-		get {
-			return role == Role.None && nature == Nature.None /*&& specialSelection == SpecialSelection.None*/; //TODO Implement special selection
-		}
+		this.isEmpty = false;
 	}
 
 //	public List<CardData> Filter(List<CardData> cardData) {
@@ -411,7 +361,8 @@ public class Selector {
 		} else if (specialSelection != SpecialSelection.None) {
 			switch(specialSelection) {
 			case SpecialSelection.MarkPlacer:
-				return cardData.IndexOf(cardData.First(cd => cd.duskActions.Contains("Place")));
+				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.duskActions.Contains("Place"));
+				break;
 			case SpecialSelection.CardSwapper:
 				Debug.Log("Special selection not handled: " + specialSelection);
 				return -1;
@@ -419,7 +370,8 @@ public class Selector {
 				Debug.Log("Special selection not handled: " + specialSelection);
 				return -1;
 			case SpecialSelection.SeerOrApprenticeSeer:
-				return cardData.IndexOf(cardData.First(cd => cd.role == Role.Seer || cd.role == Role.ApprenticeSeer));
+				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.role == Role.Seer || cd.role == Role.ApprenticeSeer);
+				break;
 			default:
 				Debug.LogError("Special selection not handled: " + specialSelection);
 				return -1;
@@ -433,6 +385,33 @@ public class Selector {
 			return cardData.IndexOf(cardAtFirstIndex);
 		} else {
 			return -1;
+		}
+	}
+
+	public List<Player> FilterPlayersByDealtCard(List<Player> players) {
+		if (role != Role.None) {
+			return players.Where(p => p.dealtCard.data.role == role).ToList();
+		} else if (nature != Nature.None) {
+			return players.Where(p => p.dealtCard.data.nature == nature).ToList();
+		} else if (specialSelection != SpecialSelection.None) {
+			switch(specialSelection) {
+			case SpecialSelection.MarkPlacer:
+				return players.Where(p => p.dealtCard.data.duskActions.Contains("Place")).ToList();
+			case SpecialSelection.CardSwapper:
+				Debug.Log("Special selection not handled: " + specialSelection);
+				return new List<Player>();
+			case SpecialSelection.MoveOrViewer:
+				Debug.Log("Special selection not handled: " + specialSelection);
+				return new List<Player>();
+			case SpecialSelection.SeerOrApprenticeSeer:
+				return players.Where(p => p.dealtCard.data.role == Role.Seer || p.dealtCard.data.role == Role.ApprenticeSeer).ToList();
+			default:
+				Debug.LogError("Special selection not handled: " + specialSelection);
+				return new List<Player>();
+			}
+		} else {
+			Debug.LogError("Called filter on empty selector.");
+			return new List<Player>();
 		}
 	}
 }

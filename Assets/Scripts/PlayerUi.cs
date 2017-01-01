@@ -31,6 +31,7 @@ public class PlayerUi : MonoBehaviour {
 	Text nightInput_Title;
 	Text nightInput_Description;
 	Transform nightInput_ButtonBox;
+	List<int> night_Selections;
 
 	//Day voting
 	Transform day_VoteButtonBox;
@@ -94,6 +95,12 @@ public class PlayerUi : MonoBehaviour {
 		case OptionsSet.Must_CenterCard:
 			SubmitNightAction(new int[] { locationId });
 			break;
+		case OptionsSet.May_TwoOtherPlayers:
+				night_Selections.Add(locationId);
+				if(night_Selections.Count > 1) {
+					SubmitNightAction(night_Selections.ToArray());
+				}
+			break;
 		default:
 			Debug.LogError("Unhandled options set: " + player.prompt.options);
 			break;
@@ -122,6 +129,7 @@ public class PlayerUi : MonoBehaviour {
 			foreach(ButtonInfo info in player.prompt.buttons) {
 				AddLocationButton(info.label, info.locationId, nightInput_ButtonBox);
 			}
+			night_Selections = new List<int>();
 			break;
 		case UiScreen.Day_Voting:
 

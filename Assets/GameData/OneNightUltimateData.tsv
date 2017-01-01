@@ -1,45 +1,45 @@
-Role	Status	Team	Nature	Order	WinRequirement	Cohort	TargetIfCohort	Target	DuskActions	NightActions	NightActionsIfCohort	WinConditions	VoteAction	SeedRequirement	MaxQuantity	Expansion
-Alpha Wolf	IncompleteEntry	Werewolf	Werewolf	2B											1	Daybreak
-Apprentice Seer	IncompleteEntry	Village	Villageperson	5B				May_CenterCard		ViewOne(SelectionA)					1	Daybreak
-Bodyguard	IncompleteEntry	Village	Villageperson										VoteeCantDie		1	Daybreak
-Curator	IncompleteEntry	Village	Villageperson	11											1	Daybreak
-Dream Wolf	IncompleteEntry	Werewolf	Werewolf											NatureWerewolf	1	Daybreak
-Mystic Wolf	IncompleteEntry	Werewolf	Werewolf	2C		NatureWerewolf		May_OtherPlayer		ViewOne(SelectionA)					1	Daybreak
-Paranormal Investigator	IncompleteEntry	NoTeam	Variable	5C											1	Daybreak
-Revealer	IncompleteEntry	Village	Villageperson	10											1	Daybreak
-Sentinel	IncompleteEntry	Village	Villageperson	0											1	Daybreak
-Village Idiot	IncompleteEntry	Village	Villageperson	7B											1	Daybreak
-Witch	IncompleteEntry	Village	Villageperson	6B											1	Daybreak
-Apprentice Assassin	IncompleteEntry	NoTeam	Villageperson	-1B										Assassin	1	Vampire
-Assassin	IncompleteEntry	NoTeam	Villageperson	-1					PlaceAssassin						1	Vampire
-Copycat	IncompleteEntry	NoTeam	Variable	-8											1	Vampire
-Cupid	IncompleteEntry	Village	Villageperson	-4					PlaceLove						1	Vampire
-Diseased	IncompleteEntry	Village	Villageperson	-5					PlaceDisease						1	Vampire
-Gremlin	IncompleteEntry	Village	Villageperson	7D										MarkPlacer	1	Vampire
-Instigator	IncompleteEntry	Village	Villageperson	-3					PlaceTraitor						1	Vampire
-Marksman	IncompleteEntry	Village	Villageperson	5D										MarkPlacer	1	Vampire
-Pickpocket	IncompleteEntry	Village	Villageperson	6C										MarkPlacer	1	Vampire
-Priest	IncompleteEntry	Village	Villageperson	-2					PlaceClarity					MarkPlacer	1	Vampire
-Renfield	IncompleteEntry	Werewolf	Villageperson	-6C										NatureVampire	1	Vampire
-The Count	IncompleteEntry	Vampire	Vampire	-6B					PlaceVampire						1	Vampire
-The Master	IncompleteEntry	Vampire	Vampire						PlaceVampire					NatureVampire	1	Vampire
-Vampire	IncompleteEntry	Vampire	Vampire	-6					PlaceVampire						1	Vampire
-Doppelgänger	IncompleteEntry	NoTeam	Variable	-7											1	Werewolf
-Drunk	ReadyForImplementation	Village	Villageperson	8				Must_CenterCard		SwapTwo(Self,SelectionA)					1	Werewolf
-Hunter	NeedsImplementation	Village	Villageperson										KillsVoteeIfKilled		1	Werewolf
-Insomniac	ReadyForImplementation	Village	Villageperson	9						ViewOne(Self)				CardSwapper	1	Werewolf
-Mason	Implemented	Village	Villageperson	4		Mason								Mason	2	Werewolf
-Minion	ReadyForImplementation	Werewolf	Villageperson	3		NatureWerewolf								NatureWerewolf	1	Werewolf
-Robber	ReadyForImplementation	Village	Villageperson	6				May_OtherPlayer		SwapTwo(Self,SelectionA);ViewOne(Self)					1	Werewolf
-Seer	ReadyForImplementation	Village	Villageperson	5				May_TwoCenterCardsOrOneOtherPlayer		ViewUpToTwo(SelectionA,SelectionB)					1	Werewolf
-Tanner	NeedsImplementation	NoTeam	Villageperson		TannerMustDie							Tanner_MustDie			1	Werewolf
-Troublemaker	ReadyForImplementation	Village	Villageperson	7				May_TwoOtherPlayers		SwapTwo(SelectionA,SelectionB)					1	Werewolf
-Villager	Implemented	Village	Villageperson											Villager	3	Werewolf
-Werewolf	Implemented	Werewolf	Werewolf	2		NatureWerewolf		May_CenterCard		ViewOne(SelectionA)					2	Werewolf
-Apprentice Tanner	IncompleteEntry	NoTeam	Villageperson	3B										Tanner	1	
-Aura Seer	IncompleteEntry	Village	Villageperson	7C										MoveOrViewer	1	
-Beholder	IncompleteEntry	Village	Villageperson	9Z										SeerOrApprenticeSeer	1	
-Cursed	IncompleteEntry	NoTeam	Variable												1	
-Prince	IncompleteEntry	Village	Villageperson												1	
-Squire	IncompleteEntry	Werewolf	Villageperson	9C										NatureWerewolf	1	
-Thing	IncompleteEntry	Village	Villageperson	4B											1	
+Role	Status	Team	Nature	Order	WinRequirement	Cohort	PromptText	PromptTarget	PromptIfCohortText	PromptIfCohortTarget	DuskActions	NightActions	NightActionsIfCohort	WinConditions	VoteAction	SeedRequirement	MaxQuantity	Expansion
+Alpha Wolf	IncompleteEntry	Werewolf	Werewolf	2B													1	Daybreak
+Apprentice Seer	IncompleteEntry	Village	Villageperson	5B				May_CenterCard				ViewOne(SelectionA)					1	Daybreak
+Bodyguard	IncompleteEntry	Village	Villageperson												VoteeCantDie		1	Daybreak
+Curator	IncompleteEntry	Village	Villageperson	11													1	Daybreak
+Dream Wolf	IncompleteEntry	Werewolf	Werewolf													NatureWerewolf	1	Daybreak
+Mystic Wolf	IncompleteEntry	Werewolf	Werewolf	2C		NatureWerewolf		May_OtherPlayer				ViewOne(SelectionA)					1	Daybreak
+Paranormal Investigator	IncompleteEntry	NoTeam	Variable	5C													1	Daybreak
+Revealer	IncompleteEntry	Village	Villageperson	10													1	Daybreak
+Sentinel	IncompleteEntry	Village	Villageperson	0													1	Daybreak
+Village Idiot	IncompleteEntry	Village	Villageperson	7B													1	Daybreak
+Witch	IncompleteEntry	Village	Villageperson	6B													1	Daybreak
+Apprentice Assassin	IncompleteEntry	NoTeam	Villageperson	-1B												Assassin	1	Vampire
+Assassin	IncompleteEntry	NoTeam	Villageperson	-1							PlaceAssassin						1	Vampire
+Copycat	IncompleteEntry	NoTeam	Variable	-8													1	Vampire
+Cupid	IncompleteEntry	Village	Villageperson	-4							PlaceLove						1	Vampire
+Diseased	IncompleteEntry	Village	Villageperson	-5							PlaceDisease						1	Vampire
+Gremlin	IncompleteEntry	Village	Villageperson	7D												MarkPlacer	1	Vampire
+Instigator	IncompleteEntry	Village	Villageperson	-3							PlaceTraitor						1	Vampire
+Marksman	IncompleteEntry	Village	Villageperson	5D												MarkPlacer	1	Vampire
+Pickpocket	IncompleteEntry	Village	Villageperson	6C												MarkPlacer	1	Vampire
+Priest	IncompleteEntry	Village	Villageperson	-2							PlaceClarity					MarkPlacer	1	Vampire
+Renfield	IncompleteEntry	Werewolf	Villageperson	-6C												NatureVampire	1	Vampire
+The Count	IncompleteEntry	Vampire	Vampire	-6B							PlaceVampire						1	Vampire
+The Master	IncompleteEntry	Vampire	Vampire								PlaceVampire					NatureVampire	1	Vampire
+Vampire	IncompleteEntry	Vampire	Vampire	-6							PlaceVampire						1	Vampire
+Doppelgänger	IncompleteEntry	NoTeam	Variable	-7													1	Werewolf
+Drunk	ReadyForImplementation	Village	Villageperson	8			You must choose a center card to swap cards with.	Must_CenterCard				SwapTwo(Self,SelectionA)					1	Werewolf
+Hunter	NeedsImplementation	Village	Villageperson												KillsVoteeIfKilled		1	Werewolf
+Insomniac	ReadyForImplementation	Village	Villageperson	9								ViewOne(Self)				CardSwapper	1	Werewolf
+Mason	Implemented	Village	Villageperson	4		Mason										Mason	2	Werewolf
+Minion	ReadyForImplementation	Werewolf	Villageperson	3		NatureWerewolf										NatureWerewolf	1	Werewolf
+Robber	ReadyForImplementation	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.	May_OtherPlayer				SwapTwo(Self,SelectionA);ViewOne(Self)					1	Werewolf
+Seer	ReadyForImplementation	Village	Villageperson	5				May_OtherPlayerOrTwoCenterCards				ViewUpToTwo(SelectionA,SelectionB)					1	Werewolf
+Tanner	NeedsImplementation	NoTeam	Villageperson		TannerMustDie									Tanner_MustDie			1	Werewolf
+Troublemaker	ReadyForImplementation	Village	Villageperson	7			You may choose to players to swap cards between.	May_TwoOtherPlayers				SwapTwo(SelectionA,SelectionB)					1	Werewolf
+Villager	Implemented	Village	Villageperson													Villager	3	Werewolf
+Werewolf	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	May_CenterCard	{0} was dealt a werewolf			ViewOne(SelectionA)					2	Werewolf
+Apprentice Tanner	IncompleteEntry	NoTeam	Villageperson	3B												Tanner	1	
+Aura Seer	IncompleteEntry	Village	Villageperson	7C												MoveOrViewer	1	
+Beholder	IncompleteEntry	Village	Villageperson	9Z												SeerOrApprenticeSeer	1	
+Cursed	IncompleteEntry	NoTeam	Variable														1	
+Prince	IncompleteEntry	Village	Villageperson														1	
+Squire	IncompleteEntry	Werewolf	Villageperson	9C												NatureWerewolf	1	
+Thing	IncompleteEntry	Village	Villageperson	4B													1	

@@ -69,24 +69,7 @@ public class GameData : MonoBehaviour {
 				break;
 			}
 			Nature cardNature = ((Nature)Enum.Parse(typeof(Nature), dict["Nature"]));
-			Selector cardSeedRequirement = Selector.None;
-			if(!string.IsNullOrEmpty(dict["SeedRequirement"])) {
-				string seedRequirement = dict["SeedRequirement"];
-				try {
-					cardSeedRequirement = new Selector(((Role)Enum.Parse(typeof(Role), seedRequirement)));
-				} catch (Exception e) { }
-				if (cardSeedRequirement.isEmpty) {
-					try {
-						string natureSubstring = seedRequirement.Substring (6);
-						Nature nature = ((Nature)Enum.Parse (typeof(Nature), natureSubstring));
-						cardSeedRequirement = new Selector (nature); //Start after "Nature"
-					} catch (Exception e) {
-					}
-				}
-				if (cardSeedRequirement.isEmpty) {
-					cardSeedRequirement = new Selector (((SpecialSelection)Enum.Parse (typeof(SpecialSelection), seedRequirement)));
-				}
-			}
+			Selector cardSeedRequirement = ParseSelector(dict["SeedRequirement"]);
 			Order cardOrder;
 			string cardOrderString = dict["Order"];
 			if(cardOrderString.Length == 0) {
@@ -105,6 +88,24 @@ public class GameData : MonoBehaviour {
 				}
 				cardOrder = new Order(number * (isNegative ? -1 : 1), letter);
 			}
+
+			Selector cardCohort = ParseSelector(dict["Cohort"]);
+
+			Prompt cardPrompt;
+			if(dict["PromptText"] != "") {
+				cardPrompt = new Prompt(dict["PromptText"], (OptionsSet)Enum.Parse(typeof(OptionsSet), dict["PromptTarget"]));
+			} else {
+				cardPrompt = new Prompt();
+			}
+
+			Prompt cardPromptIfCohort;
+			if(dict["PromptIfCohortText"] != "") {
+				cardPromptIfCohort = new Prompt(dict["PromptIfCohortText"], 
+					string.IsNullOrEmpty(dict["PromptIfCohortTarget"]) ? OptionsSet.None : (OptionsSet)Enum.Parse(typeof(OptionsSet), dict["PromptIfCohortTarget"]));
+			} else {
+				cardPromptIfCohort = new Prompt();
+			}
+
 			string nightActionsString = dict["NightActions"];
 			List<HiddenAction> cardNightActions = new List<HiddenAction>();
 			if(nightActionsString != "") {
@@ -130,11 +131,10 @@ public class GameData : MonoBehaviour {
 				nature = cardNature,
 //				public virtual WinRequirement[] winRequirements { get { return team.winRequirements; } }
 				order = cardOrder,
-//				public Order order = Order.None;
+				cohort = cardCohort,
 //				public CohortType cohort = CohortType.None;
-//				public Prompt promptIfCohort = null;
-//				public Prompt prompt = null; //TODO Implement prompt
-
+				promptIfCohort = cardPromptIfCohort,
+				prompt = cardPrompt,
 				nightActions = cardNightActions,
 //				nightActionsIfCohort = cardNightActionsIfCohort;
 				duskActions = cardDuskActions,
@@ -147,5 +147,27 @@ public class GameData : MonoBehaviour {
 			}
 		}
 		instance.cardData = instance.cardData.OrderBy(cd => cd.role.ToString()).ToList();
+	}
+
+	private static Selector ParseSelector(string selectorString) {
+		Selector selector = Selector.None;
+		if(!string.IsNullOrEmpty(selectorString)) {
+			string seedRequirement = selectorString;
+			try {
+				selector = new Selector(((Role)Enum.Parse(typeof(Role), seedRequirement)));
+			} catch (Exception e) { }
+			if (selector.isEmpty) {
+				try {
+					string natureSubstring = seedRequirement.Substring (6);
+					Nature nature = ((Nature)Enum.Parse (typeof(Nature), natureSubstring));
+					selector = new Selector (nature); //Start after "Nature"
+				} catch (Exception e) {
+				}
+			}
+			if (selector.isEmpty) {
+				selector = new Selector (((SpecialSelection)Enum.Parse (typeof(SpecialSelection), seedRequirement)));
+			}
+		}
+		return selector;
 	}
 }

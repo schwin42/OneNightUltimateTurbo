@@ -52,16 +52,60 @@ public class GameController : MonoBehaviour {
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] { Role.Werewolf, Role.Werewolf, Role.Mason, Role.Mason, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, Role.Villager } 
+			new Role[] { Role.Werewolf, Role.Werewolf, Role.Mason, Role.Mason, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, Role.Villager },
+			true
 			);
 
 	}
 
-	public void StartGame(string[] playerNames, Role[] deckList) {
+	public void StartGame(string[] playerNames, Role[] deckList, bool randomizeDeck) {
 		deck = new List<RealCard>();
 		this.playerNames = playerNames;
 		foreach(Role role in deckList) {
 			deck.Add(new RealCard(role));
+		}
+
+		if(instance.deck.Count != instance.playerNames.Length + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + instance.playerNames.Length + 
+				", deck = " + instance.deck.Count);
+			return;
+		}
+
+		//Create players
+		playerUisByPlayer = new Dictionary<Player, PlayerUi>();
+		instance.players = new List<Player>();
+		for(int i = 0; i < instance.playerNames.Length; i++) {
+			Player player = new Player(instance.playerNames[i]);
+			instance.players.Add(player);
+			instance.playerUis[i].Initialize(player);
+			playerUisByPlayer.Add(player, instance.playerUis[i]);
+		}
+
+		//Shuffle cards
+		if(randomizeDeck) {
+			instance.deck = instance.deck.OrderBy( x => Random.value ).ToList();
+		}
+
+		//Deal cards
+		foreach(Player player in instance.players) {
+			player.ReceiveDealtCard(PullFirstCardFromDeck());
+			playerUisByPlayer[player].WriteRoleToTitle();
+		}
+		instance.centerCards = new List<CenterCardSlot>();
+		for(int i = 0; i < 3; i++) {
+			instance.centerCards.Add(new CenterCardSlot(i, PullFirstCardFromDeck()));
+		}
+		if(instance.deck.Count != 0) {
+			Debug.LogError("Deal left cards remaining in deck");
+			return;
+		}
+
+		//Print player cards
+		foreach(Player player in instance.players) {
+			print(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
+		}
+		foreach(CenterCardSlot slot in instance.centerCards) {
+			print(slot.currentCard.data.role.ToString() + " is " + slot.name);
 		}
 
 		SetPhase(GamePhase.Night);
@@ -73,48 +117,6 @@ public class GameController : MonoBehaviour {
 		print("Entering " + targetPhase + " phase.");
 		switch(targetPhase) {
 		case GamePhase.Night:
-			if(instance.deck.Count != instance.playerNames.Length + 3) {
-				Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + instance.playerNames.Length + 
-					", deck = " + instance.deck.Count);
-				return;
-			}
-
-			//Start game
-
-			//Create players
-			playerUisByPlayer = new Dictionary<Player, PlayerUi>();
-			instance.players = new List<Player>();
-			for(int i = 0; i < instance.playerNames.Length; i++) {
-				Player player = new Player(instance.playerNames[i]);
-				instance.players.Add(player);
-				instance.playerUis[i].Initialize(player);
-				playerUisByPlayer.Add(player, instance.playerUis[i]);
-			}
-
-			//Shuffle cards
-			instance.deck = instance.deck.OrderBy( x => Random.value ).ToList();
-
-			//Deal cards
-			foreach(Player player in instance.players) {
-				player.ReceiveDealtCard(PullFirstCardFromDeck());
-				playerUisByPlayer[player].WriteRoleToTitle();
-			}
-			instance.centerCards = new List<CenterCardSlot>();
-			for(int i = 0; i < 3; i++) {
-				instance.centerCards.Add(new CenterCardSlot(i, PullFirstCardFromDeck()));
-			}
-			if(instance.deck.Count != 0) {
-				Debug.LogError("Deal left cards remaining in deck");
-				return;
-			}
-
-			//Print player cards
-			foreach(Player player in instance.players) {
-				print(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
-			}
-			foreach(CenterCardSlot slot in instance.centerCards) {
-				print(slot.currentCard.data.role.ToString() + " is in the center");
-			}
 
 			//Prompt players for action and set controls
 			foreach(Player player in instance.players) {
@@ -349,21 +351,22 @@ public class RealizedPrompt {
 
 	public RealizedPrompt(Player player) {
 		//Evalutate cohort and realize strings
-		if(player.dealtCard.data.cohort == CohortType.None) {
+		if(player.dealtCard.data.cohort.isEmpty) {
 			if(player.dealtCard.data.prompt != null) {
 				cohortString = player.dealtCard.data.prompt.explanation;
 				options = player.dealtCard.data.prompt.options;
 			}
 		} else {
-			List<Player> cohorts = null;
-			switch(player.dealtCard.data.cohort) {
-			case CohortType.WerewolfNature:
-				cohorts = GameController.instance.players.Where (p => p.dealtCard.data.nature == Nature.Werewolf && p.name != player.name).ToList();
-				break;
-			case CohortType.Mason:
-				cohorts = GameController.instance.players.Where (p => p.dealtCard.data.role == Role.Mason && p.name != player.name).ToList();
-				break;
-			}
+			List<Player> cohorts = player.dealtCard.data.cohort.FilterPlayersByDealtCard(
+				GameController.instance.players.Where(p => p.locationId != player.locationId).ToList()).ToList();
+//			switch(player.dealtCard.data.cohort) {
+//			case CohortType.WerewolfNature:
+//				cohorts = GameController.instance.players.Where (p => p.dealtCard.data.nature == Nature.Werewolf && p.name != player.name).ToList();
+//				break;
+//			case CohortType.Mason:
+//				cohorts = GameController.instance.players.Where (p => p.dealtCard.data.role == Role.Mason && p.name != player.name).ToList();
+//				break;
+//			}
 			player.cohortLocations = cohorts.Select(p => p.locationId).ToArray();
 			if(cohorts.Count == 0) {
 				cohortString = player.dealtCard.data.prompt.explanation;
@@ -399,6 +402,14 @@ public class RealizedPrompt {
 		case OptionsSet.May_OtherPlayer: //Robber, mystic wolf
 			Debug.Log("Not implemented: may other player");
 			buttons.Add(new ButtonInfo(-1, "Ready"));
+			break;
+		case OptionsSet.May_TwoOtherPlayers:
+			for(int i = 0; i < GameController.instance.players.Count; i++) {
+				Player p = GameController.instance.players[i];
+				if(p.locationId == player.locationId) continue;
+				buttons.Add(new ButtonInfo(p.locationId, p.name));
+			}
+			buttons.Add(new ButtonInfo(-1, "Pass"));
 			break;
 		default:
 			Debug.LogError("Unhandled options set: " + options);
