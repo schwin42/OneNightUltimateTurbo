@@ -68,77 +68,22 @@ public class GameData : MonoBehaviour {
 				Debug.LogError("Unhandled team: " + dict["Team"]);
 				break;
 			}
-			Nature cardNature = ((Nature)Enum.Parse(typeof(Nature), dict["Nature"]));
-			Selector cardSeedRequirement = ParseSelector(dict["SeedRequirement"]);
-			Order cardOrder;
-			string cardOrderString = dict["Order"];
-			if(cardOrderString.Length == 0) {
-				cardOrder = new Order();
-			} else {
-				bool isNegative = false;
-				if(cardOrderString[0] == '-') {
-					isNegative = true;
-					cardOrderString = cardOrderString.Substring(1);
-				}
-				int number = Convert.ToInt32(cardOrderString.Substring(0, 1));
-				cardOrderString = cardOrderString.Substring(1);
-				string letter = "";
-				if(cardOrderString.Length > 0) {
-					letter = cardOrderString.Substring(0, 1);
-				}
-				cardOrder = new Order(number * (isNegative ? -1 : 1), letter);
-			}
 
-			Selector cardCohort = ParseSelector(dict["Cohort"]);
-
-			Prompt cardPrompt;
-			if(dict["PromptText"] != "") {
-				cardPrompt = new Prompt(dict["PromptText"], (OptionsSet)Enum.Parse(typeof(OptionsSet), dict["PromptTarget"]));
-			} else {
-				cardPrompt = new Prompt();
-			}
-
-			Prompt cardPromptIfCohort;
-			if(dict["PromptIfCohortText"] != "") {
-				cardPromptIfCohort = new Prompt(dict["PromptIfCohortText"], 
-					string.IsNullOrEmpty(dict["PromptIfCohortTarget"]) ? OptionsSet.None : (OptionsSet)Enum.Parse(typeof(OptionsSet), dict["PromptIfCohortTarget"]));
-			} else {
-				cardPromptIfCohort = new Prompt();
-			}
-
-			string nightActionsString = dict["NightActions"];
-			List<HiddenAction> cardNightActions = new List<HiddenAction>();
-			if(nightActionsString != "") {
-				string[] nightActionStrings = nightActionsString.Split(';');
-				for(int i = 0; i < nightActionStrings.Length; i++) {
-					string[] nightActionComponents = nightActionStrings[i].Split('(');
-					string nightActionType = nightActionComponents[0];
-					string targetString = nightActionComponents[1].Remove(nightActionComponents[1].IndexOf(')'));
-					string[] stringTargets = targetString.Split(',');
-					List<TargetType> actionTargets = new List<TargetType>();
-					for(int j = 0; j < stringTargets.Length; j++) {
-						TargetType targetType = (TargetType)Enum.Parse(typeof(TargetType), stringTargets[j]);
-						actionTargets.Add(targetType);
-					}
-					ActionType actionType = (ActionType)Enum.Parse(typeof(ActionType), nightActionType);
-					cardNightActions.Add(new HiddenAction(actionType, actionTargets));
-				}
-			}
 			string cardDuskActions = dict["DuskActions"];
 			int cardMaxQuantity = int.Parse(dict["MaxQuantity"]);
 			CardData card = new CardData(cardRole) {
 				team = cardTeam,
-				nature = cardNature,
+				nature = ((Nature)Enum.Parse(typeof(Nature), dict["Nature"])),
 //				public virtual WinRequirement[] winRequirements { get { return team.winRequirements; } }
-				order = cardOrder,
-				cohort = cardCohort,
+				order = ParseOrder(dict["Order"]),
+				cohort = ParseSelector(dict["Cohort"]),
 //				public CohortType cohort = CohortType.None;
-				promptIfCohort = cardPromptIfCohort,
-				prompt = cardPrompt,
-				nightActions = cardNightActions,
+				promptIfCohort = ParsePrompt(dict["PromptIfCohortText"], dict["PromptIfCohortTarget"]),
+				prompt = ParsePrompt(dict["PromptText"], dict["PromptTarget"]),
+				nightActions = ParseHiddenActionSeries(dict["NightActions"]),
 //				nightActionsIfCohort = cardNightActionsIfCohort;
 				duskActions = cardDuskActions,
-				seedRequirement = cardSeedRequirement,
+				seedRequirement = ParseSelector(dict["SeedRequirement"]),
 				maxQuantity = cardMaxQuantity,
 			};
 			instance.cardData.Add(card);
@@ -169,5 +114,56 @@ public class GameData : MonoBehaviour {
 			}
 		}
 		return selector;
+	}
+
+	private static Prompt ParsePrompt(string userText, string targetType) {
+		Prompt prompt;
+		if(userText != "") {
+			prompt = new Prompt(userText, 
+				string.IsNullOrEmpty(targetType) ? OptionsSet.None : (OptionsSet)Enum.Parse(typeof(OptionsSet), targetType));
+		} else {
+			prompt = new Prompt();
+		}
+		return prompt;
+	}
+
+	private static Order ParseOrder(string orderString) {
+		if(orderString.Length == 0) {
+			return new Order();
+		} else {
+			bool isNegative = false;
+			if(orderString[0] == '-') {
+				isNegative = true;
+				orderString = orderString.Substring(1);
+			}
+			int number = Convert.ToInt32(orderString.Substring(0, 1));
+			orderString = orderString.Substring(1);
+			string letter = "";
+			if(orderString.Length > 0) {
+				letter = orderString.Substring(0, 1);
+			}
+			return new Order(number * (isNegative ? -1 : 1), letter);
+		}
+	}
+
+	private static List<HiddenAction> ParseHiddenActionSeries(string hiddenActionSeries) {
+		List<HiddenAction> hiddenActions = new List<HiddenAction>();
+		if(hiddenActionSeries != "") {
+			string[] nightActionStrings = hiddenActionSeries.Split(';');
+			for(int i = 0; i < nightActionStrings.Length; i++) {
+				string[] nightActionComponents = nightActionStrings[i].Split('(');
+				string nightActionType = nightActionComponents[0];
+				string targetString = nightActionComponents[1].Remove(nightActionComponents[1].IndexOf(')'));
+				string[] stringTargets = targetString.Split(',');
+				List<TargetType> actionTargets = new List<TargetType>();
+				for(int j = 0; j < stringTargets.Length; j++) {
+					TargetType targetType = (TargetType)Enum.Parse(typeof(TargetType), stringTargets[j]);
+					actionTargets.Add(targetType);
+				}
+				ActionType actionType = (ActionType)Enum.Parse(typeof(ActionType), nightActionType);
+				hiddenActions.Add(new HiddenAction(actionType, actionTargets));
+			}
+		}
+		return hiddenActions;
 	}
 }

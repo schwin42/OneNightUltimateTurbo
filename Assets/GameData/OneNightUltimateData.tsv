@@ -28,7 +28,7 @@ Doppelgänger	IncompleteEntry	NoTeam	Variable	-7													1	Werewolf
 Drunk	ReadyForImplementation	Village	Villageperson	8			You must choose a center card to swap cards with.	Must_CenterCard				SwapTwo(Self,SelectionA)					1	Werewolf
 Hunter	NeedsImplementation	Village	Villageperson												KillsVoteeIfKilled		1	Werewolf
 Insomniac	ReadyForImplementation	Village	Villageperson	9								ViewOne(Self)				CardSwapper	1	Werewolf
-Mason	Implemented	Village	Villageperson	4		Mason										Mason	2	Werewolf
+Mason	Implemented	Village	Villageperson	4		Mason	There is no other mason.		{0} was dealt the other mason							Mason	2	Werewolf
 Minion	ReadyForImplementation	Werewolf	Villageperson	3		NatureWerewolf										NatureWerewolf	1	Werewolf
 Robber	ReadyForImplementation	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.	May_OtherPlayer				SwapTwo(Self,SelectionA);ViewOne(Self)					1	Werewolf
 Seer	ReadyForImplementation	Village	Villageperson	5				May_OtherPlayerOrTwoCenterCards				ViewUpToTwo(SelectionA,SelectionB)					1	Werewolf

@@ -44,7 +44,7 @@ public class ManipulationTests {
 			new Selection(-1);
 
 
-		GameController.instance.ExecuteNightActionsInOrder();
+		GameController.ExecuteNightActionsInOrder();
 
 		//Assert
 		Assert.IsTrue(GameController.instance.players.Single(p => p.locationId == dealtVillagerLocationId).currentCard.data.role == Role.Werewolf &&

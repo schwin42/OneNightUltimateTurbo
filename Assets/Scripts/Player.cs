@@ -49,7 +49,7 @@ public class Player : ILocation
 	public List<Observation> observations;
 
 	//6. Enable voting
-	public int locationIdVote;
+	public int votedLocation;
 
 	//7. Result
 	public bool killed = false;

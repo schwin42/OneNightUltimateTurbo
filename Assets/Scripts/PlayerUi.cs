@@ -19,6 +19,32 @@ public class PlayerUi : MonoBehaviour {
 
 	}
 
+	public static bool uiEnabled = true;
+
+	public static List<PlayerUi> playerUis;
+
+	public static void Initialize(List<Player> players) {
+		if(!uiEnabled) return;
+		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
+		for(int i = 0; i < players.Count; i++) {
+			playerUis[i].Initialize(players[i]);
+		}
+	}
+
+	public static void WriteRoleToTitle() {
+		if(!uiEnabled) return;
+		foreach(PlayerUi playerUi in playerUis) {
+			playerUi.Instance_WriteRoleToTitle();
+		}
+	}
+
+	public static void SetState(UiScreen screen) {
+		if(!uiEnabled) return;
+		foreach(PlayerUi playerUi in playerUis) {
+			playerUi.Instance_SetState(screen);
+		}
+	}
+
 	private UiScreen currentScreen = UiScreen.Uninitialized;
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject>();
@@ -52,7 +78,7 @@ public class PlayerUi : MonoBehaviour {
 
 	void Update () { }
 
-	public void Initialize(Player player) {
+	private void Initialize(Player player) {
 		playerName = transform.Find("PlayerName").GetComponent<Text>();
 
 		//Night_InputControl
@@ -74,7 +100,7 @@ public class PlayerUi : MonoBehaviour {
 		playerName.text = player.name;
 	}
 
-	public void WriteRoleToTitle() {
+	private void Instance_WriteRoleToTitle() {
 		nightInput_Title.text = "You are the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString();
 	}
 
@@ -110,7 +136,7 @@ public class PlayerUi : MonoBehaviour {
 		}
 	}
 
-	public void SetState(UiScreen targetScreen) {
+	private void Instance_SetState(UiScreen targetScreen) {
 		if(targetScreen == currentScreen) return;
 
 		switch(targetScreen) {
@@ -198,10 +224,11 @@ public class PlayerUi : MonoBehaviour {
 	}
 
 	private void SubmitNightAction(int[] locationId) {
+		Selection selection = new Selection(locationId);
 		foreach(Transform button in nightInput_ButtonBox.transform) {
 			Destroy(button.gameObject);
 		}
-		GameController.SubmitNightAction(player, locationId);
+		GameController.SubmitNightAction(player, selection);
 	}
 
 	private void SubmitVote(int locationId) {
