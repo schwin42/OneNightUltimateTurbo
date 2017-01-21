@@ -51,7 +51,7 @@ public class GameController : MonoBehaviour {
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] {  Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, Role.Villager },
+			new Role[] {  Role.Minion, Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, },
 			true
 			);
 
@@ -264,13 +264,16 @@ public class GameController : MonoBehaviour {
 				} else if(hiddenAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
 					//Get cards to swap
 					List<int> targetLocationIds = instance.GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
-					ILocation firstTargetLocation = instance.idsToLocations[targetLocationIds[0]];
-					ILocation secondTargetLocation = instance.idsToLocations[targetLocationIds[1]];
-					RealCard firstTargetCard = firstTargetLocation.currentCard;
-					RealCard secondTargetCard = secondTargetLocation.currentCard;
-					firstTargetLocation.currentCard = secondTargetCard;
-					secondTargetLocation.currentCard = firstTargetCard;
-
+					if(targetLocationIds[0] == -1 && targetLocationIds[1] == -1) {
+						//TODO You chose not to switch cards
+					} else {
+						ILocation firstTargetLocation = instance.idsToLocations[targetLocationIds[0]];
+						ILocation secondTargetLocation = instance.idsToLocations[targetLocationIds[1]];
+						RealCard firstTargetCard = firstTargetLocation.currentCard;
+						RealCard secondTargetCard = secondTargetLocation.currentCard;
+						firstTargetLocation.currentCard = secondTargetCard;
+						secondTargetLocation.currentCard = firstTargetCard;
+					}
 
 //				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.ViewUpToTwo) { //Seer
 

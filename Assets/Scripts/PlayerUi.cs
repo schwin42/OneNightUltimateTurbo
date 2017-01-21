@@ -125,6 +125,8 @@ public class PlayerUi : MonoBehaviour {
 				night_Selections.Add(locationId);
 				if(night_Selections.Count > 1) {
 					SubmitNightAction(night_Selections.ToArray());
+				} else if(locationId == -1) {
+					SubmitNightAction(new int[] { -1, -1 });
 				}
 			break;
 		default:

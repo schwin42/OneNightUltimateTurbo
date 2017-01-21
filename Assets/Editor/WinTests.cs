@@ -78,11 +78,7 @@ public class WinTests {
 
 	[Test]
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
-//		GameController.instance.players = new List<Player> {
-//			new Player("A"),
-//			new Player("B"),
-//			new Player("C"),
-//		};
+		
 		PlayerUi.uiEnabled = false;
 		GameController.instance.StartGame(new string[] { "A", "B", "C", },
 			new [] { Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
@@ -101,11 +97,52 @@ public class WinTests {
 		GameController.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
 		GameController.SubmitVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
 
-//		GameController.ExecuteNightActionsInOrder();
-//		GameController.KillPlayers();
-//		GameController.DetermineWinners();
-
 		Assert.IsTrue(drunkDealtPlayer.didWin);
+	}
+
+	[Test]
+	public void WerewolfTeamWinsAndVillagerTeamLosesIfMinionExistAndHeDies() {
+		PlayerUi.uiEnabled = false;
+		GameController.instance.StartGame(new string[] { "A", "B", "C", },
+			new [] { Role.Minion, Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Villager },
+			false
+		);
+
+		Player werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		Player minionDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Minion);
+
+		GameController.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
+		GameController.SubmitNightAction(villagerDealtPlayer, new Selection());
+		GameController.SubmitNightAction(minionDealtPlayer, new Selection());
+
+		GameController.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
+		GameController.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
+		GameController.SubmitVote(minionDealtPlayer, villagerDealtPlayer.locationId);
+
+		Assert.IsTrue(WerewolvesDidWin() && !VillagersDidWin());
+	}
+
+	public void EveryoneLosesIfNoWerewolvesAndHeDies() {
+		PlayerUi.uiEnabled = false;
+		GameController.instance.StartGame(new string[] { "A", "B", "C", },
+			new [] { Role.Minion, Role.Mason, Role.Villager, Role.Drunk, Role.Werewolf, Role.Werewolf, Role.Mason },
+			false
+		);
+
+		Player masonDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Mason);
+		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		Player minionDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Minion);
+
+		GameController.SubmitNightAction(masonDealtPlayer, new Selection());
+		GameController.SubmitNightAction(villagerDealtPlayer, new Selection());
+		GameController.SubmitNightAction(minionDealtPlayer, new Selection());
+
+		GameController.SubmitVote(masonDealtPlayer, minionDealtPlayer.locationId);
+		GameController.SubmitVote(villagerDealtPlayer, minionDealtPlayer.locationId);
+		GameController.SubmitVote(minionDealtPlayer, villagerDealtPlayer.locationId);
+
+		Assert.IsTrue(!minionDealtPlayer.didWin && !VillagersDidWin());
 	}
 
 	private bool VillagersDidWin() {
