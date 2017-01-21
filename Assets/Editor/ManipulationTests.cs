@@ -6,51 +6,49 @@ using System.Linq;
 
 public class ManipulationTests {
 
-//	[Test]
-//	public void ViewOneWorks()
-//	{
-//  	}
-
 	[Test]
 	public void TroublemakersNightActionWorks() {
 		//Arrange
-		GameController.instance.players = new List<Player> {
-			new Player("A"),
-			new Player("B"),
-			new Player("C"),
-		};
+		GameController.instance.StartGame(new string[] { "A", "B", "C", },
+			new [] { Role.Troublemaker, Role.Werewolf, Role.Villager, Role.Villager, Role.Werewolf, Role.Villager },
+			false
+		);
 
-		int dealtTroublemakerLocationId = -1;
-		int dealtWerewolfLocationId = -1;
-		int dealtVillagerLocationId = -1;
+		Player troublemakerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Troublemaker);
+		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		Player werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
 
-		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			Player player = GameController.instance.players[i];
-			if(i == 0) {
-				player.ReceiveDealtCard(new RealCard(Role.Troublemaker));
-				dealtTroublemakerLocationId = player.locationId;
-			} else if(i == 1) {
-				player.ReceiveDealtCard(new RealCard(Role.Villager));
-				dealtVillagerLocationId = player.locationId;
-			} else {
-				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
-				dealtWerewolfLocationId = player.locationId;
-			}
-		}
-
-		GameController.instance.players.Single(p => p.locationId == dealtTroublemakerLocationId).nightLocationSelection = 
-			new Selection(dealtWerewolfLocationId, dealtVillagerLocationId);
-		GameController.instance.players.Single(p => p.locationId == dealtWerewolfLocationId).nightLocationSelection = 
-			new Selection(-1);
-
-
-		GameController.ExecuteNightActionsInOrder();
+		GameController.SubmitNightAction(troublemakerDealtPlayer, new Selection(werewolfDealtPlayer.locationId, villagerDealtPlayer.locationId));
+		GameController.SubmitNightAction(villagerDealtPlayer, new Selection(-1));
+		GameController.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
 
 		//Assert
-		Assert.IsTrue(GameController.instance.players.Single(p => p.locationId == dealtVillagerLocationId).currentCard.data.role == Role.Werewolf &&
-			GameController.instance.players.Single(p => p.locationId == dealtWerewolfLocationId).currentCard.data.role == Role.Villager);
+		Assert.IsTrue(villagerDealtPlayer.currentCard.data.role == Role.Werewolf && werewolfDealtPlayer.currentCard.data.role == Role.Villager);
 	}
 
+	[Test]
+	public void RobberAndInsomniacObserveTheirOwnRole() {
+		GameController.instance.StartGame(new string[] { "A", "B", "C", },
+			new [] { Role.Robber, Role.Insomniac, Role.Villager, Role.Villager, Role.Werewolf, Role.Villager },
+			false
+		);
 
+		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		Player insomniacDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Insomniac);
+		Player robberDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Robber);
+
+		int robberCardId = robberDealtPlayer.dealtCard.gamePieceId;
+		int insomniacCardId = insomniacDealtPlayer.dealtCard.gamePieceId;
+
+		GameController.SubmitNightAction(robberDealtPlayer, new Selection(insomniacDealtPlayer.locationId));
+		GameController.SubmitNightAction(villagerDealtPlayer, new Selection());
+		GameController.SubmitNightAction(insomniacDealtPlayer, new Selection());
+
+		Assert.IsTrue(
+			robberDealtPlayer.observations[0].gamePieceId == insomniacCardId && robberDealtPlayer.observations[0].locationId == robberDealtPlayer.locationId &&
+			insomniacDealtPlayer.observations[0].gamePieceId == robberCardId && insomniacDealtPlayer.observations[0].locationId == insomniacDealtPlayer.locationId
+		);
+
+	}
 
 }

@@ -340,6 +340,19 @@ public class Selector {
 		this.isEmpty = false;
 	}
 
+	public override string ToString ()
+	{
+		if(role != Role.None) {
+			return role.ToString();
+		} else if (nature != Nature.None) {
+			return nature.ToString();
+		} else if (specialSelection != SpecialSelection.None) {
+			return specialSelection.ToString();
+		} else {
+			return "None";
+		}
+	}
+
 //	public List<CardData> Filter(List<CardData> cardData) {
 //		if (role != Role.None) {
 //			return cardData.Where (cd => cd.role == role).ToList();

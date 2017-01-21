@@ -44,20 +44,23 @@ public class GameController : MonoBehaviour {
 	List<PlayerUi> playerUis;
 //	static Dictionary<Player, PlayerUi> playerUisByPlayer;
 	List<Player> playersAwaitingResponseFrom;
-	public List<IGamePiece> gamePiecesById = new List<IGamePiece>();
-	public List<ILocation> idsToLocations = new List<ILocation>();
+	public List<IGamePiece> idsToGamePieces = null;
+	public List<ILocation> idsToLocations = null;
 
 	void Start() {
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] {  Role.Minion, Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, },
-			true
+			new Role[] { Role.Robber, Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Minion, Role.Villager, },
+			false
 			);
 
 	}
 
 	public void StartGame(string[] playerNames, Role[] deckList, bool randomizeDeck) {
+		idsToLocations = new List<ILocation>();
+		idsToGamePieces = new List<IGamePiece>();
+
 		deck = new List<RealCard>();
 		this.playerNames = playerNames;
 		foreach(Role role in deckList) {
@@ -247,6 +250,7 @@ public class GameController : MonoBehaviour {
 
 	public static void ExecuteNightActionsInOrder ()
 	{
+		
 		List<Player> actingPlayersByTurnOrder = instance.players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
 			ThenBy (p => p.dealtCard.data.order.secondary).ToList ();
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
@@ -254,6 +258,7 @@ public class GameController : MonoBehaviour {
 			for (int j = 0; j < actingPlayer.dealtCard.data.nightActions.Count; j++) {
 				HiddenAction hiddenAction = actingPlayer.dealtCard.data.nightActions[j];
 				if(hiddenAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+					print("HIDDEN ACTION TARGETS: " + hiddenAction.targets[0] + ", " + hiddenAction.actionType + ", " + actingPlayer.dealtCard.data.role);
 					int targetLocationId = hiddenAction.targets[0] == TargetType.Self ? actingPlayer.locationId : 
 						actingPlayer.nightLocationSelection.locationIds[((int)hiddenAction.targets[0])];
 					if(targetLocationId == -1) {
@@ -291,8 +296,8 @@ public class GameController : MonoBehaviour {
 	}
 
 	public static int RegisterGamePiece(IGamePiece gamePiece) {
-		instance.gamePiecesById.Add(gamePiece);
-		return instance.gamePiecesById.Count - 1;
+		instance.idsToGamePieces.Add(gamePiece);
+		return instance.idsToGamePieces.Count - 1;
 	}
 
 	public static int RegisterLocation(ILocation location) {
@@ -391,8 +396,12 @@ public class RealizedPrompt {
 			}
 			break;
 		case OptionsSet.May_OtherPlayer: //Robber, mystic wolf
-			Debug.Log("Not implemented: may other player");
-			buttons.Add(new ButtonInfo(-1, "Ready"));
+			for(int i = 0; i < GameController.instance.players.Count; i++) {
+				Player p = GameController.instance.players[i];
+				if(p.locationId == player.locationId) continue;
+				buttons.Add(new ButtonInfo(p.locationId, p.name));
+			}
+			buttons.Add(new ButtonInfo(-1, "Pass"));
 			break;
 		case OptionsSet.May_TwoOtherPlayers:
 			for(int i = 0; i < GameController.instance.players.Count; i++) {

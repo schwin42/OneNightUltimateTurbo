@@ -120,13 +120,14 @@ public class WinTests {
 		GameController.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
 		GameController.SubmitVote(minionDealtPlayer, villagerDealtPlayer.locationId);
 
-		Assert.IsTrue(WerewolvesDidWin() && !VillagersDidWin());
+		Assert.IsTrue(WerewolvesDidWin() && !VillagersDidWin() && minionDealtPlayer.didWin);
 	}
 
-	public void EveryoneLosesIfNoWerewolvesAndHeDies() {
+	[Test]
+	public void EveryoneLosesIfNoWerewolvesAndMinionDies() {
 		PlayerUi.uiEnabled = false;
 		GameController.instance.StartGame(new string[] { "A", "B", "C", },
-			new [] { Role.Minion, Role.Mason, Role.Villager, Role.Drunk, Role.Werewolf, Role.Werewolf, Role.Mason },
+			new [] { Role.Minion, Role.Mason, Role.Villager, Role.Werewolf, Role.Werewolf, Role.Mason },
 			false
 		);
 
@@ -145,6 +146,29 @@ public class WinTests {
 		Assert.IsTrue(!minionDealtPlayer.didWin && !VillagersDidWin());
 	}
 
+	[Test]
+	public void RobberDealtPlayerWinsIfHeStealsAWerewolfAndAVillagerDies() {
+		GameController.instance.StartGame(new string[] { "A", "B", "C", },
+			new [] { Role.Robber, Role.Werewolf, Role.Villager, Role.Villager, Role.Werewolf, Role.Villager },
+			false
+		);
+
+		Player robberDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Robber);
+		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		Player werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+
+		GameController.SubmitNightAction(robberDealtPlayer, new Selection(werewolfDealtPlayer.locationId));
+		GameController.SubmitNightAction(villagerDealtPlayer, new Selection(-1));
+		GameController.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
+
+		GameController.SubmitVote(robberDealtPlayer, villagerDealtPlayer.locationId);
+		GameController.SubmitVote(villagerDealtPlayer, villagerDealtPlayer.locationId);
+		GameController.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
+
+		Assert.IsTrue(robberDealtPlayer.didWin && WerewolvesDidWin() && !VillagersDidWin());
+	}
+
+	//Helper methods
 	private bool VillagersDidWin() {
 		List<bool> villagerWins = new List<bool>();
 		foreach(Player player in GameController.instance.players) {
@@ -165,5 +189,4 @@ public class WinTests {
 		return werewolfWins.All(p => p == true);
 	}
 
-	//Villagers win and werewolves lose if both a villager and werewolf die
 }

@@ -117,6 +117,7 @@ public class PlayerUi : MonoBehaviour {
 		if(currentScreen == UiScreen.Night_InputControl) {
 		switch(player.prompt.options) {
 		case OptionsSet.None:
+		case OptionsSet.May_OtherPlayer:
 		case OptionsSet.May_CenterCard:
 		case OptionsSet.Must_CenterCard:
 			SubmitNightAction(new int[] { locationId });
@@ -192,7 +193,7 @@ public class PlayerUi : MonoBehaviour {
 			//Observation- "You observed center card #2 to be the seer at +2";
 			foreach(Observation observation in player.observations) {
 				descriptionText += "You observed " + GameController.instance.idsToLocations[observation.locationId].name + " to be the " + 
-					GameController.instance.gamePiecesById[observation.gamePieceId].name + " at " + player.dealtCard.data.order.ToString();
+					GameController.instance.idsToGamePieces[observation.gamePieceId].name + " at " + player.dealtCard.data.order.ToString();
 			}
 			day_Description.text = descriptionText;
 
