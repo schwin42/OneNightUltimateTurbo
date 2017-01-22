@@ -51,7 +51,7 @@ public class GameController : MonoBehaviour {
 
 		StartGame(
 			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-			new Role[] { Role.Robber, Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Minion, Role.Villager, },
+			new Role[] { Role.Robber, Role.Insomniac, Role.Villager, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Minion, Role.Villager, },
 			false
 			);
 

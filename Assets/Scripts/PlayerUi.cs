@@ -19,11 +19,13 @@ public class PlayerUi : MonoBehaviour {
 
 	}
 
-	public static bool uiEnabled = true;
+	private static bool uiEnabled = true;
 
 	public static List<PlayerUi> playerUis;
 
 	public static void Initialize(List<Player> players) {
+		uiEnabled = Application.isPlaying; //Disable UI when running editor tests
+
 		if(!uiEnabled) return;
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 		for(int i = 0; i < players.Count; i++) {

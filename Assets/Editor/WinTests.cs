@@ -79,7 +79,6 @@ public class WinTests {
 	[Test]
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
 		
-		PlayerUi.uiEnabled = false;
 		GameController.instance.StartGame(new string[] { "A", "B", "C", },
 			new [] { Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
 			false
@@ -102,7 +101,6 @@ public class WinTests {
 
 	[Test]
 	public void WerewolfTeamWinsAndVillagerTeamLosesIfMinionExistAndHeDies() {
-		PlayerUi.uiEnabled = false;
 		GameController.instance.StartGame(new string[] { "A", "B", "C", },
 			new [] { Role.Minion, Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Villager },
 			false
@@ -125,7 +123,6 @@ public class WinTests {
 
 	[Test]
 	public void EveryoneLosesIfNoWerewolvesAndMinionDies() {
-		PlayerUi.uiEnabled = false;
 		GameController.instance.StartGame(new string[] { "A", "B", "C", },
 			new [] { Role.Minion, Role.Mason, Role.Villager, Role.Werewolf, Role.Werewolf, Role.Mason },
 			false
