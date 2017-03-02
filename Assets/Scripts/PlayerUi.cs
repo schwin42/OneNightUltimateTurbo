@@ -27,7 +27,9 @@ public class PlayerUi : MonoBehaviour {
 		if(!uiEnabled) return;
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 		for(int i = 0; i < players.Count; i++) {
-			playerUis[i].Initialize(players[i]);
+			if (playerUis.Count > i) {
+				playerUis [i].Initialize (players [i]);
+			}
 		}
 	}
 

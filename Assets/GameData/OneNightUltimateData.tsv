@@ -25,15 +25,15 @@ The Count	IncompleteEntry	Vampire	Vampire	-6B							PlaceVampire						1	Vampire
 The Master	IncompleteEntry	Vampire	Vampire								PlaceVampire					NatureVampire	1	Vampire
 Vampire	IncompleteEntry	Vampire	Vampire	-6							PlaceVampire						1	Vampire
 Doppelgänger	IncompleteEntry	NoTeam	Variable	-7													1	Werewolf
-Drunk	ReadyForImplementation	Village	Villageperson	8			You must choose a center card to swap cards with.	Must_CenterCard				SwapTwo(Self,SelectionA)					1	Werewolf
-Hunter	NeedsImplementation	Village	Villageperson												KillsVoteeIfKilled		1	Werewolf
-Insomniac	ReadyForImplementation	Village	Villageperson	9								ViewOne(Self)				CardSwapper	1	Werewolf
+Drunk	Implemented	Village	Villageperson	8			You must choose a center card to swap cards with.	Must_CenterCard				SwapTwo(Self,SelectionA)					1	Werewolf
+Hunter	ReadyForImplementation	Village	Villageperson												KillsVoteeIfKilled		1	Werewolf
+Insomniac	Implemented	Village	Villageperson	9								ViewOne(Self)				CardSwapper	1	Werewolf
 Mason	Implemented	Village	Villageperson	4		Mason	There is no other mason.		{0} was dealt the other mason							Mason	2	Werewolf
-Minion	ReadyForImplementation	Werewolf	Villageperson	3		NatureWerewolf										NatureWerewolf	1	Werewolf
-Robber	ReadyForImplementation	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.	May_OtherPlayer				SwapTwo(Self,SelectionA);ViewOne(Self)					1	Werewolf
+Minion	Implemented	Werewolf	Villageperson	3		NatureWerewolf										NatureWerewolf	1	Werewolf
+Robber	Implemented	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.	May_OtherPlayer				SwapTwo(Self,SelectionA);ViewOne(Self)					1	Werewolf
 Seer	ReadyForImplementation	Village	Villageperson	5				May_OtherPlayerOrTwoCenterCards				ViewUpToTwo(SelectionA,SelectionB)					1	Werewolf
-Tanner	NeedsImplementation	NoTeam	Villageperson		TannerMustDie									Tanner_MustDie			1	Werewolf
-Troublemaker	ReadyForImplementation	Village	Villageperson	7			You may choose to players to swap cards between.	May_TwoOtherPlayers				SwapTwo(SelectionA,SelectionB)					1	Werewolf
+Tanner	ReadyForImplementation	NoTeam	Villageperson		TannerMustDie									Tanner_MustDie			1	Werewolf
+Troublemaker	Implemented	Village	Villageperson	7			You may choose two other players to swap cards between.	May_TwoOtherPlayers				SwapTwo(SelectionA,SelectionB)					1	Werewolf
 Villager	Implemented	Village	Villageperson													Villager	3	Werewolf
 Werewolf	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	May_CenterCard	{0} was dealt a werewolf			ViewOne(SelectionA)					2	Werewolf
 Apprentice Tanner	IncompleteEntry	NoTeam	Villageperson	3B												Tanner	1	
