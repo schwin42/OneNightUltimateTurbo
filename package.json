@@ -1,0 +1,23 @@
+{
+  "name": "onenightultimatemobile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schwin42/OneNightUltimateMobile.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/schwin42/OneNightUltimateMobile/issues"
+  },
+  "homepage": "https://github.com/schwin42/OneNightUltimateMobile#readme",
+  "dependencies": {
+    "express": "^4.15.0",
+    "socket.io": "^1.7.3"
+  }
+}
