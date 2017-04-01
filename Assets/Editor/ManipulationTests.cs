@@ -14,10 +14,10 @@ public class ManipulationTests {
 	[Test]
 	public void TroublemakersNightActionWorks() {
 		//Arrange
-		GameController.instance.players = new List<Player> {
-			new Player("A"),
-			new Player("B"),
-			new Player("C"),
+		GameController.instance.players = new List<GamePlayer> {
+			new GamePlayer("A"),
+			new GamePlayer("B"),
+			new GamePlayer("C"),
 		};
 
 		int dealtTroublemakerLocationId = -1;
@@ -25,7 +25,7 @@ public class ManipulationTests {
 		int dealtVillagerLocationId = -1;
 
 		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			Player player = GameController.instance.players[i];
+			GamePlayer player = GameController.instance.players[i];
 			if(i == 0) {
 				player.ReceiveDealtCard(new RealCard(Role.Troublemaker));
 				dealtTroublemakerLocationId = player.locationId;

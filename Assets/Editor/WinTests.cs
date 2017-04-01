@@ -10,12 +10,12 @@ public class WinTests {
 	public void VillagersWinIfNoWerewolvesPresentAndNoOneDies()
 	{
 		//Arrange
-		GameController.instance.players = new List<Player> {
-			new Player("A"),
-			new Player("B"),
-			new Player("C"),
+		GameController.instance.players = new List<GamePlayer> {
+			new GamePlayer("A"),
+			new GamePlayer("B"),
+			new GamePlayer("C"),
 		};
-		foreach(Player player in GameController.instance.players) {
+		foreach(GamePlayer player in GameController.instance.players) {
 			player.ReceiveDealtCard(new RealCard(Role.Villager));
 			player.votedLocation = -1;
 		}
@@ -28,14 +28,14 @@ public class WinTests {
 
 	[Test]
 	public void VillagersWinAndWerewolvesLoseIfAWerewolfDies() {
-		GameController.instance.players = new List<Player> {
-			new Player("A"),
-			new Player("B"),
-			new Player("C"),
+		GameController.instance.players = new List<GamePlayer> {
+			new GamePlayer("A"),
+			new GamePlayer("B"),
+			new GamePlayer("C"),
 		};
 
 		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			Player player = GameController.instance.players[i];
+			GamePlayer player = GameController.instance.players[i];
 			if(i == 0) {
 				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
 				player.votedLocation = GameController.instance.players[1].locationId;
@@ -53,14 +53,14 @@ public class WinTests {
 
 	[Test]
 	public void WerewolvesWinAndVillagersLoseIfNoWerewolfIsKilled() {
-		GameController.instance.players = new List<Player> {
-			new Player("A"),
-			new Player("B"),
-			new Player("C"),
+		GameController.instance.players = new List<GamePlayer> {
+			new GamePlayer("A"),
+			new GamePlayer("B"),
+			new GamePlayer("C"),
 		};
 
 		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			Player player = GameController.instance.players[i];
+			GamePlayer player = GameController.instance.players[i];
 			if(i == 0) {
 				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
 				player.votedLocation = GameController.instance.players[1].locationId;
@@ -89,9 +89,9 @@ public class WinTests {
 			false
 		);
 			
-		Player werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
-		Player villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
-		Player drunkDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Drunk);
+		GamePlayer werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+		GamePlayer villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		GamePlayer drunkDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Drunk);
 
 		GameController.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
 		GameController.SubmitNightAction(villagerDealtPlayer, new Selection());
@@ -110,7 +110,7 @@ public class WinTests {
 
 	private bool VillagersDidWin() {
 		List<bool> villagerWins = new List<bool>();
-		foreach(Player player in GameController.instance.players) {
+		foreach(GamePlayer player in GameController.instance.players) {
 			if(player.currentCard.data.nature == Nature.Villageperson) {
 				villagerWins.Add(player.didWin);
 			}
@@ -120,7 +120,7 @@ public class WinTests {
 
 	private bool WerewolvesDidWin() {
 		List<bool> werewolfWins = new List<bool>();
-		foreach(Player player in GameController.instance.players) {
+		foreach(GamePlayer player in GameController.instance.players) {
 			if(player.currentCard.data.nature == Nature.Werewolf) {
 				werewolfWins.Add(player.didWin);
 			}

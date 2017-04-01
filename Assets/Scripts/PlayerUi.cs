@@ -23,7 +23,7 @@ public class PlayerUi : MonoBehaviour {
 
 	public static List<PlayerUi> playerUis;
 
-	public static void Initialize(List<Player> players) {
+	public static void Initialize(List<GamePlayer> players) {
 		if(!uiEnabled) return;
 		playerUis = GameObject.FindObjectsOfType<PlayerUi>().ToList();
 		for(int i = 0; i < players.Count; i++) {
@@ -51,7 +51,7 @@ public class PlayerUi : MonoBehaviour {
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject>();
 
-	private Player player;
+	private GamePlayer player;
 
 	Text playerName;
 
@@ -80,7 +80,7 @@ public class PlayerUi : MonoBehaviour {
 
 	void Update () { }
 
-	private void Initialize(Player player) {
+	private void Initialize(GamePlayer player) {
 		playerName = transform.Find("PlayerName").GetComponent<Text>();
 
 		//Night_InputControl
@@ -163,7 +163,7 @@ public class PlayerUi : MonoBehaviour {
 
 			//Create buttons
 //			print("adding " + GameController.instance.players.Count + " buttons");
-			foreach(Player p in GameController.instance.players) {
+			foreach(GamePlayer p in GameController.instance.players) {
 				if(p == player) continue;
 				AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
 			}
@@ -206,7 +206,7 @@ public class PlayerUi : MonoBehaviour {
 			descriptionString += "You are the " + player.currentCard.name + ". ";
 			//Player(s) that died "Frank and Ellen died."
 			//Dying players' identities "Frank was the werewolf. Ellen was the mason."
-			Player[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
+			GamePlayer[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
 			for(int i = 0; i < killedPlayers.Length; i++) {
 				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
 			}

@@ -388,7 +388,7 @@ public class Selector {
 		}
 	}
 
-	public List<Player> FilterPlayersByDealtCard(List<Player> players) {
+	public List<GamePlayer> FilterPlayersByDealtCard(List<GamePlayer> players) {
 		if (role != Role.None) {
 			return players.Where(p => p.dealtCard.data.role == role).ToList();
 		} else if (nature != Nature.None) {
@@ -399,19 +399,19 @@ public class Selector {
 				return players.Where(p => p.dealtCard.data.duskActions.Contains("Place")).ToList();
 			case SpecialSelection.CardSwapper:
 				Debug.Log("Special selection not handled: " + specialSelection);
-				return new List<Player>();
+				return new List<GamePlayer>();
 			case SpecialSelection.MoveOrViewer:
 				Debug.Log("Special selection not handled: " + specialSelection);
-				return new List<Player>();
+				return new List<GamePlayer>();
 			case SpecialSelection.SeerOrApprenticeSeer:
 				return players.Where(p => p.dealtCard.data.role == Role.Seer || p.dealtCard.data.role == Role.ApprenticeSeer).ToList();
 			default:
 				Debug.LogError("Special selection not handled: " + specialSelection);
-				return new List<Player>();
+				return new List<GamePlayer>();
 			}
 		} else {
 			Debug.LogError("Called filter on empty selector.");
-			return new List<Player>();
+			return new List<GamePlayer>();
 		}
 	}
 }

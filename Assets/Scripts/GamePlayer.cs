@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 
 [System.Serializable]
-public class Player : ILocation
+public class GamePlayer : ILocation
 {
 	//Assigned in order
 
@@ -60,7 +60,7 @@ public class Player : ILocation
 	//	public Mark currentMark;
 	//	public Artifact currentArtifact;
 
-	public Player (string playerName)
+	public GamePlayer (string playerName)
 	{
 		this._name = playerName;
 
