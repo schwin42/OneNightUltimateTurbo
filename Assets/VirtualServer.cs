@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class VirtualServer {
+[System.Serializable]
+public class VirtualServer : MonoBehaviour {
 
 	//State
 	private int nextLocationId = 0;
-	public Dictionary<int, int> connectorsByClientId = new Dictionary<int, EditorConnector>();
-	Dictionary<int, string> playerNamesByClientId = new Dictionary<int, string>();
+	public Dictionary<int, EditorConnector> connectorsByClientId = new Dictionary<int, EditorConnector>();
+	List<int> clientIds = new List<int>();
+	List<string> clientNames = new List<string>();
 	
 	public void HandleClientNewUser(EditorConnector connector, string name) {
 //		Debug.Log("Server received new user");
@@ -17,18 +19,20 @@ public class VirtualServer {
 		nextLocationId++;
 
 		connectorsByClientId.Add(newLocationId, connector);
-		playerNamesByClientId.Add(newLocationId, name);
+
+		clientIds.Add(newLocationId);
+		clientNames.Add(name);
 
 		Debug.Log("Entering loop, count: " + connectorsByClientId.Count);
-		foreach(KeyValuePair<int, EditorConnector> kp in connectorsByClientId.ToArray()) {
-			Debug.Log("clientId key, self: " + kp.Key + ", " + connector.selfClientId);
-			if(kp.Key == newLocationId) { //Send welcome payload only to new player
+		foreach(int clientId in clientIds.ToArray()) {
+//			Debug.Log("clientId key, self: " + kp.Key + ", " + selfClientId);
+			if(clientId == newLocationId) { //Send welcome payload only to new player
 				Debug.Log("Sending welcome basket");
-				connector.HandlePayloadReceived(new WelcomeBasketPayload(newLocationId, playerNamesByClientId));
+				connector.HandlePayloadReceived(new WelcomeBasketPayload(newLocationId, clientNames, clientIds));
 			} else {
-				Debug.Log("Sending update other, connector client id:" + connector.selfClientId);
+//				Debug.Log("Sending update other, connector client id:" + selfClientId);
 
-				connector.HandlePayloadReceived(new UpdateOtherPayload(newLocationId, playerNamesByClientId));
+				connector.HandlePayloadReceived(new UpdateOtherPayload(newLocationId, clientNames, clientIds));
 			}
 		}
 

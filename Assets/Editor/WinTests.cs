@@ -88,7 +88,7 @@ public class WinTests {
 			new GamePlayer(gm, 2, "C"),
 		};
 		PlayerUi.uiEnabled = false; //TODO This should go without saying
-		gm.StartGame(new Dictionary<int, string> { {0, "A"}, {1, "B"}, {2, "C"} }, 
+		gm.StartGame(new List<string> { "A", "B", "C" }, new List<int> { 0, 1, 2 } ,
 			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
 			false
 		);

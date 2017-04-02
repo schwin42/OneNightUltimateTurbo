@@ -32,17 +32,12 @@ public delegate void PayloadHandler(RemotePayload payload); //A payload tells th
 //	}
 //}
 
-[System.Serializable]
 public class EditorConnector {
 
-	public int selfClientId = -1;
-	public Dictionary<int, string> connectedPlayersById;
+	PersistentPlayer player;
 
-	//Events
-	public event PayloadHandler OnPayloadReceived;
-
-	public EditorConnector(PayloadHandler handler) {
-		OnPayloadReceived += handler;
+	public EditorConnector(PersistentPlayer player) {
+		this.player = player;
 	}
 
 	public void JoinSession (string name) {
@@ -53,67 +48,84 @@ public class EditorConnector {
 
 	public void BroadcastEvent (RemotePayload payload) {
 		SimulatedRoom.instance.server.HandleClientSendEvent(payload);
-		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
+//		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
 	}
 
 	public void HandlePayloadReceived(RemotePayload payload) {
-		OnPayloadReceived.Invoke(payload);
+		player.HandleRemotePayload(payload);
 	}
 }
 
 public abstract class RemotePayload {
-	public int sourceClientId;
-	public Dictionary<int, string> connectedPlayersById;
-
-	public RemotePayload(int sourceClientId) {
-		this.sourceClientId = sourceClientId;
-	}
 }
 
 public abstract class GamePayload : RemotePayload {
-	public GamePayload(int sourceClientId) : base(sourceClientId) { }
 }
 
 public class NightActionPayload : GamePayload {
+	public int sourceClientId;
 	public Selection selection;
 
-	public NightActionPayload (int sourceClientId, Selection selection) : base (sourceClientId) {
+	public NightActionPayload (int sourceClientId, Selection selection) {
+		this.sourceClientId = sourceClientId;
 		this.selection = selection;
 	}
 }
 
 public class VotePayload : GamePayload {
+	public int sourceClientId;
 	public int voteeLocationId;
 
-	public VotePayload (int sourceClientId, int voteeLocationId) : base (sourceClientId) {
+	public VotePayload (int sourceClientId, int voteeLocationId) {
+		this.sourceClientId = sourceClientId;
 		this.voteeLocationId = voteeLocationId;
 	}
 }
 
 public abstract class PlayerUpdatePayload : RemotePayload { //Player join, player leave
-	public Dictionary <int, string> connectedPlayersByClientId;
-
-	public PlayerUpdatePayload (int sourceClientId, Dictionary<int, string> connectedPlayersByClientId) : base (sourceClientId) {
-		this.connectedPlayersByClientId = new Dictionary<int, string> (connectedPlayersByClientId);
-	}
+//	public int sourceClientId;
+//	public List<string> playerNames;
+//	public List<int> clientIds;
+//
+//	public PlayerUpdatePayload (int sourceClientId, List<string> playerNames, List<int> clientIds) {
+//		this.sourceClientId = sourceClientId;
+//		this.playerNames = playerNames;
+//		this.clientIds = clientIds;
+//	}
 }
 
 public class WelcomeBasketPayload : PlayerUpdatePayload { //This is the only event that is only sent to one device. Don't you feel special?
 	//Source location id is newly assigned self
-	public WelcomeBasketPayload (int sourceClientId, Dictionary<int, string> connectedPlayersByLocationId) : 
-	base (sourceClientId, connectedPlayersByLocationId) {}
+	public int sourceClientId;
+	public List<string> playerNames;
+	public List<int> clientIds;
+
+	public WelcomeBasketPayload (int sourceClientId, List<string> playerNames, List<int> clientIds) {
+		this.sourceClientId = sourceClientId;
+		this.playerNames = playerNames;
+		this.clientIds = clientIds;
+	}
 
 }
 
 public class UpdateOtherPayload : PlayerUpdatePayload {
-	public UpdateOtherPayload (int sourceClientId, Dictionary<int, string> connectedPlayersByLocationId) : 
-	base (sourceClientId, connectedPlayersByLocationId) {}
+	public int sourceClientId;
+	public List<string> playerNames;
+	public List<int> clientIds;
+
+	public UpdateOtherPayload (int sourceClientId, List<string> playerNames, List<int> clientIds) {
+		this.sourceClientId = sourceClientId;
+		this.playerNames = playerNames;
+		this.clientIds = clientIds;
+	}
 }
 
 public class StartGamePayload : RemotePayload {
+	public int sourceClientId;
 	public float randomSeed;
 
-	public StartGamePayload (int sourceClientId, float randomSeed) : base(sourceClientId) {
+	public StartGamePayload (int sourceClientId, float randomSeed) {
+		this.sourceClientId = sourceClientId;
 		this.randomSeed = randomSeed;
 	}
 

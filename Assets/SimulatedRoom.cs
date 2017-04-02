@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
+[System.Serializable]
 public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in a room with 1 God player having access to all of them
 
 	private static SimulatedRoom _instance;
@@ -27,37 +29,99 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 
 	public void LaunchGame(int playerCount, List<Role> deckTemplate) {
 
-		_server = new VirtualServer();
+		GameObject serverGo = new GameObject();
+		serverGo.name = "Server";
+		_server = serverGo.AddComponent<VirtualServer>();
+
 
 		players = new List<PersistentPlayer>();
 		for(int i = 0; i < playerCount; i++) {
-			players.Add(new PersistentPlayer());
+
+			GameObject go = new GameObject();
+			PersistentPlayer player = go.AddComponent<PersistentPlayer>();
+			players.Add(player);
 		}
 			
 		for(int i = 0; i < players.Count; i++) {
-			players[i].SetName("Player" + i.ToString());
+			string name = "Player" + i.ToString();
+			players[i].gameObject.name = name;
+			players[i].SetName(name);
 			players[i].SetSelectedDeck(deckTemplate);
-			players[i].connector.JoinSession(players[i].name);
+			players[i].connector.JoinSession(players[i].playerName);
 		}
 
 	}
 
 	void Start() {
-		LaunchGame(5, new List<Role> { Role.Werewolf, Role.Werewolf, Role.Robber, Role.Troublemaker, Role.Villager, Role.Villager, Role.Mason, Role.Mason });
 
-		players[0].BeginGame();
+		SimulatedRoom.instance.LaunchGame(10, new List<Role> () { Role.Werewolf, Role.Werewolf, Role.Drunk, Role.Insomniac, Role.Tanner,
+			Role.Mason, Role.Mason, Role.Minion, Role.Robber, Role.Troublemaker, Role.Villager, Role.Villager, Role.Villager  } );
 
+		SimulatedRoom.instance.players[0].BeginGame();
 
-//		//Make night action selections for all charaters
+		//Make night action selections for all charaters
+		foreach(PersistentPlayer player in SimulatedRoom.instance.players) {
+			GamePlayer gamePlayer = player.gameMaster.players.Single(gp => gp.clientId == player.selfClientId);
+
+			Selection selection = null;
+			switch(gamePlayer.dealtCard.data.role) {
+			case Role.Werewolf:
+				selection = new Selection(-1);
+				break;
+			case Role.Villager:
+				selection = new Selection(-1);
+				break;
+			case Role.Mason:
+				selection = new Selection(-1);
+				break;
+			case Role.Minion:
+				selection = new Selection(-1);
+				break;
+			case Role.Robber:
+				selection = new Selection(player.gameMaster.players.Single(gp => gp.dealtCard.data.role == Role.Minion).locationId);
+				break;
+			case Role.Troublemaker:
+				selection = new Selection(player.gameMaster.players.Single(gp => gp.dealtCard.data.role == Role.Minion).locationId, 
+					player.gameMaster.players.Single(gp => gp.dealtCard.data.role == Role.Insomniac).locationId); 
+				break;
+			case Role.Drunk:
+				selection = new Selection(player.gameMaster.centerCards[0].locationId);
+				break;
+			case Role.Insomniac:
+				selection = new Selection(player.gameMaster.players.Single(gp => gp.dealtCard.data.role == Role.Robber).locationId);
+				break;
+			}
+			player.connector.BroadcastEvent(new NightActionPayload(player.selfClientId, selection));
+		}
+
+		//Input votes
+		foreach(PersistentPlayer player in SimulatedRoom.instance.players) {
+			player.connector.BroadcastEvent(new VotePayload(player.selfClientId, 0));
+		}
+
+		List<bool> checks = new List<bool>();
+		foreach(PersistentPlayer player in SimulatedRoom.instance.players) {
+			bool b = !player.gameMaster.players.Single(gp => gp.locationId == 0).didWin;
+			print("B: " + b);
+			checks.Add(b);
+
+		}
+
+		Debug.Log("Passed? " + checks.All(b => b == true));
+
+//		LaunchGame(5, new List<Role> { Role.Werewolf, Role.Werewolf, Role.Robber, Role.Troublemaker, Role.Villager, Role.Villager, Role.Mason, Role.Mason });
+
+//		players[0].BeginGame();
+
+//				//Make night action selections for all charaters
 //		foreach(PersistentPlayer player in players) {
-//			player.connector.BroadcastEvent(new NightActionPayload(player.connector.selfClientId, new Selection( new int[] { -1 })));
+//			player.connector.BroadcastEvent(new NightActionPayload(player.selfClientId, new Selection( new int[] { -1 })));
 //		}
-//
-//		//Input votes
+		
+//				//Input votes
 //		foreach(PersistentPlayer player in players) {
-//			player.connector.BroadcastEvent(new VotePayload(player.connector.selfClientId, 0));
+//			player.connector.BroadcastEvent(new VotePayload(player.selfClientId, 0));
 //		}
-
-
 	}
+
 }

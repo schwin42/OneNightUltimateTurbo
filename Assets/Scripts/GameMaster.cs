@@ -38,7 +38,7 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(Dictionary<int, string> connectedNamesByClientId, Role[] deckList, bool randomizeDeck, float randomSeed = -1.0F) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(List<string> playerNames, List<int> connectedClientIds, Role[] deckList, bool randomizeDeck, float randomSeed = -1.0F) { //All games run in parallel, so these parameters must be identical across clients
 
 
 		gameDeck = new List<RealCard>();
@@ -46,16 +46,16 @@ public class GameMaster {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
-		if(gameDeck.Count != connectedNamesByClientId.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + connectedNamesByClientId.Count + 
+		if(gameDeck.Count != connectedClientIds.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNames.Count + ", " + connectedClientIds.Count + 
 				", deck = " + gameDeck.Count);
 			return;
 		}
 
 		//Create players
 		players = new List<GamePlayer>();
-		foreach(KeyValuePair<int, string> kp in connectedNamesByClientId) {
-			players.Add(new GamePlayer(this, kp.Key, kp.Value));
+		for(int i = 0; i < connectedClientIds.Count; i++) {
+			players.Add(new GamePlayer(this, connectedClientIds[i], playerNames[i]));
 		}
 
 //		for(int i = 0; i < playerNames.Length; i++) {
@@ -153,7 +153,7 @@ public class GameMaster {
 		//Determine most number of votes
 		if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
 			int mostVotes = votees[0].count;
-			Debug.Log("Most votes:" + locationsById[votees[0].player].name + ", " + votees[0].count);
+			Debug.Log("Most votes:" + locationsById[votees[0].player].name + " with " + votees[0].count);
 
 			//Select votees with most number of votes over one
 			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
@@ -249,14 +249,18 @@ public class GameMaster {
 					}
 				} else if(hiddenAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
 					//Get cards to swap
+					if(actingPlayer.nightLocationSelection.locationIds.Contains(-1)) {
+						//TODO Notify "You chose not to swap a card."
+					} else {
 					List<int> targetLocationIds = GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
-					ILocation firstTargetLocation = locationsById[targetLocationIds[0]];
-					ILocation secondTargetLocation = locationsById[targetLocationIds[1]];
-					RealCard firstTargetCard = firstTargetLocation.currentCard;
-					RealCard secondTargetCard = secondTargetLocation.currentCard;
-					firstTargetLocation.currentCard = secondTargetCard;
-					secondTargetLocation.currentCard = firstTargetCard;
 
+						ILocation firstTargetLocation = locationsById[targetLocationIds[0]];
+						ILocation secondTargetLocation = locationsById[targetLocationIds[1]];
+						RealCard firstTargetCard = firstTargetLocation.currentCard;
+						RealCard secondTargetCard = secondTargetLocation.currentCard;
+						firstTargetLocation.currentCard = secondTargetCard;
+						secondTargetLocation.currentCard = firstTargetCard;
+					}
 
 //				} else if(actingPlayer.dealtCard.data.nightActions[j].actionType == ActionType.ViewUpToTwo) { //Seer
 
@@ -287,10 +291,10 @@ public class GameMaster {
 	public void ReceiveDirective(GamePayload payload) {
 		if(payload is NightActionPayload) {
 			NightActionPayload nightAction = (NightActionPayload)payload;
-			SubmitNightAction(players.Single(gp => gp.clientId == payload.sourceClientId), nightAction.selection);
+			SubmitNightAction(players.Single(gp => gp.clientId == nightAction.sourceClientId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
-			SubmitVote(players.Single(gp => gp.clientId == payload.sourceClientId), vote.voteeLocationId);
+			SubmitVote(players.Single(gp => gp.clientId == vote.sourceClientId), vote.voteeLocationId);
 		} else {
 			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
 		}
