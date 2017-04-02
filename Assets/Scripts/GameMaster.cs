@@ -27,8 +27,6 @@ public class GameMaster {
 	//The deck will be selected/ randomly generated before game start
 	public List<RealCard> gameDeck;
 
-	public string[] playerNames;
-
 	//Game state
 	public float gameId;
 	public List<GamePlayer> players;
@@ -41,13 +39,15 @@ public class GameMaster {
 	public List<ILocation> locationsById;
 
 	public void StartGame(Dictionary<int, string> connectedNamesByClientId, Role[] deckList, bool randomizeDeck, float randomSeed = -1.0F) { //All games run in parallel, so these parameters must be identical across clients
+
+
 		gameDeck = new List<RealCard>();
 		foreach(Role role in deckList) {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
-		if(gameDeck.Count != playerNames.Length + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + playerNames.Length + 
+		if(gameDeck.Count != connectedNamesByClientId.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + connectedNamesByClientId.Count + 
 				", deck = " + gameDeck.Count);
 			return;
 		}

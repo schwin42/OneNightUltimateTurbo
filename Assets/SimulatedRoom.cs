@@ -40,6 +40,7 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 	void Start() {
 		_server = new VirtualServer();
 
+		players = new List<PersistentPlayer>();
 		for(int i = 0; i < playerCount; i++) {
 			players.Add(new PersistentPlayer());
 		}

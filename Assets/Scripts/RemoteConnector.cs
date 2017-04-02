@@ -16,8 +16,6 @@ public abstract class RemoteConnector { //Singleton instance stored on GameContr
 
 	public RemoteConnector (PayloadHandler handler) {
 		OnPayloadReceived += handler;
-
-		JoinSession();
 	}
 
 	public abstract void JoinSession();
