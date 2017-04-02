@@ -10,6 +10,13 @@ public class GamePlayer : ILocation
 	//Assigned in order
 
 	//0. Game init_namezation
+	private int _clientId;
+	public int clientId {
+		get {
+			return _clientId;
+		}
+	}
+
 	private int _locationId = -1;
 	public int locationId { 
 		get {
@@ -60,12 +67,12 @@ public class GamePlayer : ILocation
 	//	public Mark currentMark;
 	//	public Artifact currentArtifact;
 
-	public GamePlayer (string playerName)
+	public GamePlayer (GameMaster gameMaster, int clientId, string name)
 	{
-		this._name = playerName;
+		this._clientId = clientId;
+		this._name = name;
 
-		this._locationId = GameController.RegisterLocation(this);
-		Debug.Log("Registered player " + playerName + " as locationId = " + locationId);
+		this._locationId = gameMaster.RegisterLocation(this);
 		this.observations = new List<Observation>();
 	}
 

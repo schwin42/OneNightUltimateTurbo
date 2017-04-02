@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-public class GameController : MonoBehaviour {
+public class GameMaster {
 
 	public enum GamePhase {
 		Pregame = 0, //Actions: Player entry, select roles
@@ -14,24 +14,13 @@ public class GameController : MonoBehaviour {
 		Result = 5, //Start new game, return to lobby
 	}
 
-	private static GameController _instance;
-	public static GameController instance {
-		get {
-			if(_instance == null) {
-				_instance = GameObject.FindObjectOfType<GameController>();
-			}
-			if(_instance == null) {
-				Debug.LogError("Couldn't find GameController in scene. Please add.");
-			}
-			return _instance;
-		}
-	}
+	public Role[] deckBlueprint;
 
-	//Player configuration
-	public string playerName;
-
-	//Game parameters
-	public List<Role> deckCandidate = new List<Role> { Role.Werewolf, Role.Werewolf, Role.Villager, Role.Villager, Role.Robber, Role.Troublemaker, Role.Mason, Role.Mason };
+	public GameMaster () {
+	
+		locationsById = new List<ILocation>();
+		gamePiecesById = new List<IGamePiece>();
+	} 
 
 	public GamePhase currentPhase;
 
@@ -41,123 +30,88 @@ public class GameController : MonoBehaviour {
 	public string[] playerNames;
 
 	//Game state
-	public float randomSeed;
+	public float gameId;
 	public List<GamePlayer> players;
 	public List<CenterCardSlot> centerCards;
 
-
 	//Bookkeeping
-	RemoteConnector connector;
-	List<PlayerUi> playerUis;
-//	static Dictionary<Player, PlayerUi> playerUisByPlayer;
+//	List<PlayerUi> playerUis;
 	List<GamePlayer> playersAwaitingResponseFrom;
-	public List<IGamePiece> gamePiecesById = new List<IGamePiece>();
-	public List<ILocation> idsToLocations = new List<ILocation>();
-	public Dictionary<int, GamePlayer> playersByClientId;
+	public List<IGamePiece> gamePiecesById;
+	public List<ILocation> locationsById;
 
-
-	void Start() {
-
-		connector = new EditorConnector(playerName, new PayloadHandler(HandleReceivedPayload));
-
-		connector.JoinSession(playerName);
-
-
-//
-//		StartGame(
-//			new string[] { "Allen", "Becky", "Chris", "David", "Ellen", "Frank", },
-//			new Role[] {  Role.Mason, Role.Mason, Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Villager, Role.Villager, Role.Villager },
-//			true
-//			);
-
-	}
-
-
-	public void StartGame() { //Remote connection overload
-		//Generate random seed
-		float randomSeed = Random.value; 
-
-		//Broadcast event
-		connector.BroadcastEvent(new StartGamePayload(connector.selfClientId, randomSeed));
-	}
-
-
-	public void StartGame(Dictionary<int, string> playerNamesByClientId, Role[] deckList, bool randomizeDeck) {
+	public void StartGame(Dictionary<int, string> connectedNamesByClientId, Role[] deckList, bool randomizeDeck, float randomSeed = -1.0F) { //All games run in parallel, so these parameters must be identical across clients
 		gameDeck = new List<RealCard>();
-		this.playerNames = playerNames;
 		foreach(Role role in deckList) {
-			gameDeck.Add(new RealCard(role));
+			gameDeck.Add(new RealCard(this, role));
 		}
 
-		if(instance.gameDeck.Count != instance.playerNames.Length + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + instance.playerNames.Length + 
-				", deck = " + instance.gameDeck.Count);
+		if(gameDeck.Count != playerNames.Length + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: players = " + playerNames.Length + 
+				", deck = " + gameDeck.Count);
 			return;
 		}
 
 		//Create players
-		instance.players = new List<GamePlayer>();
-
-		foreach(KeyValuePair<int, string> kp in playerNamesByClientId) {
-			GamePlayer player = new GamePlayer(kp.Value);
-			instance.players.Add(player);
-			instance.playersByClientId.Add(kp.Key, player);
+		players = new List<GamePlayer>();
+		foreach(KeyValuePair<int, string> kp in connectedNamesByClientId) {
+			players.Add(new GamePlayer(this, kp.Key, kp.Value));
 		}
 
-//		for(int i = 0; i < instance.playerNames.Length; i++) {
-//			GamePlayer player = new GamePlayer(instance.playerNames[i]);
-//			instance.playersByClientId.Add(connector.conn, player);
+//		for(int i = 0; i < playerNames.Length; i++) {
+//			GamePlayer player = new GamePlayer(playerNames[i]);
+//			playersByClientId.Add(connector.conn, player);
 //		}
 
 		PlayerUi.Initialize(players);
 
 		//Shuffle cards
 		if(randomizeDeck) {
-			instance.gameDeck = instance.gameDeck.OrderBy( x => Random.value ).ToList();
+			gameDeck = gameDeck.OrderBy( x => randomSeed ).ToList();
 		}
 
 		//Deal cards
-		foreach(GamePlayer player in instance.players) {
+		foreach(GamePlayer player in players) {
 			player.ReceiveDealtCard(PullFirstCardFromDeck());
 		}
 		PlayerUi.WriteRoleToTitle();
 
-		instance.centerCards = new List<CenterCardSlot>();
+		centerCards = new List<CenterCardSlot>();
 		for(int i = 0; i < 3; i++) {
-			instance.centerCards.Add(new CenterCardSlot(i, PullFirstCardFromDeck()));
+			centerCards.Add(new CenterCardSlot(this, i, PullFirstCardFromDeck()));
 		}
-		if(instance.gameDeck.Count != 0) {
+		if(gameDeck.Count != 0) {
 			Debug.LogError("Deal left cards remaining in deck");
 			return;
 		}
 
 		//Print player cards
-		foreach(GamePlayer player in instance.players) {
-			print(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
+		foreach(GamePlayer player in players) {
+			Debug.Log(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
 		}
-		foreach(CenterCardSlot slot in instance.centerCards) {
-			print(slot.currentCard.data.role.ToString() + " is " + slot.name);
+		foreach(CenterCardSlot slot in centerCards) {
+			Debug.Log(slot.currentCard.data.role.ToString() + " is " + slot.name);
 		}
 
 		SetPhase(GamePhase.Night);
 	}
 
-	private static void SetPhase(GamePhase targetPhase) {
-		if(targetPhase == instance.currentPhase) return;
-		instance.currentPhase = targetPhase;
-		print("Entering " + targetPhase + " phase.");
+	private void SetPhase(GamePhase targetPhase) {
+		if(targetPhase == currentPhase) return;
+		currentPhase = targetPhase;
+		Debug.Log("Entering " + targetPhase + " phase.");
 		switch(targetPhase) {
 		case GamePhase.Night:
 
 			//Prompt players for action and set controls
-			foreach(GamePlayer player in instance.players) {
-				player.prompt = new RealizedPrompt(player);
+			foreach(GamePlayer player in players) {
+				player.prompt = new RealizedPrompt(player.locationId, players, centerCards); //Player and center card state is passed to give prompt concrete id choices
 			}
 
 			PlayerUi.SetState(PlayerUi.UiScreen.Night_InputControl);
 
 			//Wait for responses
-			instance.playersAwaitingResponseFrom = new List<GamePlayer>(instance.players);
+			playersAwaitingResponseFrom = new List<GamePlayer>(players);
 
 			break;
 		case GamePhase.Day:
@@ -166,7 +120,7 @@ public class GameController : MonoBehaviour {
 			//Reveal information to seer roles
 			PlayerUi.SetState(PlayerUi.UiScreen.Day_Voting);
 
-			instance.playersAwaitingResponseFrom = new List<GamePlayer>(instance.players);
+			playersAwaitingResponseFrom = new List<GamePlayer>(players);
 			break;
 		case GamePhase.Result:
 			KillPlayers();
@@ -176,10 +130,10 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	public static void KillPlayers() {
+	public void KillPlayers() {
 		//Tally votes
 		List<Votee> votees = new List<Votee>();
-		foreach(GamePlayer voter in instance.players) {
+		foreach(GamePlayer voter in players) {
 			if(voter.votedLocation == -1) continue;
 			if(votees.Count(v => v.player == voter.votedLocation) > 0) { 
 				votees.Single(v => v.player == voter.votedLocation).count ++;
@@ -193,36 +147,36 @@ public class GameController : MonoBehaviour {
 
 		for(int i = 0; i < votees.Count; i++ ) {
 			Votee votee = votees[i];
-			print(instance.idsToLocations[votee.player].name + " received " + votee.count + " votes.");
+			Debug.Log(locationsById[votee.player].name + " received " + votee.count + " votes.");
 		}
 
 		//Determine most number of votes
 		if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
 			int mostVotes = votees[0].count;
-			print("Most votes:" + instance.idsToLocations[votees[0].player].name + ", " + votees[0].count);
+			Debug.Log("Most votes:" + locationsById[votees[0].player].name + ", " + votees[0].count);
 
 			//Select votees with most number of votes over one
 			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
 
 			//Kill all players with the highest number of votes (greater than one)
 			foreach(int locationId in playersToKill) {
-				GamePlayer playerToKill = instance.players.Single(p => p.locationId == locationId);
+				GamePlayer playerToKill = players.Single(p => p.locationId == locationId);
 				playerToKill.killed = true;
-				print("Killed " + playerToKill.name);
+				Debug.Log("Killed " + playerToKill.name);
 			}
 		}
 	}
 
-	public static void DetermineWinners() {
-		foreach(GamePlayer player in instance.players) {
+	public void DetermineWinners() {
+		foreach(GamePlayer player in players) {
 			player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
-			if(player.didWin) { print(player.name + " won."); } else {
-				print(player.name + " lost.");
+			if(player.didWin) { Debug.Log(player.name + " won."); } else {
+				Debug.Log(player.name + " lost.");
 			}
 		}
 	}
 
-	private static bool EvaluateRequirementRecursive(GamePlayer evaluatedPlayer, WinRequirement[] requirements) {
+	private bool EvaluateRequirementRecursive(GamePlayer evaluatedPlayer, WinRequirement[] requirements) {
 		//Get requirement relevant players
 		foreach(WinRequirement requirement in requirements) {
 			bool passed;
@@ -258,15 +212,15 @@ public class GameController : MonoBehaviour {
 		return true; //If evaluted all requirements without returning false, then return true
 	}
 
-	private static List<GamePlayer> SelectRelevantPlayers(GamePlayer evaluatedPlayer, WinRequirement requirement) {
+	private List<GamePlayer> SelectRelevantPlayers(GamePlayer evaluatedPlayer, WinRequirement requirement) {
 		if(requirement is NatureWinRequirement) {
-			return instance.players.Where(p => p.currentCard.data.nature == ((NatureWinRequirement)requirement).nature).ToList();
+			return players.Where(p => p.currentCard.data.nature == ((NatureWinRequirement)requirement).nature).ToList();
 		} else if (requirement is RoleWinRequirement) {
-			return instance.players.Where(p => p.currentCard.data.role == ((RoleWinRequirement)requirement).role).ToList();
+			return players.Where(p => p.currentCard.data.role == ((RoleWinRequirement)requirement).role).ToList();
 		} else if (requirement is RelationWinRequirement) {
 			RelationWinRequirement relationRequirement = requirement as RelationWinRequirement;
 			if(relationRequirement.relation == Relation.Self) {
-			return instance.players.Where(p => p.locationId == evaluatedPlayer.locationId).ToList();
+			return players.Where(p => p.locationId == evaluatedPlayer.locationId).ToList();
 			} else {
 				Debug.LogError("Unhandled relation: " + relationRequirement.relation);
 				return null;
@@ -277,9 +231,9 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	public static void ExecuteNightActionsInOrder ()
+	public void ExecuteNightActionsInOrder ()
 	{
-		List<GamePlayer> actingPlayersByTurnOrder = instance.players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
+		List<GamePlayer> actingPlayersByTurnOrder = players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
 			ThenBy (p => p.dealtCard.data.order.secondary).ToList ();
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			GamePlayer actingPlayer = actingPlayersByTurnOrder [i];
@@ -291,13 +245,13 @@ public class GameController : MonoBehaviour {
 					if(targetLocationId == -1) {
 						//TODO Notify "You chose not to view a card."
 					} else {
-						actingPlayer.observations.Add(new Observation(targetLocationId, instance.idsToLocations[targetLocationId].currentCard.gamePieceId));
+						actingPlayer.observations.Add(new Observation(targetLocationId, locationsById[targetLocationId].currentCard.gamePieceId));
 					}
 				} else if(hiddenAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
 					//Get cards to swap
-					List<int> targetLocationIds = instance.GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
-					ILocation firstTargetLocation = instance.idsToLocations[targetLocationIds[0]];
-					ILocation secondTargetLocation = instance.idsToLocations[targetLocationIds[1]];
+					List<int> targetLocationIds = GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
+					ILocation firstTargetLocation = locationsById[targetLocationIds[0]];
+					ILocation secondTargetLocation = locationsById[targetLocationIds[1]];
 					RealCard firstTargetCard = firstTargetLocation.currentCard;
 					RealCard secondTargetCard = secondTargetLocation.currentCard;
 					firstTargetLocation.currentCard = secondTargetCard;
@@ -313,45 +267,58 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private static RealCard PullFirstCardFromDeck() {
-		RealCard card = instance.gameDeck[0];
-		instance.gameDeck.Remove(card);
+	private RealCard PullFirstCardFromDeck() {
+		RealCard card = gameDeck[0];
+		gameDeck.Remove(card);
 		return card;
 	}
 
-	public static int RegisterGamePiece(IGamePiece gamePiece) {
-		instance.gamePiecesById.Add(gamePiece);
-		return instance.gamePiecesById.Count - 1;
+	public int RegisterGamePiece(IGamePiece gamePiece) {
+		gamePiecesById.Add(gamePiece);
+		return gamePiecesById.Count - 1;
 	}
 
-	public static int RegisterLocation(ILocation location) {
-		instance.idsToLocations.Add(location);
-		return instance.idsToLocations.Count - 1;
+	public int RegisterLocation(ILocation location) {
+		locationsById.Add(location);
+		return locationsById.Count - 1;
 	}
 
-	public static void SubmitNightAction(GamePlayer player, Selection selection) {
-		if(instance.currentPhase != GamePhase.Night) {
+
+	public void ReceiveDirective(GamePayload payload) {
+		if(payload is NightActionPayload) {
+			NightActionPayload nightAction = (NightActionPayload)payload;
+			SubmitNightAction(players.Single(gp => gp.clientId == payload.sourceClientId), nightAction.selection);
+		} else if(payload is VotePayload) {
+			VotePayload vote = (VotePayload)payload;
+			SubmitVote(players.Single(gp => gp.clientId == payload.sourceClientId), vote.voteeLocationId);
+		} else {
+			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
+		}
+	}
+
+	public void SubmitNightAction(GamePlayer player, Selection selection) {
+		if(currentPhase != GamePhase.Night) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
 		}
 		player.nightLocationSelection = selection;
-		instance.playersAwaitingResponseFrom.Remove(player);
+		playersAwaitingResponseFrom.Remove(player);
 
-		if(instance.playersAwaitingResponseFrom.Count == 0) {
+		if(playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Day);
 		}
 	}
 
-	public static void SubmitVote(GamePlayer player, int locationId) {
-		if(instance.currentPhase != GamePhase.Day) {
+	public void SubmitVote(GamePlayer player, int locationId) {
+		if(currentPhase != GamePhase.Day) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
 		}
 
 		player.votedLocation = locationId;
-		instance.playersAwaitingResponseFrom.Remove(player);
+		playersAwaitingResponseFrom.Remove(player);
 
-		if(instance.playersAwaitingResponseFrom.Count == 0) {
+		if(playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Result);
 		}
 	}
@@ -369,29 +336,6 @@ public class GameController : MonoBehaviour {
 		}
 		return locationsIds;
 	}
-
-
-	private void HandleReceivedPayload(RemotePayload payload) {
-		if(payload is WelcomeBasketPayload) {
-			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
-			connector.selfClientId = basket.sourceClientId;
-			connector.connectedPlayers = basket.connectedPlayersByClientId;
-		} else if(payload is UpdateOtherPayload) {
-			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-			connector.connectedPlayers = update.connectedPlayersByClientId;
-		} else if (payload is StartGamePayload) {
-			StartGamePayload start = ((StartGamePayload)payload);
-			randomSeed = start.randomSeed;
-		} else if (payload is NightActionPayload) {
-			//TODO Implement
-		} else if (payload is VotePayload) {
-			//TODO Implement
-		} else {
-			Debug.LogError("Unexpected payload type: " + payload.ToString());
-		}
-		//Verify payload is valid (it coheres with known facts)
-		//Alter game state to reflect payload contents
-	}
 }
 
 [System.Serializable]
@@ -400,28 +344,29 @@ public class RealizedPrompt {
 	public OptionsSet options;
 	public List<ButtonInfo> buttons = new List<ButtonInfo>();
 
-	public RealizedPrompt(GamePlayer player) {
+	public RealizedPrompt(int selfLocationId, List<GamePlayer> players, List<CenterCardSlot> centerCards) {
 		//Evalutate cohort and realize strings
-		if(player.dealtCard.data.cohort.isEmpty) {
-			if(player.dealtCard.data.prompt != null) {
-				cohortString = player.dealtCard.data.prompt.explanation;
-				options = player.dealtCard.data.prompt.options;
+		GamePlayer self = players.Single(gp => gp.locationId == selfLocationId);
+		if(self.dealtCard.data.cohort.isEmpty) {
+			if(self.dealtCard.data.prompt != null) {
+				cohortString = self.dealtCard.data.prompt.explanation;
+				options = self.dealtCard.data.prompt.options;
 			}
 		} else {
-			List<GamePlayer> cohorts = player.dealtCard.data.cohort.FilterPlayersByDealtCard(
-				GameController.instance.players.Where(p => p.locationId != player.locationId).ToList()).ToList();
-			player.cohortLocations = cohorts.Select(p => p.locationId).ToArray();
+			List<GamePlayer> cohorts = self.dealtCard.data.cohort.FilterPlayersByDealtCard(
+				players.Where(p => p.locationId != self.locationId).ToList()).ToList();
+			self.cohortLocations = cohorts.Select(p => p.locationId).ToArray();
 			if(cohorts.Count == 0) {
-				cohortString = player.dealtCard.data.prompt.explanation;
-				options = player.dealtCard.data.prompt.options;
+				cohortString = self.dealtCard.data.prompt.explanation;
+				options = self.dealtCard.data.prompt.options;
 			} else {
 				for(int i = 0; i < cohorts.Count; i++) {
 					if( i != 0) {
 						cohortString += " ";
 					}
-					cohortString += string.Format(player.dealtCard.data.promptIfCohort.explanation, cohorts[i].name);
+					cohortString += string.Format(self.dealtCard.data.promptIfCohort.explanation, cohorts[i].name);
 				}
-				options = player.dealtCard.data.promptIfCohort.options;
+				options = self.dealtCard.data.promptIfCohort.options;
 			}
 		}
 
@@ -430,15 +375,15 @@ public class RealizedPrompt {
 			buttons.Add(new ButtonInfo(-1, "Ready"));
 			break;
 		case OptionsSet.May_CenterCard: //Apprentice seer, lone werewolf
-			for (int i = 0; i < GameController.instance.centerCards.Count; i++) {
-				CenterCardSlot slot = GameController.instance.centerCards[i];
+			for (int i = 0; i < centerCards.Count; i++) {
+				CenterCardSlot slot = centerCards[i];
 				buttons.Add(new ButtonInfo(slot.locationId, "Center Card #" + (i + 1).ToString()));
 			}
 			buttons.Add(new ButtonInfo(-1, "Pass"));
 			break;
 		case OptionsSet.Must_CenterCard: //Drunk and copycat
-			for (int i = 0; i < GameController.instance.centerCards.Count; i++) {
-				CenterCardSlot slot = GameController.instance.centerCards[i];
+			for (int i = 0; i < centerCards.Count; i++) {
+				CenterCardSlot slot = centerCards[i];
 				buttons.Add(new ButtonInfo(slot.locationId, "Center Card #" + (i + 1).ToString()));
 			}
 			break;
@@ -447,9 +392,9 @@ public class RealizedPrompt {
 			buttons.Add(new ButtonInfo(-1, "Ready"));
 			break;
 		case OptionsSet.May_TwoOtherPlayers:
-			for(int i = 0; i < GameController.instance.players.Count; i++) {
-				GamePlayer p = GameController.instance.players[i];
-				if(p.locationId == player.locationId) continue;
+			for(int i = 0; i < players.Count; i++) {
+				GamePlayer p = players[i];
+				if(p.locationId == self.locationId) continue;
 				buttons.Add(new ButtonInfo(p.locationId, p.name));
 			}
 			buttons.Add(new ButtonInfo(-1, "Pass"));
@@ -500,9 +445,9 @@ public class RealCard : IGamePiece {
 
 	public CardData data;
 
-	public RealCard(Role role) {
+	public RealCard(GameMaster gameMaster, Role role) {
 		data = GameData.instance.cardData.Single (cd => cd.role == role);
-		_gamePieceId = GameController.RegisterGamePiece(this);
+		_gamePieceId = gameMaster.RegisterGamePiece(this);
 		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
 	}
 }
@@ -530,11 +475,11 @@ public class CenterCardSlot : ILocation {
 			_currentCard = value;
 		}
 	}
-	public CenterCardSlot(int index, RealCard card) {
+	public CenterCardSlot(GameMaster gameMaster, int index, RealCard card) {
 		this.centerCardIndex = index;
 		this.dealtCard = card;
 		this._currentCard = card;
-		_locationId = GameController.RegisterLocation(this);
+		_locationId = gameMaster.RegisterLocation(this);
 		Debug.Log("Registered center card #" + (index + 1) + " as locationId = " + _locationId);
 	}
 }

@@ -10,96 +10,100 @@ public class WinTests {
 	public void VillagersWinIfNoWerewolvesPresentAndNoOneDies()
 	{
 		//Arrange
-		GameController.instance.players = new List<GamePlayer> {
-			new GamePlayer("A"),
-			new GamePlayer("B"),
-			new GamePlayer("C"),
+		GameMaster gm = new GameMaster();
+		gm.players = new List<GamePlayer> {
+			new GamePlayer(gm, 0, "A"),
+			new GamePlayer(gm, 1, "B"),
+			new GamePlayer(gm, 2, "C"),
 		};
-		foreach(GamePlayer player in GameController.instance.players) {
-			player.ReceiveDealtCard(new RealCard(Role.Villager));
+		foreach(GamePlayer player in gm.players) {
+			player.ReceiveDealtCard(new RealCard(gm, Role.Villager));
 			player.votedLocation = -1;
 		}
 
-		GameController.KillPlayers();
-		GameController.DetermineWinners();
+		gm.KillPlayers();
+		gm.DetermineWinners();
 
-		Assert.IsTrue(VillagersDidWin());
+		Assert.IsTrue(VillagersDidWin(gm.players));
 	}
 
 	[Test]
 	public void VillagersWinAndWerewolvesLoseIfAWerewolfDies() {
-		GameController.instance.players = new List<GamePlayer> {
-			new GamePlayer("A"),
-			new GamePlayer("B"),
-			new GamePlayer("C"),
+		GameMaster gm = new GameMaster();
+		gm.players = new List<GamePlayer> {
+			new GamePlayer(gm, 0, "A"),
+			new GamePlayer(gm, 1, "B"),
+			new GamePlayer(gm, 2, "C"),
 		};
 
-		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			GamePlayer player = GameController.instance.players[i];
+		for(int i = 0; i < gm.players.Count; i++) {
+			GamePlayer player = gm.players[i];
 			if(i == 0) {
-				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
-				player.votedLocation = GameController.instance.players[1].locationId;
+				player.ReceiveDealtCard(new RealCard(gm, Role.Werewolf));
+				player.votedLocation = gm.players[1].locationId;
 			} else {
-				player.ReceiveDealtCard(new RealCard(Role.Villager));
-				player.votedLocation = GameController.instance.players[0].locationId;
+				player.ReceiveDealtCard(new RealCard(gm, Role.Villager));
+				player.votedLocation = gm.players[0].locationId;
 			}
 		}
 
-		GameController.KillPlayers();
-		GameController.DetermineWinners();
+		gm.KillPlayers();
+		gm.DetermineWinners();
 
-		Assert.IsTrue(VillagersDidWin() && !WerewolvesDidWin());
+		Assert.IsTrue(VillagersDidWin(gm.players) && !WerewolvesDidWin(gm.players));
 	}
 
 	[Test]
 	public void WerewolvesWinAndVillagersLoseIfNoWerewolfIsKilled() {
-		GameController.instance.players = new List<GamePlayer> {
-			new GamePlayer("A"),
-			new GamePlayer("B"),
-			new GamePlayer("C"),
+		GameMaster gm = new GameMaster();
+		gm.players = new List<GamePlayer> {
+			new GamePlayer(gm, 0, "A"),
+			new GamePlayer(gm, 1, "B"),
+			new GamePlayer(gm, 2, "C"),
 		};
 
-		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			GamePlayer player = GameController.instance.players[i];
+		for(int i = 0; i < gm.players.Count; i++) {
+			GamePlayer player = gm.players[i];
 			if(i == 0) {
-				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
-				player.votedLocation = GameController.instance.players[1].locationId;
+				player.ReceiveDealtCard(new RealCard(gm, Role.Werewolf));
+				player.votedLocation = gm.players[1].locationId;
 			} else {
-				player.ReceiveDealtCard(new RealCard(Role.Villager));
-				player.votedLocation = GameController.instance.players[1].locationId;
+				player.ReceiveDealtCard(new RealCard(gm, Role.Villager));
+				player.votedLocation = gm.players[1].locationId;
 			}
 		}
 
-		GameController.KillPlayers();
-		GameController.DetermineWinners();
+		gm.KillPlayers();
+		gm.DetermineWinners();
 
-		Assert.IsTrue(!VillagersDidWin() && WerewolvesDidWin());
+		Assert.IsTrue(!VillagersDidWin(gm.players) && WerewolvesDidWin(gm.players));
 	}
 
 	[Test]
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
-//		GameController.instance.players = new List<Player> {
-//			new Player("A"),
-//			new Player("B"),
-//			new Player("C"),
-//		};
-		PlayerUi.uiEnabled = false;
-		GameController.instance.StartGame(new string[] { "A", "B", "C", },
-			new [] { Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
+		GameMaster gm = new GameMaster();
+		gm.players = new List<GamePlayer> {
+			new GamePlayer(gm, 0, "A"),
+			new GamePlayer(gm, 1, "B"),
+			new GamePlayer(gm, 2, "C"),
+		};
+		PlayerUi.uiEnabled = false; //TODO This should go without saying
+		gm.StartGame(new Dictionary<int, string> { {0, "A"}, {1, "B"}, {2, "C"} }, 
+			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
 			false
 		);
 			
-		GamePlayer werewolfDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
-		GamePlayer villagerDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Villager);
-		GamePlayer drunkDealtPlayer = GameController.instance.players.Single(p => p.dealtCard.data.role == Role.Drunk);
+		GamePlayer werewolfDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+		GamePlayer villagerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		GamePlayer drunkDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Drunk);
 
-		GameController.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
-		GameController.SubmitNightAction(villagerDealtPlayer, new Selection());
-		GameController.SubmitNightAction(drunkDealtPlayer, new Selection(GameController.instance.centerCards.Single(cs => cs.centerCardIndex == 0).locationId));
+		gm.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
+		gm.SubmitNightAction(villagerDealtPlayer, new Selection());
+		gm.SubmitNightAction(drunkDealtPlayer, new Selection(gm.centerCards.Single(cs => cs.centerCardIndex == 0).locationId));
 
-		GameController.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
-		GameController.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
-		GameController.SubmitVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
+		gm.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
+		gm.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
+		gm.SubmitVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
 
 //		GameController.ExecuteNightActionsInOrder();
 //		GameController.KillPlayers();
@@ -108,9 +112,9 @@ public class WinTests {
 		Assert.IsTrue(drunkDealtPlayer.didWin);
 	}
 
-	private bool VillagersDidWin() {
+	private static bool VillagersDidWin(List<GamePlayer> players) {
 		List<bool> villagerWins = new List<bool>();
-		foreach(GamePlayer player in GameController.instance.players) {
+		foreach(GamePlayer player in players) {
 			if(player.currentCard.data.nature == Nature.Villageperson) {
 				villagerWins.Add(player.didWin);
 			}
@@ -118,9 +122,9 @@ public class WinTests {
 		return villagerWins.All(p => p == true);
 	}
 
-	private bool WerewolvesDidWin() {
+	private static bool WerewolvesDidWin(List<GamePlayer> players) {
 		List<bool> werewolfWins = new List<bool>();
-		foreach(GamePlayer player in GameController.instance.players) {
+		foreach(GamePlayer player in players) {
 			if(player.currentCard.data.nature == Nature.Werewolf) {
 				werewolfWins.Add(player.didWin);
 			}

@@ -14,13 +14,13 @@ public abstract class RemoteConnector { //Singleton instance stored on GameContr
 	//Events
 	public event PayloadHandler OnPayloadReceived;
 
-	public RemoteConnector (string name, PayloadHandler handler) {
+	public RemoteConnector (PayloadHandler handler) {
 		OnPayloadReceived += handler;
 
-		JoinSession(name);
+		JoinSession();
 	}
 
-	public abstract void JoinSession(string name);
+	public abstract void JoinSession();
 
 //	public abstract void JoinSession() {
 ////		OnPayloadReceived.Invoke();
@@ -35,14 +35,14 @@ public abstract class RemoteConnector { //Singleton instance stored on GameContr
 
 public class EditorConnector : RemoteConnector {
 
-	public EditorConnector(string name, PayloadHandler handler) : base (name, handler) { }
+	public EditorConnector(PayloadHandler handler) : base (handler) { }
 
-	public override void JoinSession (string name) {
-		MockupServer.Instance.HandleClientNewUser(this, name);
+	public override void JoinSession () {
+		SimulatedRoom.instance.server.HandleClientNewUser(this);
 	}
 
 	public override void BroadcastEvent (RemotePayload payload) {
-		MockupServer.Instance.HandleClientSendEvent(payload);
+		SimulatedRoom.instance.server.HandleClientSendEvent(payload);
 	}
 }
 
@@ -54,18 +54,20 @@ public abstract class RemotePayload {
 	}
 }
 
+public abstract class GamePayload : RemotePayload {
+	public GamePayload(int sourceClientId) : base(sourceClientId) { }
+}
 
+public class NightActionPayload : GamePayload {
+	public Selection selection;
 
-public class NightActionPayload : RemotePayload {
-	List<HiddenAction> actionProcedure;
-
-	public NightActionPayload (int sourceClientId, List<HiddenAction> procedure) : base (sourceClientId) {
-		this.actionProcedure = new List<HiddenAction> (procedure);
+	public NightActionPayload (int sourceClientId, Selection selection) : base (sourceClientId) {
+		this.selection = selection;
 	}
 }
 
-public class VotePayload : RemotePayload {
-	int voteeLocationId;
+public class VotePayload : GamePayload {
+	public int voteeLocationId;
 
 	public VotePayload (int sourceClientId, int voteeLocationId) : base (sourceClientId) {
 		this.voteeLocationId = voteeLocationId;
@@ -82,20 +84,20 @@ public abstract class PlayerUpdatePayload : RemotePayload { //Player join, playe
 
 public class WelcomeBasketPayload : PlayerUpdatePayload { //This is the only event that is only sent to one device. Don't you feel special?
 	//Source location id is newly assigned self
-	public WelcomeBasketPayload (int sourceLocationId, Dictionary<int, string> connectedPlayersByLocationId) : 
-	base (sourceLocationId, connectedPlayersByLocationId) {}
+	public WelcomeBasketPayload (int sourceClientId, Dictionary<int, string> connectedPlayersByLocationId) : 
+	base (sourceClientId, connectedPlayersByLocationId) {}
 
 }
 
 public class UpdateOtherPayload : PlayerUpdatePayload {
-	public UpdateOtherPayload (int sourceLocationId, Dictionary<int, string> connectedPlayersByLocationId) : 
-	base (sourceLocationId, connectedPlayersByLocationId) {}
+	public UpdateOtherPayload (int sourceClientId, Dictionary<int, string> connectedPlayersByLocationId) : 
+	base (sourceClientId, connectedPlayersByLocationId) {}
 }
 
 public class StartGamePayload : RemotePayload {
 	public float randomSeed;
 
-	public StartGamePayload (int sourceLocationId, float randomSeed) : base (sourceLocationId) {
+	public StartGamePayload (int sourceClientId, float randomSeed) : base(sourceClientId) {
 		this.randomSeed = randomSeed;
 	}
 

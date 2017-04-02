@@ -100,13 +100,14 @@ public class GameData : MonoBehaviour {
 			string seedRequirement = selectorString;
 			try {
 				selector = new Selector(((Role)Enum.Parse(typeof(Role), seedRequirement)));
-			} catch (Exception e) { }
+			} catch (Exception e) { Debug.LogError(e); }
 			if (selector.isEmpty) {
 				try {
 					string natureSubstring = seedRequirement.Substring (6);
 					Nature nature = ((Nature)Enum.Parse (typeof(Nature), natureSubstring));
 					selector = new Selector (nature); //Start after "Nature"
 				} catch (Exception e) {
+					Debug.LogError(e);
 				}
 			}
 			if (selector.isEmpty) {

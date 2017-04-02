@@ -14,41 +14,42 @@ public class ManipulationTests {
 	[Test]
 	public void TroublemakersNightActionWorks() {
 		//Arrange
-		GameController.instance.players = new List<GamePlayer> {
-			new GamePlayer("A"),
-			new GamePlayer("B"),
-			new GamePlayer("C"),
+		GameMaster gm = new GameMaster(); 
+		gm.players = new List<GamePlayer> {
+			new GamePlayer(gm, 0, "0"),
+			new GamePlayer(gm, 1, "1"),
+			new GamePlayer(gm, 2, "2"),
 		};
 
 		int dealtTroublemakerLocationId = -1;
 		int dealtWerewolfLocationId = -1;
 		int dealtVillagerLocationId = -1;
 
-		for(int i = 0; i < GameController.instance.players.Count; i++) {
-			GamePlayer player = GameController.instance.players[i];
+		for(int i = 0; i < gm.players.Count; i++) {
+			GamePlayer player = gm.players[i];
 			if(i == 0) {
-				player.ReceiveDealtCard(new RealCard(Role.Troublemaker));
+				player.ReceiveDealtCard(new RealCard(gm, Role.Troublemaker));
 				dealtTroublemakerLocationId = player.locationId;
 			} else if(i == 1) {
-				player.ReceiveDealtCard(new RealCard(Role.Villager));
+				player.ReceiveDealtCard(new RealCard(gm, Role.Villager));
 				dealtVillagerLocationId = player.locationId;
 			} else {
-				player.ReceiveDealtCard(new RealCard(Role.Werewolf));
+				player.ReceiveDealtCard(new RealCard(gm, Role.Werewolf));
 				dealtWerewolfLocationId = player.locationId;
 			}
 		}
 
-		GameController.instance.players.Single(p => p.locationId == dealtTroublemakerLocationId).nightLocationSelection = 
+		gm.players.Single(p => p.locationId == dealtTroublemakerLocationId).nightLocationSelection = 
 			new Selection(dealtWerewolfLocationId, dealtVillagerLocationId);
-		GameController.instance.players.Single(p => p.locationId == dealtWerewolfLocationId).nightLocationSelection = 
+		gm.players.Single(p => p.locationId == dealtWerewolfLocationId).nightLocationSelection = 
 			new Selection(-1);
 
 
-		GameController.ExecuteNightActionsInOrder();
+		gm.ExecuteNightActionsInOrder();
 
 		//Assert
-		Assert.IsTrue(GameController.instance.players.Single(p => p.locationId == dealtVillagerLocationId).currentCard.data.role == Role.Werewolf &&
-			GameController.instance.players.Single(p => p.locationId == dealtWerewolfLocationId).currentCard.data.role == Role.Villager);
+		Assert.IsTrue(gm.players.Single(p => p.locationId == dealtVillagerLocationId).currentCard.data.role == Role.Werewolf &&
+			gm.players.Single(p => p.locationId == dealtWerewolfLocationId).currentCard.data.role == Role.Villager);
 	}
 
 

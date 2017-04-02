@@ -64,7 +64,7 @@ public class PlayerUi : MonoBehaviour {
 	//Day voting
 	Transform day_VoteButtonBox;
 	Text day_Description;
-	Text day_Timer;
+//	Text day_Timer;
 
 	//Result
 	Text result_Title;
@@ -92,7 +92,7 @@ public class PlayerUi : MonoBehaviour {
 		//Day_Voting
 		day_VoteButtonBox = transform.Find("Day_Voting/VotePanel/Grid/");
 		day_Description = transform.Find("Day_Voting/Description").GetComponent<Text>();
-		day_Timer = transform.Find("Day_Voting/Timer").GetComponent<Text>();
+//		day_Timer = transform.Find("Day_Voting/Timer").GetComponent<Text>();
 
 		//Result
 		result_Title = transform.Find("Result/Title").GetComponent<Text>();
@@ -161,12 +161,12 @@ public class PlayerUi : MonoBehaviour {
 			break;
 		case UiScreen.Day_Voting:
 
-			//Create buttons
-//			print("adding " + GameController.instance.players.Count + " buttons");
-			foreach(GamePlayer p in GameController.instance.players) {
-				if(p == player) continue;
-				AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
-			}
+			//Create buttons 
+			//TODO Restore button creation
+//			foreach(GamePlayer p in GameController.instance.players) {
+//				if(p == player) continue;
+//				AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
+//			}
 			AddLocationButton("[No one]", -1, day_VoteButtonBox);
 
 			string descriptionText = "";
@@ -185,14 +185,17 @@ public class PlayerUi : MonoBehaviour {
 					descriptionText += "You observed that no one was dealt a " + player.dealtCard.data.cohort.ToString() + ". ";
 				} else {
 					foreach(int locationId in player.cohortLocations) {
-						descriptionText += "You observed that " + GameController.instance.idsToLocations[locationId].name + " was dealt a " + player.dealtCard.data.cohort.ToString() + ". ";
+						//TODO Restore observation logging
+//						descriptionText += "You observed that " + GameController.instance.idsToLocations[locationId].name + " was dealt a " + player.dealtCard.data.cohort.ToString() + ". ";
 					}
 				}
 			}
 			//Observation- "You observed center card #2 to be the seer at +2";
 			foreach(Observation observation in player.observations) {
-				descriptionText += "You observed " + GameController.instance.idsToLocations[observation.locationId].name + " to be the " + 
-					GameController.instance.gamePiecesById[observation.gamePieceId].name + " at " + player.dealtCard.data.order.ToString();
+
+				//TODO Restore observation
+//				descriptionText += "You observed " + GameController.instance.idsToLocations[observation.locationId].name + " to be the " + 
+//					GameController.instance.gamePiecesById[observation.gamePieceId].name + " at " + player.dealtCard.data.order.ToString();
 			}
 			day_Description.text = descriptionText;
 
@@ -206,10 +209,11 @@ public class PlayerUi : MonoBehaviour {
 			descriptionString += "You are the " + player.currentCard.name + ". ";
 			//Player(s) that died "Frank and Ellen died."
 			//Dying players' identities "Frank was the werewolf. Ellen was the mason."
-			GamePlayer[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
-			for(int i = 0; i < killedPlayers.Length; i++) {
-				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
-			}
+			//TODO Restore death printing
+//			GamePlayer[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
+//			for(int i = 0; i < killedPlayers.Length; i++) {
+//				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
+//			}
 			result_Description.text = descriptionString;
 			break;
 		}
@@ -226,18 +230,24 @@ public class PlayerUi : MonoBehaviour {
 	}
 
 	private void SubmitNightAction(int[] locationId) {
-		Selection selection = new Selection(locationId);
-		foreach(Transform button in nightInput_ButtonBox.transform) {
-			Destroy(button.gameObject);
-		}
-		GameController.SubmitNightAction(player, selection);
+		throw new NotImplementedException("I broke it");
+		//TODO Restore night action submission
+
+//		Selection selection = new Selection(locationId);
+//		foreach(Transform button in nightInput_ButtonBox.transform) {
+//			Destroy(button.gameObject);
+//		}
+//		GameController.SubmitNightAction(player, selection);
 	}
 
 	private void SubmitVote(int locationId) {
-		foreach(Transform button in day_VoteButtonBox.transform) {
-			Destroy(button.gameObject);
-		}
-		GameController.SubmitVote(player, locationId);
+		throw new NotImplementedException("Nope.");
+
+//		foreach(Transform button in day_VoteButtonBox.transform) {
+//			Destroy(button.gameObject);
+//		}
+		//TODO Restore vote submission
+//		GameController.SubmitVote(player, locationId);
 	}
 
 }
