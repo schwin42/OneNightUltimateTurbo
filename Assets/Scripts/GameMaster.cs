@@ -448,7 +448,7 @@ public class RealCard : IGamePiece {
 	public RealCard(GameMaster gameMaster, Role role) {
 		data = GameData.instance.cardData.Single (cd => cd.role == role);
 		_gamePieceId = gameMaster.RegisterGamePiece(this);
-		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
+//		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
 	}
 }
 

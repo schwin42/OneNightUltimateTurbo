@@ -22,9 +22,14 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 			return _server;
 		}
 	}
-	List<PersistentPlayer> players;
+
+	public List<PersistentPlayer> players;
 
 	public void LaunchGame(int playerCount, List<Role> deckTemplate) {
+
+		_server = new VirtualServer();
+
+		players = new List<PersistentPlayer>();
 		for(int i = 0; i < playerCount; i++) {
 			players.Add(new PersistentPlayer());
 		}
@@ -32,30 +37,26 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 		for(int i = 0; i < players.Count; i++) {
 			players[i].SetName("Player" + i.ToString());
 			players[i].SetSelectedDeck(deckTemplate);
+			players[i].connector.JoinSession(players[i].name);
 		}
 
-		players[0].BeginGame();
 	}
 
 	void Start() {
-		_server = new VirtualServer();
-
-		players = new List<PersistentPlayer>();
-		for(int i = 0; i < playerCount; i++) {
-			players.Add(new PersistentPlayer());
-		}
-
 		LaunchGame(5, new List<Role> { Role.Werewolf, Role.Werewolf, Role.Robber, Role.Troublemaker, Role.Villager, Role.Villager, Role.Mason, Role.Mason });
 
-		//Make night action selections for all charaters
-		foreach(PersistentPlayer player in players) {
-			player.connector.BroadcastEvent(new NightActionPayload(player.clientId, new Selection( new int[] { -1 })));
-		}
+		players[0].BeginGame();
 
-		//Input votes
-		foreach(PersistentPlayer player in players) {
-			player.connector.BroadcastEvent(new VotePayload(player.clientId, 0));
-		}
+
+//		//Make night action selections for all charaters
+//		foreach(PersistentPlayer player in players) {
+//			player.connector.BroadcastEvent(new NightActionPayload(player.connector.selfClientId, new Selection( new int[] { -1 })));
+//		}
+//
+//		//Input votes
+//		foreach(PersistentPlayer player in players) {
+//			player.connector.BroadcastEvent(new VotePayload(player.connector.selfClientId, 0));
+//		}
 
 
 	}

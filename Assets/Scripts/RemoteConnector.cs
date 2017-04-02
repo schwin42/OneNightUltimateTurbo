@@ -4,48 +4,66 @@ using UnityEngine;
 
 public delegate void PayloadHandler(RemotePayload payload); //A payload tells the client to change its local state
 
+//[System.Serializable]
+//public abstract class RemoteConnector { //Singleton instance stored on GameController, not monobehavior
+//
+//	//State
+//	public Dictionary<int, string> connectedPlayers;
+//
+//	public int selfClientId = -1; //Acquired on successful connection to lobby
+//
+//	//Events
+//	public event PayloadHandler OnPayloadReceived;
+//
+//	public RemoteConnector (PayloadHandler handler) {
+//		OnPayloadReceived += handler;
+//	}
+//
+//	public abstract void JoinSession(string name);
+//
+////	public abstract void JoinSession() {
+//////		OnPayloadReceived.Invoke();
+////	}
+//
+//	public abstract void BroadcastEvent(RemotePayload payload);
+//
+//	public void HandlePayloadReceived(RemotePayload payload) {
+//		OnPayloadReceived.Invoke(payload);
+//	}
+//}
 
-public abstract class RemoteConnector { //Singleton instance stored on GameController, not monobehavior
+[System.Serializable]
+public class EditorConnector {
 
-	//State
-	public Dictionary<int, string> connectedPlayers;
-	public int selfClientId; //Acquired on successful connection to lobby
+	public int selfClientId = -1;
+	public Dictionary<int, string> connectedPlayersById;
 
 	//Events
 	public event PayloadHandler OnPayloadReceived;
 
-	public RemoteConnector (PayloadHandler handler) {
+	public EditorConnector(PayloadHandler handler) {
 		OnPayloadReceived += handler;
 	}
 
-	public abstract void JoinSession();
+	public void JoinSession (string name) {
+		Debug.Log("Sending join session event for: " + name);
+		SimulatedRoom.instance.server.HandleClientNewUser(this, name);
 
-//	public abstract void JoinSession() {
-////		OnPayloadReceived.Invoke();
-//	}
+	}
 
-	public abstract void BroadcastEvent(RemotePayload payload);
+	public void BroadcastEvent (RemotePayload payload) {
+		SimulatedRoom.instance.server.HandleClientSendEvent(payload);
+		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
+	}
 
 	public void HandlePayloadReceived(RemotePayload payload) {
 		OnPayloadReceived.Invoke(payload);
 	}
 }
 
-public class EditorConnector : RemoteConnector {
-
-	public EditorConnector(PayloadHandler handler) : base (handler) { }
-
-	public override void JoinSession () {
-		SimulatedRoom.instance.server.HandleClientNewUser(this);
-	}
-
-	public override void BroadcastEvent (RemotePayload payload) {
-		SimulatedRoom.instance.server.HandleClientSendEvent(payload);
-	}
-}
-
 public abstract class RemotePayload {
 	public int sourceClientId;
+	public Dictionary<int, string> connectedPlayersById;
 
 	public RemotePayload(int sourceClientId) {
 		this.sourceClientId = sourceClientId;

@@ -5,27 +5,14 @@ using System.Linq;
 
 [System.Serializable]
 public class PersistentPlayer {
-
-	public int clientId {
-		get {
-			return connector.selfClientId;
-		}
-	}
-
-	string name;
-	private RemoteConnector _connector;
-	public RemoteConnector connector {
-		get {
-			return _connector;
-		}
-	}
+	public string name;
+	public EditorConnector connector;
 	GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
 
-	public List<Role> selectedDeckBlueprint;	
+	public List<Role> selectedDeckBlueprint;
 
 	public PersistentPlayer() {
-		_connector = new EditorConnector(HandleRemotePayload);
-		_connector.JoinSession();
+		connector = new EditorConnector(HandleRemotePayload);
 	}
 
 	public void SetName(string s) {
@@ -42,21 +29,26 @@ public class PersistentPlayer {
 	}
 
 	void HandleRemotePayload(RemotePayload payload) {
+		Debug.Log("self: " + connector.selfClientId);
 		//If game event, pass to GameMaster
 		if(payload is GamePayload) {
 			gameMaster.ReceiveDirective((GamePayload)payload);
 		} else if(payload is WelcomeBasketPayload) { 
 			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
+			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
 			connector.selfClientId = basket.sourceClientId;
-			connector.connectedPlayers = basket.connectedPlayersByClientId;
+			Debug.Log("Self client id set to: " + connector.selfClientId);
+			connector.connectedPlayersById = basket.connectedPlayersByClientId;
 		} else if(payload is UpdateOtherPayload) {
 			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-			connector.connectedPlayers = update.connectedPlayersByClientId;
+			Debug.Log("Update other payload received by " + connector.selfClientId + ": source, count: " + update.sourceClientId.ToString() + ", " + update.connectedPlayersByClientId.Count);
+			connector.connectedPlayersById = update.connectedPlayersByClientId;
 		} else if (payload is StartGamePayload) {
+			Debug.Log("Start game received by: " + connector.selfClientId);
 			StartGamePayload start = ((StartGamePayload)payload);
 			float randomSeed = start.randomSeed;
 			gameMaster = new GameMaster(); //Implement random seed
-			gameMaster.StartGame(connector.connectedPlayers, selectedDeckBlueprint.ToArray(), true, randomSeed); //TODO Pass random seed
+			gameMaster.StartGame(connector.connectedPlayersById, selectedDeckBlueprint.ToArray(), true, randomSeed); //TODO Pass random seed
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
