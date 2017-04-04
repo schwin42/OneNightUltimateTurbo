@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 using System;
-using UnityEditor;
 using System.Linq;
 
 public class GameData : MonoBehaviour {
@@ -24,8 +23,8 @@ public class GameData : MonoBehaviour {
 	public List<CardData> cardData = new List<CardData>();
 	public List<CardData> cardPool = new List<CardData>(); //Includes copies of duplicate roles
 
-	[MenuItem ("ONU/Load Data from File")]
-	public static void LoadDataFromFile() {
+
+	public void LoadDataFromFile() {
 
 		string[] lines = File.ReadAllLines(Application.dataPath + "/" + sourceDir + "/" + sourceFilename);
 		List<string> headers = new List<string>();
@@ -100,15 +99,13 @@ public class GameData : MonoBehaviour {
 			string seedRequirement = selectorString;
 			try {
 				selector = new Selector(((Role)Enum.Parse(typeof(Role), seedRequirement)));
-			} catch (Exception e) { Debug.LogError(e); }
+			} catch (Exception e) { }
 			if (selector.isEmpty) {
 				try {
 					string natureSubstring = seedRequirement.Substring (6);
 					Nature nature = ((Nature)Enum.Parse (typeof(Nature), natureSubstring));
 					selector = new Selector (nature); //Start after "Nature"
-				} catch (Exception e) {
-					Debug.LogError(e);
-				}
+				} catch (Exception e) {	}
 			}
 			if (selector.isEmpty) {
 				selector = new Selector (((SpecialSelection)Enum.Parse (typeof(SpecialSelection), seedRequirement)));

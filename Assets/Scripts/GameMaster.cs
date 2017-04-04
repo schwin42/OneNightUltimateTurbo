@@ -16,8 +16,14 @@ public class GameMaster {
 
 	public Role[] deckBlueprint;
 
-	public GameMaster () {
-	
+	public GameMaster()
+	{
+		locationsById = new List<ILocation>();
+		gamePiecesById = new List<IGamePiece>();
+	}
+
+	public GameMaster (PlayerUi ui) {
+		this.ui = ui;
 		locationsById = new List<ILocation>();
 		gamePiecesById = new List<IGamePiece>();
 	} 
@@ -27,13 +33,15 @@ public class GameMaster {
 	//The deck will be selected/ randomly generated before game start
 	public List<RealCard> gameDeck;
 
+	//Configuration
+	PlayerUi ui;
+
 	//Game state
 	public float gameId;
 	public List<GamePlayer> players;
 	public List<CenterCardSlot> centerCards;
 
 	//Bookkeeping
-//	List<PlayerUi> playerUis;
 	List<GamePlayer> playersAwaitingResponseFrom;
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
@@ -63,7 +71,7 @@ public class GameMaster {
 //			playersByClientId.Add(connector.conn, player);
 //		}
 
-		PlayerUi.Initialize(players);
+		//PlayerUi.Initialize(players);
 
 		//Shuffle cards
 		if(randomizeDeck) {
@@ -108,7 +116,7 @@ public class GameMaster {
 				player.prompt = new RealizedPrompt(player.locationId, players, centerCards); //Player and center card state is passed to give prompt concrete id choices
 			}
 
-			PlayerUi.SetState(PlayerUi.UiScreen.Night_InputControl);
+			if(ui != null) ui.SetState(PlayerUi.UiScreen.Night_InputControl);
 
 			//Wait for responses
 			playersAwaitingResponseFrom = new List<GamePlayer>(players);
@@ -117,15 +125,15 @@ public class GameMaster {
 		case GamePhase.Day:
 			ExecuteNightActionsInOrder();
 
-			//Reveal information to seer roles
-			PlayerUi.SetState(PlayerUi.UiScreen.Day_Voting);
+				//Reveal information to seer roles
+			if(ui != null) ui.SetState(PlayerUi.UiScreen.Day_Voting);
 
 			playersAwaitingResponseFrom = new List<GamePlayer>(players);
 			break;
 		case GamePhase.Result:
 			KillPlayers();
 			DetermineWinners();
-			PlayerUi.SetState(PlayerUi.UiScreen.Result);
+			if(ui != null) ui.SetState(PlayerUi.UiScreen.Result);
 			break;
 		}
 	}
@@ -340,6 +348,7 @@ public class GameMaster {
 		}
 		return locationsIds;
 	}
+	
 }
 
 [System.Serializable]

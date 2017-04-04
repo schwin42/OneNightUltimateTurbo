@@ -6,6 +6,18 @@ using System.Linq;
 [System.Serializable]
 public class VirtualServer : MonoBehaviour {
 
+	private static VirtualServer _instance;
+	public static VirtualServer instance
+	{
+		get
+		{
+			if (_instance == null) {
+				_instance = GameObject.FindObjectOfType<VirtualServer>();
+			}
+			return _instance;
+		}
+	}
+
 	//State
 	private int nextLocationId = 0;
 	public Dictionary<int, EditorConnector> connectorsByClientId = new Dictionary<int, EditorConnector>();

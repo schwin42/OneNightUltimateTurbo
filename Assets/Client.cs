@@ -4,19 +4,38 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
-public class PersistentPlayer : MonoBehaviour{
+public class Client : MonoBehaviour{
 	public string playerName;
 	public int selfClientId = -1;
 
 	public List<string> playerNames;
 	public List<int> connectedClientIds;
 
-	public EditorConnector connector;
+	//Configuration
+	private EditorConnector _connector;
+	public EditorConnector connector
+	{
+		get
+		{
+			return _connector;
+		}
+	}
+
+	private PlayerUi _ui;
+	public PlayerUi ui
+	{
+		get
+		{
+			return _ui;
+		}
+	}
+
+	//State
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
 	public List<Role> selectedDeckBlueprint;
 
-	public PersistentPlayer() {
-		connector = new EditorConnector(this);
+	public Client() {
+		_connector = new EditorConnector(this);
 	}
 
 	public void SetName(string s) {
@@ -44,18 +63,18 @@ public class PersistentPlayer : MonoBehaviour{
 			Debug.Log("Self client id set to: " + selfClientId);
 			playerNames = basket.playerNames;
 			connectedClientIds = basket.clientIds;
-//			StartCoroutine(SanityCheck(this));
+			ui.HandlePlayersUpdated(playerNames);
 		} else if(payload is UpdateOtherPayload) {
 			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
 			this.playerNames = update.playerNames;
 			this.connectedClientIds = update.clientIds;
 			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
-
+			ui.HandlePlayersUpdated(playerNames);
 		} else if (payload is StartGamePayload) {
 			Debug.Log("Start game received by: " + selfClientId);
 			StartGamePayload start = ((StartGamePayload)payload);
 			float randomSeed = start.randomSeed;
-			gameMaster = new GameMaster(); //Implement random seed
+			gameMaster = new GameMaster(ui); //Implement random seed
 			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed); //TODO Pass random seed
 			Debug.Log("Final self, names, ids: " + selfClientId + ", " + playerNames.Count + ", " + connectedClientIds.Count);
 		} else {
@@ -63,9 +82,14 @@ public class PersistentPlayer : MonoBehaviour{
 		}
 	}
 
-//	IEnumerator SanityCheck(PersistentPlayer player) {
-//		yield return new WaitForSeconds(1);
-//
-//		Debug.Log("self client id = " + player.selfClientId);
-//	}
+	public void JoinGame()
+	{
+		connector.JoinSession(playerName);
+	}
+
+	void Start()
+	{
+		_ui = GetComponent<PlayerUi>();
+		_ui.Initialize(this);
+	}
 }

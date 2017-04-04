@@ -34,16 +34,15 @@ public delegate void PayloadHandler(RemotePayload payload); //A payload tells th
 
 public class EditorConnector {
 
-	PersistentPlayer player;
+	Client player;
 
-	public EditorConnector(PersistentPlayer player) {
+	public EditorConnector(Client player) {
 		this.player = player;
 	}
 
 	public void JoinSession (string name) {
 		Debug.Log("Sending join session event for: " + name);
-		SimulatedRoom.instance.server.HandleClientNewUser(this, name);
-
+		VirtualServer.instance.HandleClientNewUser(this, name);
 	}
 
 	public void BroadcastEvent (RemotePayload payload) {
