@@ -8,18 +8,6 @@ using System.Linq;
 
 public class PlayerUi : MonoBehaviour {
 
-	private static PlayerUi[] _instances;
-	public static PlayerUi[] instances
-	{
-		get
-		{
-			if (_instances == null) {
-				_instances = GameObject.FindObjectsOfType<PlayerUi>();
-			}
-			return _instances;
-		}
-	}
-
 	public enum UiScreen {
 		Uninitialized = -1,
 		PlayerEntry = 0,
@@ -30,23 +18,12 @@ public class PlayerUi : MonoBehaviour {
 
 	}
 
-	public static bool uiEnabled = true;
-
-	public static List<PlayerUi> playerUis;
-
-	public static void WriteRoleToTitle() {
-		if(!uiEnabled) return;
-		foreach(PlayerUi playerUi in playerUis) {
-			playerUi.Instance_WriteRoleToTitle();
-		}
-	}
-
 	private UiScreen currentScreen = UiScreen.Uninitialized;
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject>();
 
 	Client client;
-	GamePlayer player;
+	GamePlayer gamePlayer;
 
 	Text playerName;
 
@@ -55,6 +32,7 @@ public class PlayerUi : MonoBehaviour {
 
 	//Lobby
 	Text lobby_playersLabel;
+	Button lobby_startButton;
 
 	//Night input screen
 	Text nightInput_Title;
@@ -87,6 +65,7 @@ public class PlayerUi : MonoBehaviour {
 
 		//Lobby
 		lobby_playersLabel = transform.Find("Lobby/Description").GetComponent<Text>();
+		lobby_startButton = transform.Find ("Lobby/StartButton").GetComponent<Button> ();
 
 		//Night_InputControl
 		nightInput_Title = transform.Find("Night_InputControl/Title").GetComponent<Text>();
@@ -107,8 +86,8 @@ public class PlayerUi : MonoBehaviour {
 
 	}
 
-	private void Instance_WriteRoleToTitle() {
-		nightInput_Title.text = "You are the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString();
+	public void WriteRoleToTitle() {
+		nightInput_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString() + " " + gamePlayer.dealtCard.data.order.ToString();
 	}
 
 	private void AddLocationButton(string label, int locationId, Transform parent) {
@@ -122,7 +101,7 @@ public class PlayerUi : MonoBehaviour {
 
 	public void HandleButtonClick(int locationId) {
 		if(currentScreen == UiScreen.Night_InputControl) {
-		switch(player.prompt.options) {
+		switch(gamePlayer.prompt.options) {
 		case OptionsSet.None:
 		case OptionsSet.May_CenterCard:
 		case OptionsSet.Must_CenterCard:
@@ -135,7 +114,7 @@ public class PlayerUi : MonoBehaviour {
 				}
 			break;
 		default:
-			Debug.LogError("Unhandled options set: " + player.prompt.options);
+			Debug.LogError("Unhandled options set: " + gamePlayer.prompt.options);
 			break;
 		}
 		} else if(currentScreen == UiScreen.Day_Voting) {
@@ -143,9 +122,9 @@ public class PlayerUi : MonoBehaviour {
 		}
 	}
 
-	public void SetState(UiScreen targetScreen) {
-		print("instance set state");
-			if (targetScreen == currentScreen) return;
+	public void SetState(UiScreen targetScreen)
+	{
+		if (targetScreen == currentScreen) return;
 
 			switch (targetScreen) {
 				case UiScreen.Night_InputControl:
@@ -157,10 +136,10 @@ public class PlayerUi : MonoBehaviour {
 					//Location selection- You may look at the card of another player or two cards from the center.
 					//Selection controls- [Buttons for the three center cards]
 					List<string> descriptionStrings = new List<string>();
-					descriptionStrings.Add(Team.teams.Single(t => t.name == player.dealtCard.data.team).description);
-					descriptionStrings.Add(player.prompt.cohortString);
+					descriptionStrings.Add(Team.teams.Single(t => t.name == gamePlayer.dealtCard.data.team).description);
+					descriptionStrings.Add(gamePlayer.prompt.cohortString);
 					nightInput_Description.text = string.Join(" ", descriptionStrings.ToArray());
-					foreach (ButtonInfo info in player.prompt.buttons) {
+					foreach (ButtonInfo info in gamePlayer.prompt.buttons) {
 						AddLocationButton(info.label, info.locationId, nightInput_ButtonBox);
 					}
 					night_Selections = new List<int>();
@@ -178,26 +157,26 @@ public class PlayerUi : MonoBehaviour {
 					string descriptionText = "";
 					//Write description
 					//Dealt role- "You were dealt the werewolf."
-					descriptionText += "You were dealt the " + player.dealtCard.data.role.ToString() + ". ";
+					descriptionText += "You were dealt the " + gamePlayer.dealtCard.data.role.ToString() + ". ";
 					//Team allegiance- "The werewolf is on the werewolf team"
-					descriptionText += "The " + player.dealtCard.data.role.ToString() + " is on the " + player.dealtCard.data.team + ". ";
+					descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString() + " is on the " + gamePlayer.dealtCard.data.team + ". ";
 					//Nature clarity if relevant- "The minion is a villageperson."
-					descriptionText += "The " + player.dealtCard.data.role.ToString() + " is a " + player.dealtCard.data.nature + ". ";
+					descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString() + " is a " + gamePlayer.dealtCard.data.nature + ". ";
 					//Special win conditions- "If there are no other werewolves, the minion wins if an *other* player dies."
 					//Cohort type- "You can see other werewolves."
 					//Cohort players- "Allen was dealt the werewolf."
-					if (player.cohortLocations != null) {
-						if (player.cohortLocations.Length == 0) {
-							descriptionText += "You observed that no one was dealt a " + player.dealtCard.data.cohort.ToString() + ". ";
+					if (gamePlayer.cohortLocations != null) {
+						if (gamePlayer.cohortLocations.Length == 0) {
+							descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString() + ". ";
 						} else {
-							foreach (int locationId in player.cohortLocations) {
+							foreach (int locationId in gamePlayer.cohortLocations) {
 								//TODO Restore observation logging
 								//						descriptionText += "You observed that " + GameController.instance.idsToLocations[locationId].name + " was dealt a " + player.dealtCard.data.cohort.ToString() + ". ";
 							}
 						}
 					}
 					//Observation- "You observed center card #2 to be the seer at +2";
-					foreach (Observation observation in player.observations) {
+					foreach (Observation observation in gamePlayer.observations) {
 
 						//TODO Restore observation
 						//				descriptionText += "You observed " + GameController.instance.idsToLocations[observation.locationId].name + " to be the " + 
@@ -209,10 +188,10 @@ public class PlayerUi : MonoBehaviour {
 
 					break;
 				case UiScreen.Result:
-					result_Title.text = player.didWin ? "You won!" : "You lost!";
+					result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
 					string descriptionString = "";
 					//Current player's identity "You are the werewolf."
-					descriptionString += "You are the " + player.currentCard.name + ". ";
+					descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
 					//Player(s) that died "Frank and Ellen died."
 					//Dying players' identities "Frank was the werewolf. Ellen was the mason."
 					//TODO Restore death printing
@@ -236,24 +215,21 @@ public class PlayerUi : MonoBehaviour {
 	}
 
 	private void SubmitNightAction(int[] locationId) {
-		throw new NotImplementedException("I broke it");
-		//TODO Restore night action submission
 
-//		Selection selection = new Selection(locationId);
-//		foreach(Transform button in nightInput_ButtonBox.transform) {
-//			Destroy(button.gameObject);
-//		}
-//		GameController.SubmitNightAction(player, selection);
+		Selection selection = new Selection(locationId);
+		foreach(Transform button in nightInput_ButtonBox.transform) {
+			Destroy(button.gameObject);
+		}
+
+		client.gameMaster.SubmitNightAction (gamePlayer, selection);
 	}
 
 	private void SubmitVote(int locationId) {
-		throw new NotImplementedException("Nope.");
 
-//		foreach(Transform button in day_VoteButtonBox.transform) {
-//			Destroy(button.gameObject);
-//		}
-		//TODO Restore vote submission
-//		GameController.SubmitVote(player, locationId);
+		foreach(Transform button in day_VoteButtonBox.transform) {
+			Destroy(button.gameObject);
+		}
+		client.gameMaster.SubmitVote (gamePlayer, locationId);
 	}
 
 	public void HandleJoinButtonPressed()
@@ -268,8 +244,7 @@ public class PlayerUi : MonoBehaviour {
 		SetState(UiScreen.Lobby);
 	}
 
-	public void HandlePlayersUpdated(List<string> playerNames)
-	{
+	public void HandlePlayersUpdated(List<string> playerNames) {
 			print("Players updated");
 			string s = "";
 			for (int i = 0; i < playerNames.Count; i++) {
@@ -280,4 +255,13 @@ public class PlayerUi : MonoBehaviour {
 			}
 			lobby_playersLabel.text = s;
 		}
+
+	public void HandleStartGameCommand() {
+		lobby_startButton.interactable = false;
+		client.BeginGame ();
+	}
+
+	public void SetGamePlayer(List<GamePlayer> players) {
+		gamePlayer = players.Single (gp => gp.clientId == client.selfClientId);
+	}
 }

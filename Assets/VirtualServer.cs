@@ -24,27 +24,26 @@ public class VirtualServer : MonoBehaviour {
 	List<int> clientIds = new List<int>();
 	List<string> clientNames = new List<string>();
 	
-	public void HandleClientNewUser(EditorConnector connector, string name) {
+	public void HandleClientNewUser(EditorConnector newConnector, string name) {
 //		Debug.Log("Server received new user");
 		//Send players updated payload
 		int newLocationId = nextLocationId;
 		nextLocationId++;
 
-		connectorsByClientId.Add(newLocationId, connector);
+		connectorsByClientId.Add(newLocationId, newConnector);
 
 		clientIds.Add(newLocationId);
 		clientNames.Add(name);
-
-		Debug.Log("Entering loop, count: " + connectorsByClientId.Count);
+		
 		foreach(int clientId in clientIds.ToArray()) {
 //			Debug.Log("clientId key, self: " + kp.Key + ", " + selfClientId);
 			if(clientId == newLocationId) { //Send welcome payload only to new player
 				Debug.Log("Sending welcome basket");
-				connector.HandlePayloadReceived(new WelcomeBasketPayload(newLocationId, clientNames, clientIds));
+				newConnector.HandlePayloadReceived(new WelcomeBasketPayload(newLocationId, clientNames, clientIds));
 			} else {
 //				Debug.Log("Sending update other, connector client id:" + selfClientId);
 
-				connector.HandlePayloadReceived(new UpdateOtherPayload(newLocationId, clientNames, clientIds));
+				connectorsByClientId[clientId].HandlePayloadReceived(new UpdateOtherPayload(newLocationId, clientNames, clientIds));
 			}
 		}
 

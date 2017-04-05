@@ -12,19 +12,11 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 		foreach (Transform child in transform) {
 			playerPanels.Add(child);
 		}
-
-		ActivatePlayer(0);
 	}
 
 	void ActivatePlayer(int targetIndex) {
 
-		for (int i = 0; i < playerPanels.Count; i++) {
-			if (i == targetIndex) {
-				playerPanels[i].gameObject.SetActive(true);
-			} else {
-				playerPanels[i].gameObject.SetActive(false);
-			}
-		}
+		playerPanels[targetIndex].SetAsLastSibling();
 	}
 
 	// Update is called once per frame

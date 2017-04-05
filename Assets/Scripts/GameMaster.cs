@@ -7,7 +7,7 @@ using System.Linq;
 public class GameMaster {
 
 	public enum GamePhase {
-		Pregame = 0, //Actions: Player entry, select roles
+		Uninitialized = 0, //Actions: Player entry, select roles
 		Night = 1, //Actions: Take night action
 //		Night_Reveal = 2, //Actions: Confirm night reveal
 		Day = 4, //Actions: Manipulate tokens, vote for players
@@ -46,8 +46,11 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(List<string> playerNames, List<int> connectedClientIds, Role[] deckList, bool randomizeDeck, float randomSeed = -1.0F) { //All games run in parallel, so these parameters must be identical across clients
-
+	public void StartGame(List<string> playerNames, List<int> connectedClientIds, Role[] deckList, bool randomizeDeck, int randomSeed = -1) { //All games run in parallel, so these parameters must be identical across clients
+		if (currentPhase != GamePhase.Uninitialized) {
+			Debug.LogWarning ("Start game called with game already in progress, aborting.");
+			return;
+		}
 
 		gameDeck = new List<RealCard>();
 		foreach(Role role in deckList) {
@@ -66,23 +69,37 @@ public class GameMaster {
 			players.Add(new GamePlayer(this, connectedClientIds[i], playerNames[i]));
 		}
 
-//		for(int i = 0; i < playerNames.Length; i++) {
-//			GamePlayer player = new GamePlayer(playerNames[i]);
-//			playersByClientId.Add(connector.conn, player);
-//		}
-
-		//PlayerUi.Initialize(players);
-
 		//Shuffle cards
 		if(randomizeDeck) {
-			gameDeck = gameDeck.OrderBy( x => randomSeed ).ToList();
+			System.Random random = new System.Random (randomSeed);
+			int n = deckList.Length;
+			for (int i = 0; i < n; i++)
+			{
+				double randomDouble = random.NextDouble();
+				int r = i + (int)(randomDouble * (n - i));
+				Debug.Log ("random index: " + r);
+				Role role = deckList[r];
+				deckList[r] = deckList[i];
+				deckList[i] = role;
+			}
+
+
+//			System.Random r = new System.Random(randomSeed);
+//			List<double> randomValues = new List<double>();
+//			for (int i = 0; i < deckList.Length; i++) {
+//				randomValues.Add (r.NextDouble ());
+//				Debug.Log ("random: " + randomValues [i]);
+//			}
+//			gameDeck = gameDeck.OrderBy( x => randomValues).ToList();
 		}
 
 		//Deal cards
 		foreach(GamePlayer player in players) {
 			player.ReceiveDealtCard(PullFirstCardFromDeck());
 		}
-		PlayerUi.WriteRoleToTitle();
+
+		ui.SetGamePlayer (players);
+		ui.WriteRoleToTitle ();
 
 		centerCards = new List<CenterCardSlot>();
 		for(int i = 0; i < 3; i++) {

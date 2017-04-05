@@ -34,10 +34,10 @@ public delegate void PayloadHandler(RemotePayload payload); //A payload tells th
 
 public class EditorConnector {
 
-	Client player;
+	Client client;
 
-	public EditorConnector(Client player) {
-		this.player = player;
+	public EditorConnector(Client client) {
+		this.client = client;
 	}
 
 	public void JoinSession (string name) {
@@ -46,12 +46,12 @@ public class EditorConnector {
 	}
 
 	public void BroadcastEvent (RemotePayload payload) {
-		SimulatedRoom.instance.server.HandleClientSendEvent(payload);
+		VirtualServer.instance.HandleClientSendEvent(payload);
 //		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
 	}
 
 	public void HandlePayloadReceived(RemotePayload payload) {
-		player.HandleRemotePayload(payload);
+		client.HandleRemotePayload(payload);
 	}
 }
 

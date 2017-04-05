@@ -32,7 +32,7 @@ public class Client : MonoBehaviour{
 
 	//State
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
-	public List<Role> selectedDeckBlueprint;
+	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Robber, Role.Villager, Role.Villager };
 
 	public Client() {
 		_connector = new EditorConnector(this);
@@ -64,19 +64,20 @@ public class Client : MonoBehaviour{
 			playerNames = basket.playerNames;
 			connectedClientIds = basket.clientIds;
 			ui.HandlePlayersUpdated(playerNames);
+			print("welcome basket for " + playerName + ". Player names: " + playerNames.Count);
 		} else if(payload is UpdateOtherPayload) {
 			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
 			this.playerNames = update.playerNames;
 			this.connectedClientIds = update.clientIds;
 			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
 			ui.HandlePlayersUpdated(playerNames);
+			print("update other for " + playerName + ". Player names: " + playerNames.Count);
 		} else if (payload is StartGamePayload) {
 			Debug.Log("Start game received by: " + selfClientId);
 			StartGamePayload start = ((StartGamePayload)payload);
-			float randomSeed = start.randomSeed;
+			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
 			gameMaster = new GameMaster(ui); //Implement random seed
-			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed); //TODO Pass random seed
-			Debug.Log("Final self, names, ids: " + selfClientId + ", " + playerNames.Count + ", " + connectedClientIds.Count);
+			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}

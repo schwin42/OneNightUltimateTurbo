@@ -87,7 +87,7 @@ public class WinTests {
 			new GamePlayer(gm, 1, "B"),
 			new GamePlayer(gm, 2, "C"),
 		};
-		PlayerUi.uiEnabled = false; //TODO This should go without saying
+
 		gm.StartGame(new List<string> { "A", "B", "C" }, new List<int> { 0, 1, 2 } ,
 			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
 			false
@@ -104,10 +104,6 @@ public class WinTests {
 		gm.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
 		gm.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
 		gm.SubmitVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
-
-//		GameController.ExecuteNightActionsInOrder();
-//		GameController.KillPlayers();
-//		GameController.DetermineWinners();
 
 		Assert.IsTrue(drunkDealtPlayer.didWin);
 	}
