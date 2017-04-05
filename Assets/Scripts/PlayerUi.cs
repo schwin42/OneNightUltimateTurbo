@@ -24,7 +24,6 @@ public class PlayerUi : MonoBehaviour {
 
 	Client client;
 	GamePlayer gamePlayer;
-	List<GamePlayer> players;
 
 	Text playerName;
 
@@ -261,8 +260,7 @@ public class PlayerUi : MonoBehaviour {
 		client.BeginGame ();
 	}
 
-	public void SetGamePlayers(List<GamePlayer> players) {
-		gamePlayer = players.Single (gp => gp.clientId == client.selfClientId);
-		this.players = players;
+	public void SetGamePlayers() {
+		gamePlayer = client.gameMaster.players.Single (gp => gp.clientId == client.selfClientId);
 	}
 }

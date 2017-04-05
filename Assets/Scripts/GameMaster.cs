@@ -91,7 +91,7 @@ public class GameMaster {
 			player.ReceiveDealtCard(PullFirstCardFromDeck());
 		}
 
-		if(ui != null) ui.SetGamePlayers (players);
+		if(ui != null) ui.SetGamePlayers ();
 		if(ui != null) ui.WriteRoleToTitle ();
 
 		centerCards = new List<CenterCardSlot>();
