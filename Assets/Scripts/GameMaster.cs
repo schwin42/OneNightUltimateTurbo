@@ -52,11 +52,13 @@ public class GameMaster {
 			return;
 		}
 
+		//Instantiate deck
 		gameDeck = new List<RealCard>();
 		foreach(Role role in deckList) {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
+		//Validate configuration
 		if(gameDeck.Count != connectedClientIds.Count + 3) {
 			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNames.Count + ", " + connectedClientIds.Count + 
 				", deck = " + gameDeck.Count);
@@ -69,37 +71,28 @@ public class GameMaster {
 			players.Add(new GamePlayer(this, connectedClientIds[i], playerNames[i]));
 		}
 
-		//Shuffle cards
-		if(randomizeDeck) {
-			System.Random random = new System.Random (randomSeed);
-			int n = deckList.Length;
-			for (int i = 0; i < n; i++)
-			{
-				double randomDouble = random.NextDouble();
-				int r = i + (int)(randomDouble * (n - i));
-				Debug.Log ("random index: " + r);
-				Role role = deckList[r];
-				deckList[r] = deckList[i];
-				deckList[i] = role;
-			}
-
-
-//			System.Random r = new System.Random(randomSeed);
-//			List<double> randomValues = new List<double>();
-//			for (int i = 0; i < deckList.Length; i++) {
-//				randomValues.Add (r.NextDouble ());
-//				Debug.Log ("random: " + randomValues [i]);
-//			}
-//			gameDeck = gameDeck.OrderBy( x => randomValues).ToList();
+		//Shuffle deck
+		if (randomizeDeck) {
+			gameDeck = Utility.ShuffleCards (gameDeck, randomSeed);
 		}
+
+		string s = "Game deck: ";
+		for(int i = 0; i < gameDeck.Count; i++) {
+			RealCard card = gameDeck [i];
+			s += card.name;
+			if (i < gameDeck.Count - 1) {
+				s += ", ";
+			}
+		}
+		Debug.Log (s);
 
 		//Deal cards
 		foreach(GamePlayer player in players) {
 			player.ReceiveDealtCard(PullFirstCardFromDeck());
 		}
 
-		ui.SetGamePlayer (players);
-		ui.WriteRoleToTitle ();
+		if(ui != null) ui.SetGamePlayers (players);
+		if(ui != null) ui.WriteRoleToTitle ();
 
 		centerCards = new List<CenterCardSlot>();
 		for(int i = 0; i < 3; i++) {
@@ -316,16 +309,16 @@ public class GameMaster {
 	public void ReceiveDirective(GamePayload payload) {
 		if(payload is NightActionPayload) {
 			NightActionPayload nightAction = (NightActionPayload)payload;
-			SubmitNightAction(players.Single(gp => gp.clientId == nightAction.sourceClientId), nightAction.selection);
+			ReceiveNightAction(players.Single(gp => gp.clientId == nightAction.sourceClientId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
-			SubmitVote(players.Single(gp => gp.clientId == vote.sourceClientId), vote.voteeLocationId);
+			ReceiveVote(players.Single(gp => gp.clientId == vote.sourceClientId), vote.voteeLocationId);
 		} else {
 			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
 		}
 	}
 
-	public void SubmitNightAction(GamePlayer player, Selection selection) {
+	public void ReceiveNightAction(GamePlayer player, Selection selection) {
 		if(currentPhase != GamePhase.Night) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
@@ -338,7 +331,7 @@ public class GameMaster {
 		}
 	}
 
-	public void SubmitVote(GamePlayer player, int locationId) {
+	public void ReceiveVote(GamePlayer player, int locationId) {
 		if(currentPhase != GamePhase.Day) {
 			Debug.LogError("Received night action outside of Night_Input phase");
 			return;
@@ -418,8 +411,12 @@ public class RealizedPrompt {
 			}
 			break;
 		case OptionsSet.May_OtherPlayer: //Robber, mystic wolf
-			Debug.Log("Not implemented: may other player");
-			buttons.Add(new ButtonInfo(-1, "Ready"));
+			for (int i = 0; i < players.Count; i++) {
+				GamePlayer p = players[i];
+				if (p.locationId == self.locationId) continue;
+				buttons.Add(new ButtonInfo(p.locationId, p.name));
+			}
+			buttons.Add(new ButtonInfo(-1, "Pass"));
 			break;
 		case OptionsSet.May_TwoOtherPlayers:
 			for(int i = 0; i < players.Count; i++) {

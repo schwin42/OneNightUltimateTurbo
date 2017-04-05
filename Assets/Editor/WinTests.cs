@@ -97,13 +97,13 @@ public class WinTests {
 		GamePlayer villagerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Villager);
 		GamePlayer drunkDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Drunk);
 
-		gm.SubmitNightAction(werewolfDealtPlayer, new Selection(-1));
-		gm.SubmitNightAction(villagerDealtPlayer, new Selection());
-		gm.SubmitNightAction(drunkDealtPlayer, new Selection(gm.centerCards.Single(cs => cs.centerCardIndex == 0).locationId));
+		gm.ReceiveNightAction(werewolfDealtPlayer, new Selection(-1));
+		gm.ReceiveNightAction(villagerDealtPlayer, new Selection());
+		gm.ReceiveNightAction(drunkDealtPlayer, new Selection(gm.centerCards.Single(cs => cs.centerCardIndex == 0).locationId));
 
-		gm.SubmitVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
-		gm.SubmitVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
-		gm.SubmitVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
+		gm.ReceiveVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
+		gm.ReceiveVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
+		gm.ReceiveVote(drunkDealtPlayer, villagerDealtPlayer.locationId);
 
 		Assert.IsTrue(drunkDealtPlayer.didWin);
 	}

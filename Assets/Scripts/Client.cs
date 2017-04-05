@@ -32,7 +32,7 @@ public class Client : MonoBehaviour{
 
 	//State
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
-	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.Werewolf, Role.Troublemaker, Role.Robber, Role.Villager, Role.Villager };
+	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Werewolf, Role.Troublemaker, Role.Werewolf, Role.Villager, Role.Villager };
 
 	public Client() {
 		_connector = new EditorConnector(this);
@@ -77,7 +77,7 @@ public class Client : MonoBehaviour{
 			StartGamePayload start = ((StartGamePayload)payload);
 			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
 			gameMaster = new GameMaster(ui); //Implement random seed
-			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
+			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), false, randomSeed);
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
@@ -86,6 +86,14 @@ public class Client : MonoBehaviour{
 	public void JoinGame()
 	{
 		connector.JoinSession(playerName);
+	}
+
+	public void SubmitNightAction(Selection selection) {
+		connector.BroadcastEvent (new NightActionPayload (selfClientId, selection)); 
+	}
+
+	public void SubmitVote(int locationId) {
+		connector.BroadcastEvent (new VotePayload (selfClientId, locationId));
 	}
 
 	void Start()

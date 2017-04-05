@@ -24,6 +24,7 @@ public class PlayerUi : MonoBehaviour {
 
 	Client client;
 	GamePlayer gamePlayer;
+	List<GamePlayer> players;
 
 	Text playerName;
 
@@ -105,6 +106,7 @@ public class PlayerUi : MonoBehaviour {
 		case OptionsSet.None:
 		case OptionsSet.May_CenterCard:
 		case OptionsSet.Must_CenterCard:
+		case OptionsSet.May_OtherPlayer:
 			SubmitNightAction(new int[] { locationId });
 			break;
 		case OptionsSet.May_TwoOtherPlayers:
@@ -147,11 +149,9 @@ public class PlayerUi : MonoBehaviour {
 				case UiScreen.Day_Voting:
 
 					//Create buttons 
-					//TODO Restore button creation
-					//			foreach(GamePlayer p in GameController.instance.players) {
-					//				if(p == player) continue;
-					//				AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
-					//			}
+			foreach(GamePlayer p in client.gameMaster.players) {
+						AddLocationButton(p.name, p.locationId, day_VoteButtonBox);
+					}
 					AddLocationButton("[No one]", -1, day_VoteButtonBox);
 
 					string descriptionText = "";
@@ -221,7 +221,7 @@ public class PlayerUi : MonoBehaviour {
 			Destroy(button.gameObject);
 		}
 
-		client.gameMaster.SubmitNightAction (gamePlayer, selection);
+		client.SubmitNightAction (selection);
 	}
 
 	private void SubmitVote(int locationId) {
@@ -229,7 +229,7 @@ public class PlayerUi : MonoBehaviour {
 		foreach(Transform button in day_VoteButtonBox.transform) {
 			Destroy(button.gameObject);
 		}
-		client.gameMaster.SubmitVote (gamePlayer, locationId);
+		client.SubmitVote (locationId);
 	}
 
 	public void HandleJoinButtonPressed()
@@ -261,7 +261,8 @@ public class PlayerUi : MonoBehaviour {
 		client.BeginGame ();
 	}
 
-	public void SetGamePlayer(List<GamePlayer> players) {
+	public void SetGamePlayers(List<GamePlayer> players) {
 		gamePlayer = players.Single (gp => gp.clientId == client.selfClientId);
+		this.players = players;
 	}
 }
