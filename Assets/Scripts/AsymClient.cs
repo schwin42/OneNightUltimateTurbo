@@ -12,14 +12,14 @@ public class AsymClient : MonoBehaviour{
 	public List<int> connectedClientIds;
 
 	//Configuration
-	private EditorAsymConnector _connector;
-	public EditorAsymConnector connector
-	{
-		get
-		{
-			return _connector;
-		}
-	}
+//	private EditorAsymConnector _connector;
+//	public EditorAsymConnector connector
+//	{
+//		get
+//		{
+//			return _connector;
+//		}
+//	}
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -34,9 +34,9 @@ public class AsymClient : MonoBehaviour{
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
 	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Werewolf, Role.Troublemaker, Role.Werewolf, Role.Villager, Role.Villager };
 
-	public AsymClient() {
-		_connector = new EditorAsymConnector(this);
-	}
+//	public AsymClient() {
+//		_connector = new EditorAsymConnector(this);
+//	}
 
 	public void SetName(string s) {
 		playerName = s;
@@ -48,7 +48,7 @@ public class AsymClient : MonoBehaviour{
 
 	public void BeginGame() {
 		float randomSeed = Random.value; //Used to achieve deterministic consistency across clients
-		connector.BroadcastEvent(new StartGamePayload(selfClientId, randomSeed));
+//		connector.BroadcastEvent(new StartGamePayload(selfClientId, randomSeed));
 	}
 
 	public void HandleRemotePayload(RemotePayload payload) {
@@ -85,15 +85,15 @@ public class AsymClient : MonoBehaviour{
 
 	public void JoinGame()
 	{
-		connector.JoinSession(playerName);
+//		connector.JoinSession(playerName);
 	}
 
 	public void SubmitNightAction(Selection selection) {
-		connector.BroadcastEvent (new NightActionPayload (selfClientId, selection)); 
+//		connector.BroadcastEvent (new NightActionPayload (selfClientId, selection)); 
 	}
 
 	public void SubmitVote(int locationId) {
-		connector.BroadcastEvent (new VotePayload (selfClientId, locationId));
+//		connector.BroadcastEvent (new VotePayload (selfClientId, locationId));
 	}
 
 	void Start()
