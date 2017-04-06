@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Networking;
 
 [System.Serializable]
 public class AsymClient : MonoBehaviour{
@@ -83,7 +84,12 @@ public class AsymClient : MonoBehaviour{
 		}
 	}
 
-	public void JoinGame()
+	public void HostRoom() {
+		Debug.Log("Hosting room");
+		NetworkClient client = NetworkManager.singleton.StartHost();
+	}
+
+	public void JoinRoom()
 	{
 //		connector.JoinSession(playerName);
 	}
@@ -100,5 +106,7 @@ public class AsymClient : MonoBehaviour{
 	{
 		_ui = GetComponent<PlayerUi>();
 //		_ui.Initialize(this);
+
+		HostRoom();
 	}
 }
