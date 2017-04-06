@@ -7,10 +7,10 @@ using UnityEngine.Networking;
 [System.Serializable]
 public class AsymClient : MonoBehaviour{
 	public string playerName;
-	public int selfClientId = -1;
+//	public int selfClientId = -1;
 
-	public List<string> playerNames;
-	public List<int> connectedClientIds;
+//	public List<string> playerNames;
+//	public List<int> connectedClientIds;
 
 	//Configuration
 //	private EditorAsymConnector _connector;
@@ -21,6 +21,9 @@ public class AsymClient : MonoBehaviour{
 //			return _connector;
 //		}
 //	}
+
+	NetworkClient client;
+	bool isHost;
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -53,45 +56,47 @@ public class AsymClient : MonoBehaviour{
 	}
 
 	public void HandleRemotePayload(RemotePayload payload) {
-//		Debug.Log("self: " + selfClientId);
-		//If game event, pass to GameMaster
-		if(payload is GamePayload) {
-			gameMaster.ReceiveDirective((GamePayload)payload);
-		} else if(payload is WelcomeBasketPayload) { 
-			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
-			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
-			this.selfClientId = basket.sourceClientId;
-			Debug.Log("Self client id set to: " + selfClientId);
-			playerNames = basket.playerNames;
-			connectedClientIds = basket.clientIds;
-			ui.HandlePlayersUpdated(playerNames);
-			print("welcome basket for " + playerName + ". Player names: " + playerNames.Count);
-		} else if(payload is UpdateOtherPayload) {
-			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-			this.playerNames = update.playerNames;
-			this.connectedClientIds = update.clientIds;
-			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
-			ui.HandlePlayersUpdated(playerNames);
-			print("update other for " + playerName + ". Player names: " + playerNames.Count);
-		} else if (payload is StartGamePayload) {
-			Debug.Log("Start game received by: " + selfClientId);
-			StartGamePayload start = ((StartGamePayload)payload);
-			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
-			gameMaster = new GameMaster(ui); //Implement random seed
-			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
-		} else {
-			Debug.LogError("Unexpected payload type: " + payload.ToString());
-		}
+		Debug.LogError("Handle remote payload done broke.");
+//		//If game event, pass to GameMaster
+//		if(payload is GamePayload) {
+//			gameMaster.ReceiveDirective((GamePayload)payload);
+//		} else if(payload is WelcomeBasketPayload) { 
+//			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
+//			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
+//			this.selfClientId = basket.sourceClientId;
+//			Debug.Log("Self client id set to: " + selfClientId);
+//			playerNames = basket.playerNames;
+//			connectedClientIds = basket.clientIds;
+//			ui.HandlePlayersUpdated(playerNames);
+//			print("welcome basket for " + playerName + ". Player names: " + playerNames.Count);
+//		} else if(payload is UpdateOtherPayload) {
+//			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
+//			this.playerNames = update.playerNames;
+//			this.connectedClientIds = update.clientIds;
+//			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
+//			ui.HandlePlayersUpdated(playerNames);
+//			print("update other for " + playerName + ". Player names: " + playerNames.Count);
+//		} else if (payload is StartGamePayload) {
+//			Debug.Log("Start game received by: " + selfClientId);
+//			StartGamePayload start = ((StartGamePayload)payload);
+//			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
+//			gameMaster = new GameMaster(ui); //Implement random seed
+//			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
+//		} else {
+//			Debug.LogError("Unexpected payload type: " + payload.ToString());
+//		}
 	}
 
 	public void HostRoom() {
 		Debug.Log("Hosting room");
-		NetworkClient client = NetworkManager.singleton.StartHost();
+		client = NetworkManager.singleton.StartHost();
+		isHost = true;
+
 	}
 
 	public void JoinRoom()
 	{
-//		connector.JoinSession(playerName);
+		client = NetworkManager.singleton.StartClient();
 	}
 
 	public void SubmitNightAction(Selection selection) {
