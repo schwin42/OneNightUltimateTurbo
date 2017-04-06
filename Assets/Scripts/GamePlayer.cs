@@ -9,7 +9,7 @@ public class GamePlayer : ILocation
 {
 	//Assigned in order
 
-	//0. Game init_namezation
+	//0. Game init_nameezation
 	private int _clientId;
 	public int clientId {
 		get {

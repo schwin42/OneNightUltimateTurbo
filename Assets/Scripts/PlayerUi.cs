@@ -22,7 +22,7 @@ public class PlayerUi : MonoBehaviour {
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject>();
 
-	Client client;
+	SymClient client;
 	GamePlayer gamePlayer;
 
 	Text playerName;
@@ -49,7 +49,7 @@ public class PlayerUi : MonoBehaviour {
 	Text result_Title;
 	Text result_Description;
 
-	public void Initialize(Client client) {
+	public void Initialize(SymClient client) {
 
 		this.client = client;
 
@@ -92,7 +92,7 @@ public class PlayerUi : MonoBehaviour {
 
 	private void AddLocationButton(string label, int locationId, Transform parent) {
 		GameObject go = Instantiate(PrefabResource.instance.locationButton) as GameObject;
-		go.transform.SetParent(parent.transform);
+		go.transform.SetParent(parent.transform, false);
 		Text uiText = go.GetComponentInChildren<Text>();
 		uiText.text = label;
 		OnuButton onuButton = go.GetComponent<OnuButton>();

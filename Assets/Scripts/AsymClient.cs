@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
-public class Client : MonoBehaviour{
+public class AsymClient : MonoBehaviour{
 	public string playerName;
 	public int selfClientId = -1;
 
@@ -12,8 +12,8 @@ public class Client : MonoBehaviour{
 	public List<int> connectedClientIds;
 
 	//Configuration
-	private EditorConnector _connector;
-	public EditorConnector connector
+	private EditorAsymConnector _connector;
+	public EditorAsymConnector connector
 	{
 		get
 		{
@@ -34,8 +34,8 @@ public class Client : MonoBehaviour{
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
 	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Werewolf, Role.Troublemaker, Role.Werewolf, Role.Villager, Role.Villager };
 
-	public Client() {
-		_connector = new EditorConnector(this);
+	public AsymClient() {
+		_connector = new EditorAsymConnector(this);
 	}
 
 	public void SetName(string s) {
@@ -77,7 +77,7 @@ public class Client : MonoBehaviour{
 			StartGamePayload start = ((StartGamePayload)payload);
 			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
 			gameMaster = new GameMaster(ui); //Implement random seed
-			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), false, randomSeed);
+			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
@@ -99,6 +99,6 @@ public class Client : MonoBehaviour{
 	void Start()
 	{
 		_ui = GetComponent<PlayerUi>();
-		_ui.Initialize(this);
+//		_ui.Initialize(this);
 	}
 }
