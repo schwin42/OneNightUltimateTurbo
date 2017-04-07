@@ -5,24 +5,40 @@ using UnityEngine.Networking;
 
 public class AsymRemoteManager : NetworkManager {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+	public AsymClient asymClient;
 
-
-
-	public override void OnServerConnect(NetworkConnection connection) {
-		Debug.Log("Player Connected.");
-	}
+//	public override void OnServerConnect(NetworkConnection connection) {
+//		Debug.Log("OnServerConnect");
+//	}
 		
 	public override void OnStartHost ()
 	{
-		Debug.Log("Host started");
+		Debug.Log("OnStartHost");
+		PlayerUi.singleton.HandleHostStarted (asymClient.playerName);
+	}
+
+	public override void OnClientConnect (NetworkConnection conn)
+	{
+		Debug.Log ("OnClientConnect");
+	}
+
+	public override void OnClientDisconnect (NetworkConnection conn)
+	{
+		Debug.Log ("Lost connection");
+	}
+
+	public override void OnServerDisconnect (NetworkConnection conn)
+	{
+		Debug.Log ("Player left.");
+	}
+
+	public override void OnClientError (NetworkConnection conn, int errorCode)
+	{
+		Debug.LogError ("Client error: " + errorCode);
+	}
+
+	public override void OnServerError (NetworkConnection conn, int errorCode)
+	{
+		Debug.LogError ("Server error: " + errorCode);
 	}
 }

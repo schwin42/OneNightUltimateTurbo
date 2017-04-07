@@ -9,8 +9,8 @@ public class GamePlayer : ILocation
 {
 	//Assigned in order
 
-	//0. Game init_nameezation
-	private int _clientId;
+	//0. Game init
+	private int _clientId = -1;
 	public int clientId {
 		get {
 			return _clientId;

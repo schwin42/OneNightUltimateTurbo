@@ -77,7 +77,7 @@ public class SymClient : MonoBehaviour{
 			StartGamePayload start = ((StartGamePayload)payload);
 			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
 			gameMaster = new GameMaster(ui); //Implement random seed
-			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
+//			gameMaster.StartGame(playerNames, selectedDeckBlueprint.ToArray(), true, randomSeed);
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
@@ -99,6 +99,6 @@ public class SymClient : MonoBehaviour{
 	void Start()
 	{
 		_ui = GetComponent<PlayerUi>();
-		_ui.Initialize(this);
+//		_ui.Initialize(this);
 	}
 }
