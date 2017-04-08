@@ -46,7 +46,7 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(List<string> playerNames, List<int> connectedClientIds, Role[] deckList, bool randomizeDeck, int randomSeed = -1) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(List<string> playersByClientId, Role[] deckList, bool randomizeDeck, int randomSeed = -1) { //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
@@ -58,17 +58,20 @@ public class GameMaster {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
+		//Prune deck
+		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
+
 		//Validate configuration
-		if(gameDeck.Count != connectedClientIds.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNames.Count + ", " + connectedClientIds.Count + 
-				", deck = " + gameDeck.Count);
+		if(gameDeck.Count != playersByClientId.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playersByClientId.Count + ", " + playersByClientId.Count + 
+				", deck = " + gameDeck.Count + ", " + deckList.Length);
 			return;
 		}
 
 		//Create players
 		players = new List<GamePlayer>();
-		for(int i = 0; i < connectedClientIds.Count; i++) {
-			players.Add(new GamePlayer(this, connectedClientIds[i], playerNames[i]));
+		for(int i = 0; i < playersByClientId.Count; i++) {
+			players.Add(new GamePlayer(this, i, playersByClientId[i]));
 		}
 
 		//Shuffle deck
@@ -318,6 +321,11 @@ public class GameMaster {
 		}
 	}
 
+	public void ReceiveNightAction(int sourceClientId, Selection selection) {
+		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+		ReceiveNightAction (player, selection);
+	}
+
 	public void ReceiveNightAction(GamePlayer player, Selection selection) {
 		if(currentPhase != GamePhase.Night) {
 			Debug.LogError("Received night action outside of Night_Input phase");
@@ -329,6 +337,11 @@ public class GameMaster {
 		if(playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Day);
 		}
+	}
+
+	public void ReceiveVote(int sourceClientId, int locationId) {
+		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+		ReceiveVote (player, locationId);
 	}
 
 	public void ReceiveVote(GamePlayer player, int locationId) {
@@ -533,7 +546,7 @@ public class Selection {
 	private Selection() { }
 
 	public Selection(params int[] locationIds) {
-		this.isEmpty = true;
+		this.isEmpty = false;
 		this.locationIds = locationIds;
 	}
 }

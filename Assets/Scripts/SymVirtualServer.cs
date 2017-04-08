@@ -4,31 +4,31 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
-public class VirtualServer : MonoBehaviour {
+public class SymVirtualServer : MonoBehaviour {
 
-	private static VirtualServer _instance;
-	public static VirtualServer instance
+	private static SymVirtualServer _instance;
+	public static SymVirtualServer instance
 	{
 		get
 		{
 			if (_instance == null) {
-				_instance = GameObject.FindObjectOfType<VirtualServer>();
+				_instance = GameObject.FindObjectOfType<SymVirtualServer>();
 			}
 			return _instance;
 		}
 	}
 
 	//State
-	private int nextLocationId = 0;
-	public Dictionary<int, EditorConnector> connectorsByClientId = new Dictionary<int, EditorConnector>();
+	private int nextClientId = 0;
+	public Dictionary<int, EditorSymConnector> connectorsByClientId = new Dictionary<int, EditorSymConnector>();
 	List<int> clientIds = new List<int>();
 	List<string> clientNames = new List<string>();
 	
-	public void HandleClientNewUser(EditorConnector newConnector, string name) {
+	public void HandleClientNewUser(EditorSymConnector newConnector, string name) {
 //		Debug.Log("Server received new user");
 		//Send players updated payload
-		int newLocationId = nextLocationId;
-		nextLocationId++;
+		int newLocationId = nextClientId;
+		nextClientId++;
 
 		connectorsByClientId.Add(newLocationId, newConnector);
 
@@ -52,7 +52,7 @@ public class VirtualServer : MonoBehaviour {
 
 	public void HandleClientSendEvent(RemotePayload payload) {
 		//Echo event to all players
-		foreach(KeyValuePair<int, EditorConnector> kp in connectorsByClientId) {
+		foreach(KeyValuePair<int, EditorSymConnector> kp in connectorsByClientId) {
 			kp.Value.HandlePayloadReceived(payload);
 		}
 	}
