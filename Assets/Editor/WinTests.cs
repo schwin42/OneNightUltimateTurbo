@@ -82,12 +82,6 @@ public class WinTests {
 	[Test]
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
 		GameMaster gm = new GameMaster();
-		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "A"),
-			new GamePlayer(gm, 1, "B"),
-			new GamePlayer(gm, 2, "C"),
-		};
-
 		gm.StartGame(new List<string> { "A", "B", "C" },
 			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
 			false
@@ -108,6 +102,26 @@ public class WinTests {
 		Assert.IsTrue(drunkDealtPlayer.didWin);
 	}
 
+	[Test]
+	public void TannerChecks () { //Tanner wins and everyone else loses if s/he dies, tanner loses and everyone else wins as normal if anyone else dies 
+		GameMaster gm = new GameMaster();
+		gm.StartGame(new List<string> { "A", "B", "C" },
+			new Role[] { Role.Tanner, Role.Werewolf, Role.Villager, Role.Drunk, Role.Mason, Role.Mason },
+			false);
+
+		GamePlayer werewolfDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+		GamePlayer villagerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Villager);
+		GamePlayer tannerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Tanner); 
+
+		gm.ReceiveVote(werewolfDealtPlayer, tannerDealtPlayer.locationId);
+		gm.ReceiveVote(villagerDealtPlayer, tannerDealtPlayer.locationId);
+		gm.ReceiveVote(tannerDealtPlayer, werewolfDealtPlayer.locationId);
+
+		Assert.IsTrue(tannerDealtPlayer.didWin && !VillagersDidWin(gm.players) && !WerewolvesDidWin(gm.players));
+	}
+
+
+	//Helper methods
 	private static bool VillagersDidWin(List<GamePlayer> players) {
 		List<bool> villagerWins = new List<bool>();
 		foreach(GamePlayer player in players) {
