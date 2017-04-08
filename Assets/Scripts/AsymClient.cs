@@ -13,7 +13,6 @@ public class AsymClient : MonoBehaviour {
 	public int selfClientId = -1;
 	public Server localServer = null;
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
-	public Role[] selectedDeckBlueprint = new Role[] { Role.Werewolf, Role.Werewolf, Role.Minion, Role.Robber, Role.Troublemaker, Role.Insomniac, Role.Drunk, Role.Mason, Role.Mason };
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -23,38 +22,6 @@ public class AsymClient : MonoBehaviour {
 			return _ui;
 		}
 	}
-
-//	public void HandleRemotePayload(RemotePayload payload) {
-//		Debug.LogError("Handle remote payload done broke.");
-////		//If game event, pass to GameMaster
-////		if(payload is GamePayload) {
-////			gameMaster.ReceiveDirective((GamePayload)payload);
-////		} else if(payload is WelcomeBasketPayload) { 
-////			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
-////			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
-////			this.selfClientId = basket.sourceClientId;
-////			Debug.Log("Self client id set to: " + selfClientId);
-////			playerNames = basket.playerNames;
-////			connectedClientIds = basket.clientIds;
-////			ui.HandlePlayersUpdated(playerNames);
-////			print("welcome basket for " + playerName + ". Player names: " + playerNames.Count);
-////		} else if(payload is UpdateOtherPayload) {
-////			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-////			this.playerNames = update.playerNames;
-////			this.connectedClientIds = update.clientIds;
-////			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
-////			ui.HandlePlayersUpdated(playerNames);
-////			print("update other for " + playerName + ". Player names: " + playerNames.Count);
-////		} else if (payload is StartGamePayload) {
-////			Debug.Log("Start game received by: " + selfClientId);
-////			StartGamePayload start = ((StartGamePayload)payload);
-////			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
-////			gameMaster = new GameMaster(ui); //Implement random seed
-////			gameMaster.StartGame(playerNames, connectedClientIds, selectedDeckBlueprint.ToArray(), true, randomSeed);
-////		} else {
-////			Debug.LogError("Unexpected payload type: " + payload.ToString());
-////		}
-//	}
 
 	public void SetName(string s) {
 		this.playerName = s;
@@ -178,6 +145,7 @@ public class AsymClient : MonoBehaviour {
 		print ("Start game received.");
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
 		gameMaster = new GameMaster(ui); //Implement random seed
+		Role[] selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(clientPlayerNamesByClientIds.Count + 3, true).ToArray();
 		gameMaster.StartGame(clientPlayerNamesByClientIds, selectedDeckBlueprint, true, message.randomSeed);
 	}
 

@@ -3,24 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DeckGenerator {
+public static class DeckGenerator {
 
-	public static List<CardData> GenerateRandomizedDeck(int cardCount) {
+	public static Role[] GenerateRandomizedDeck(int cardCount, bool readyOnly) {
 		List<CardData> instancePool;
 		List<CardData> deck;
 		List<int> replacementIndeces;
 		for(int i = 0; i < 100; i++) { //Iterate to 100 instead of while loop, to prevent infinite loops
-			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces);
+			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces, readyOnly);
 			int werewolfOrVampireCount = deck.Count(cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire);
 			if (werewolfOrVampireCount < 2) {
 				if(replacementIndeces.Count < 2 - werewolfOrVampireCount) {
 					continue;
 				} else {
-					return ReplaceUnseededCardsWithWerewolfOrVampire(deck, instancePool, replacementIndeces, 2 - werewolfOrVampireCount);
+					return ReplaceUnseededCardsWithWerewolfOrVampire(deck, instancePool, replacementIndeces, 2 - werewolfOrVampireCount).Select(cd => cd.role).ToArray();
 				}
 			} else {
 				Debug.Log ("Deck already valid, no need to fix");
-				return deck;
+				return deck.Select(cd => cd.role).ToArray();
 			}
 		}
 		Debug.LogError("Exceeded 100 attempts to generate valid deck");
@@ -71,8 +71,10 @@ public class DeckGenerator {
 		return deck;
 	}
 
-	private static List<CardData> GenerateNewUnfixedDeck(int cardCount, out List<CardData> resultantInstancePool, out List<int> replacementIndeces) {
-		List<CardData> newRandomInstancePool = GameData.instance.cardPool.OrderBy(x => Random.value).ToList();
+	private static List<CardData> GenerateNewUnfixedDeck(int cardCount, out List<CardData> resultantInstancePool, out List<int> replacementIndeces, bool readyOnly) {
+
+		List<CardData> sourceCardPool = readyOnly ? GameData.instance.readyPool : GameData.instance.totalCardPool;
+		List<CardData> newRandomInstancePool = sourceCardPool.OrderBy(x => Random.value).ToList();
 		return GenerateNewUnfixedDeck(cardCount, newRandomInstancePool, out resultantInstancePool, out replacementIndeces); 
 	}
 

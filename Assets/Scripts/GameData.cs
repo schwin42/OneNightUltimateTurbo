@@ -21,7 +21,8 @@ public class GameData : MonoBehaviour {
 	}
 
 	public List<CardData> cardData = new List<CardData>();
-	public List<CardData> cardPool = new List<CardData>(); //Includes copies of duplicate roles
+	public List<CardData> totalCardPool = new List<CardData>(); //Includes copies of duplicate roles
+	public List<CardData> readyPool = new List<CardData>(); //Pool of cards that are currently implemented
 
 
 	public void LoadDataFromFile() {
@@ -46,7 +47,8 @@ public class GameData : MonoBehaviour {
 		}
 
 		instance.cardData = new List<CardData>();
-		instance.cardPool = new List<CardData>();
+		instance.totalCardPool = new List<CardData>();
+		instance.readyPool = new List<CardData>();
 		TeamName cardTeam = TeamName.None;
 		foreach(Dictionary<string, string> dict in roleDicts) {
 			Role cardRole = ((Role)Enum.Parse(typeof(Role), dict["Role"].Replace(" ", "")));
@@ -85,9 +87,13 @@ public class GameData : MonoBehaviour {
 				seedRequirement = ParseSelector(dict["SeedRequirement"]),
 				maxQuantity = cardMaxQuantity,
 			};
+
+			//Add to records
 			instance.cardData.Add(card);
+			bool isImplemented = dict["Status"] == "Implemented";
 			for(int i = 0; i < card.maxQuantity; i++) {
-				instance.cardPool.Add(card);
+				instance.totalCardPool.Add(card);
+				if(isImplemented) instance.readyPool.Add(card);
 			}
 		}
 		instance.cardData = instance.cardData.OrderBy(cd => cd.role.ToString()).ToList();

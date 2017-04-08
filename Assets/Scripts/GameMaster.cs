@@ -59,7 +59,7 @@ public class GameMaster {
 		}
 
 		//Prune deck
-		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
+//		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
 
 		//Validate configuration
 		if(gameDeck.Count != playersByClientId.Count + 3) {

@@ -14,6 +14,6 @@ public class DataTests {
 	[Test]
 	public void CardPoolLoaded()
 	{
-		Assert.AreEqual(48, GameData.instance.cardPool.Count);
+		Assert.AreEqual(48, GameData.instance.totalCardPool.Count);
 	}
 }

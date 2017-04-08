@@ -82,11 +82,6 @@ public class WinTests {
 	[Test]
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
 		GameMaster gm = new GameMaster();
-		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "A"),
-			new GamePlayer(gm, 1, "B"),
-			new GamePlayer(gm, 2, "C"),
-		};
 
 		gm.StartGame(new List<string> { "A", "B", "C" },
 			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },

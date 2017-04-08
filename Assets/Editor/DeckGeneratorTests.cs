@@ -15,7 +15,7 @@ public class DeckGeneratorTests {
 		Dictionary<int, int> deckToMasonCount = new Dictionary<int, int>();
 		List<List<int>> replacementIndecesByDeck = new List<List<int>>();
 		for(int i = 0; i < cardsInDeck; i++) {
-			List<CardData> instancePool = GameData.instance.cardPool.OrderBy(x => Random.value).ToList();
+			List<CardData> instancePool = GameData.instance.totalCardPool.OrderBy(x => Random.value).ToList();
 			instancePool.MoveRoleToPosition(Role.Mason, i);
 			List<CardData> resultantInstancePool;
 			List<int> replacementIndeces;
@@ -41,5 +41,17 @@ public class DeckGeneratorTests {
 			}
 		}
 		Assert.IsTrue(deckOfIndexIsCorrect.Count != 0 && deckOfIndexIsCorrect.All(b => b == true));
+	}
+
+	[Test]
+	public void DeckToStartGameUnit() {
+		GameMaster gm = new GameMaster();
+		Role[] selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(3 + 3, true).ToArray();
+		gm.StartGame(new List<string> { "A", "B", "C" },
+			selectedDeckBlueprint,
+			false
+		);
+
+		Assert.IsTrue(gm.centerCards.Count == 3);
 	}
 }
