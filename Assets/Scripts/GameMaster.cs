@@ -58,10 +58,13 @@ public class GameMaster {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
+		//Prune deck
+		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
+
 		//Validate configuration
 		if(gameDeck.Count != playersByClientId.Count + 3) {
 			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playersByClientId.Count + ", " + playersByClientId.Count + 
-				", deck = " + gameDeck.Count);
+				", deck = " + gameDeck.Count + ", " + deckList.Length);
 			return;
 		}
 
@@ -318,6 +321,11 @@ public class GameMaster {
 		}
 	}
 
+	public void ReceiveNightAction(int sourceClientId, Selection selection) {
+		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+		ReceiveNightAction (player, selection);
+	}
+
 	public void ReceiveNightAction(GamePlayer player, Selection selection) {
 		if(currentPhase != GamePhase.Night) {
 			Debug.LogError("Received night action outside of Night_Input phase");
@@ -329,6 +337,11 @@ public class GameMaster {
 		if(playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Day);
 		}
+	}
+
+	public void ReceiveVote(int sourceClientId, int locationId) {
+		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+		ReceiveVote (player, locationId);
 	}
 
 	public void ReceiveVote(GamePlayer player, int locationId) {
@@ -533,7 +546,7 @@ public class Selection {
 	private Selection() { }
 
 	public Selection(params int[] locationIds) {
-		this.isEmpty = true;
+		this.isEmpty = false;
 		this.locationIds = locationIds;
 	}
 }

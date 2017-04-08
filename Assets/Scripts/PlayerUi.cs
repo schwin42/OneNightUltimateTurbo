@@ -160,9 +160,6 @@ public class PlayerUi : MonoBehaviour
 				playerEntry_JoinButton.interactable = true;
 				break;
 			case UiScreen.Lobby:
-				print ("lobby");
-				print ("client = " + client.ToString());
-				print ("local server = " + (client.localServer == null ? "null" : "not null"));
 
 				if (client.localServer != null) {
 					print ("is host, ip address: " + Network.player.ipAddress);

@@ -10,10 +10,10 @@ public class AsymClient : MonoBehaviour {
 	public string playerName;
 	public List<string> clientPlayerNamesByClientIds;
 	public NetworkClient client;
-	public int selfClientId;
+	public int selfClientId = -1;
 	public Server localServer = null;
 	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
-	public Role[] selectedDeckBlueprint = new Role[] { Role.Werewolf, Role.Minion, Role.Robber, Role.Troublemaker, Role.Insomniac, Role.Drunk };
+	public Role[] selectedDeckBlueprint = new Role[] { Role.Werewolf, Role.Werewolf, Role.Minion, Role.Robber, Role.Troublemaker, Role.Insomniac, Role.Drunk, Role.Mason, Role.Mason };
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -22,17 +22,6 @@ public class AsymClient : MonoBehaviour {
 		{
 			return _ui;
 		}
-	}
-
-	public void SetName(string s) {
-		playerName = s;
-	}
-
-	public void BeginGame() {
-		int randomSeed = Mathf.FloorToInt(Random.value * 1000000); //Used to achieve deterministic consistency across clients
-		NetworkServer.SendToAll(OnuMessage.StartGame, new StartGameMessage() { randomSeed = randomSeed });
-		//TODO Send event to self?
-//		OnStartGameRecieved(
 	}
 
 //	public void HandleRemotePayload(RemotePayload payload) {
@@ -67,36 +56,52 @@ public class AsymClient : MonoBehaviour {
 ////		}
 //	}
 
+	public void SetName(string s) {
+		this.playerName = s;
+	}
+
 	public void HostRoom() {
 		Debug.Log("Attempting to host room.");
 		SetupServer ();
 		SetupLocalClient ();
 	}
 
-	public void SubmitNightAction(Selection selection) {
-		Debug.LogError ("Not implemented");
-	}
-
-	public void SubmitVote(int votee) {
-		Debug.LogError ("Not implemented");
-	}
-
-	private void SubscribeToMessages(NetworkClient client) {
-		client.RegisterHandler (MsgType.Connect, OnClientConnected);
-		client.RegisterHandler (OnuMessage.PlayersUpdated, OnPlayerUpdateReceived);
-		client.RegisterHandler (OnuMessage.StartGame, OnStartGameRecieved);
-		client.RegisterHandler (OnuMessage.NightAction, OnNightActionReceived);
-		client.RegisterHandler (OnuMessage.VotePayload, OnVoteReceived);
-	}
-
 	public void JoinRoom(string networkAddress) {
 		SetupClient (networkAddress);
 	}
 
-	public void SendNameMessage(string s) {
-		print ("Sending name message");
-		PlayersUpdatedMessage message = new PlayersUpdatedMessage ();
-		NetworkServer.SendToAll (OnuMessage.PlayersUpdated, message);
+	public void BeginGame() {
+		print ("Begin game");
+		int randomSeed = Mathf.FloorToInt(Random.value * 1000000); //Used to achieve deterministic consistency across clients
+
+		OnuBroadcastMessage(OnuMessage.StartGame, new StartGameMessage () { randomSeed = randomSeed });
+	}
+
+	public void SubmitNightAction(Selection selection) {
+		Debug.Log ("Sending night action");
+		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceClientId = selfClientId, selection = selection.locationIds });
+	}
+
+	public void SubmitVote(int votee) {
+		Debug.Log ("Sending vote");
+		OnuBroadcastMessage (OnuMessage.VotePayload, new VoteMessage () { sourceClientId = selfClientId, voteeLocationId = votee });
+	}
+
+	private void OnuBroadcastMessage(short msgType, MessageBase message) {
+		if (localServer != null) {
+			NetworkServer.SendToAll (msgType, message);
+		} else {
+			client.Send (msgType, message);
+		}
+	}
+
+	private void SubscribeToMessages(NetworkClient client) {
+		client.RegisterHandler (MsgType.Connect, OnClientConnected);
+		client.RegisterHandler (OnuMessage.Welcome, OnWelcomeReceived);
+		client.RegisterHandler (OnuMessage.PlayersUpdated, OnPlayerUpdateReceived);
+		client.RegisterHandler (OnuMessage.StartGame, OnStartGameRecieved);
+		client.RegisterHandler (OnuMessage.NightAction, OnNightActionReceived);
+		client.RegisterHandler (OnuMessage.VotePayload, OnVoteReceived);
 	}
 
 	void Start() {
@@ -108,6 +113,10 @@ public class AsymClient : MonoBehaviour {
 		print ("Setting up server.");
 		NetworkServer.Listen (PORT);
 		NetworkServer.RegisterHandler (OnuMessage.Introduction, OnServerIntroductionReceived);
+		NetworkServer.RegisterHandler (OnuMessage.StartGame, ServerEchoMessage);
+		NetworkServer.RegisterHandler (OnuMessage.NightAction, ServerEchoMessage);
+		NetworkServer.RegisterHandler (OnuMessage.VotePayload, ServerEchoMessage);
+		//TODO Player disconnect
 		localServer = new Server ();
 	}
 
@@ -115,14 +124,7 @@ public class AsymClient : MonoBehaviour {
 		print ("Setting up client");
 		client = new NetworkClient ();
 		SubscribeToMessages (client);
-		if (Application.platform == RuntimePlatform.WindowsEditor) {
-			print ("Connecting on windows");
-			client.Connect ("127.0.0.1", PORT);
-		} else if (Application.platform == RuntimePlatform.Android) {
-			client.Connect (hostAddress, PORT);
-		} else {
-			Debug.LogError("Platform not implemented, you fuck.");
-		}
+		client.Connect (hostAddress, PORT);
 	}
 
 	private void SetupLocalClient() {
@@ -141,7 +143,28 @@ public class AsymClient : MonoBehaviour {
 		IntroductionMessage message = netMessage.ReadMessage<IntroductionMessage> ();
 		print ("Introduction received by server: " + message.playerName);
 		localServer.playerNamesByClientId.Add(message.playerName);
+
+		netMessage.conn.Send (OnuMessage.Welcome, new WelcomeMessage () { clientId = localServer.playerNamesByClientId.Count - 1 });
 		NetworkServer.SendToAll (OnuMessage.PlayersUpdated, new PlayersUpdatedMessage () { playerNamesByClientId =  localServer.playerNamesByClientId.ToArray() });
+	}
+
+	private void OnWelcomeReceived(NetworkMessage netMessage) {
+		print ("Welcome received.");
+		WelcomeMessage message = netMessage.ReadMessage<WelcomeMessage> ();
+		selfClientId = message.clientId;
+	}
+
+	private void ServerEchoMessage(NetworkMessage netMessage) {
+		print ("Server echoing message: " + netMessage.msgType);
+		if (netMessage.msgType == OnuMessage.StartGame) {
+			NetworkServer.SendToAll (netMessage.msgType, netMessage.ReadMessage<StartGameMessage> ());
+		} else if (netMessage.msgType == OnuMessage.NightAction) {
+			NetworkServer.SendToAll (netMessage.msgType, netMessage.ReadMessage<NightActionMessage> ());
+		} else if (netMessage.msgType == OnuMessage.VotePayload) {
+			NetworkServer.SendToAll (netMessage.msgType, netMessage.ReadMessage<VoteMessage> ());
+		} else {
+			Debug.LogError ("Unhandled message type: " + netMessage.msgType);
+		}
 	}
 
 	private void OnPlayerUpdateReceived(NetworkMessage netMessage) {
@@ -161,12 +184,13 @@ public class AsymClient : MonoBehaviour {
 	private void OnNightActionReceived(NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
-//		netMessage.
-//		gameMaster.ReceiveNightAction(
+		gameMaster.ReceiveNightAction (message.sourceClientId, new Selection (message.selection));
 	}
 
 	private void OnVoteReceived(NetworkMessage netMessage) {
 		print ("Vote received");
+		VoteMessage message = netMessage.ReadMessage<VoteMessage> ();
+		gameMaster.ReceiveVote (message.sourceClientId, message.voteeLocationId);
 	}
 
 	public class Server {
