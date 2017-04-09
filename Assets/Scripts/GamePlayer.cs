@@ -39,7 +39,7 @@ public class GamePlayer : ILocation
 	public RealizedPrompt prompt;
 
 	//3. Collect night actions - one selection per night action, in corresponding order
-	public Selection nightLocationSelection;	
+	public int[][] nightLocationSelection;	
 
 	//4. Manipulate cards
 	private RealCard _currentCard;

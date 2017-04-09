@@ -52,6 +52,6 @@ public class DeckGeneratorTests {
 			false
 		);
 
-		Assert.IsTrue(gm.centerCards.Count == 3);
+		Assert.IsTrue(gm.centerSlots.Count == 3);
 	}
 }

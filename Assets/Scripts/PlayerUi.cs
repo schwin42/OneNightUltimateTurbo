@@ -31,7 +31,11 @@ public class PlayerUi : MonoBehaviour
 
 	}
 
+	//State
 	private UiScreen currentScreen = UiScreen.Uninitialized;
+	private List<int> pendingSelection;
+	List<List<int>> nightSelections;
+	private int lastSelection = -1;
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject> ();
 
@@ -55,7 +59,6 @@ public class PlayerUi : MonoBehaviour
 	Text nightInput_Title;
 	Text nightInput_Description;
 	Transform nightInput_ButtonBox;
-	List<int> night_Selections;
 
 	//Day voting
 	Transform day_VoteButtonBox;
@@ -114,8 +117,7 @@ public class PlayerUi : MonoBehaviour
 		nightInput_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
 	}
 
-	private void AddLocationButton (string label, int locationId, Transform parent)
-	{
+	private void AddLocationButton (string label, int locationId, Transform parent) {
 		GameObject go = Instantiate (PrefabResource.instance.locationButton) as GameObject;
 		go.transform.SetParent (parent.transform, false);
 		Text uiText = go.GetComponentInChildren<Text> ();
@@ -124,28 +126,108 @@ public class PlayerUi : MonoBehaviour
 		onuButton.Initialize (this, locationId);
 	}
 
-	public void HandleButtonClick (int locationId)
-	{
-		if (currentScreen == UiScreen.Night_InputControl) {
-			switch (gamePlayer.prompt.options) {
-				case OptionsSet.None:
-				case OptionsSet.May_CenterCard:
-				case OptionsSet.Must_CenterCard:
-				case OptionsSet.May_OtherPlayer:
-					SubmitNightAction (new int[] { locationId });
-					break;
-				case OptionsSet.May_TwoOtherPlayers:
-					night_Selections.Add (locationId);
-					if (night_Selections.Count > 1) {
-						SubmitNightAction (night_Selections.ToArray ());
-					}
-					break;
-				default:
-					Debug.LogError ("Unhandled options set: " + gamePlayer.prompt.options);
-					break;
+	public void HandleButtonClick (int subSelection) {
+		if(subSelection == -2) { //Didn't even have an action, return empty
+			nightSelections = new List<List<int>>();
+			SubmitNightAction(nightSelections);
+		} else if(subSelection == -1) {
+			nightSelections = new List<List<int>>();
+			for(int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
+				nightSelections.Add(new List<int> { -1 });
 			}
-		} else if (currentScreen == UiScreen.Day_Voting) {
-			SubmitVote (locationId);
+			client.SubmitNightAction(nightSelections);
+		} else {
+			pendingSelection.Add(subSelection);
+			lastSelection = subSelection;
+			TryResolveSelection();
+		}
+
+//		if (currentScreen == UiScreen.Night_InputControl) {
+//			switch (gamePlayer.prompt.optionsBySubactionIndex) {
+//				case OptionsSet.None:
+//				case OptionsSet.May_CenterCard:
+//				case OptionsSet.Must_CenterCard:
+//				case OptionsSet.May_OtherPlayer:
+//					SubmitNightAction (new int[] { locationId });
+//					break;
+//				case OptionsSet.May_TwoOtherPlayers:
+//					night_Selections.Add (locationId);
+//					if (night_Selections.Count > 1) {
+//						SubmitNightAction (night_Selections.ToArray ());
+//					}
+//					break;
+//				default:
+//					Debug.LogError ("Unhandled options set: " + gamePlayer.prompt.optionsBySubactionIndex);
+//					break;
+//			}
+//		} else if (currentScreen == UiScreen.Day_Voting) {
+//			SubmitVote (locationId);
+//		}
+	}
+
+	private bool TryResolveSubActionSelection(List<SelectableObjectType> patients, List<int> pendingSelection, out List<int> subActionSelection) {
+		subActionSelection = new List<int>();
+		for(int i = 0; i < patients.Count; i++) {
+			switch(patients[i]) {
+			case SelectableObjectType.LastTarget:
+				subActionSelection.Add(lastSelection);
+				break;
+			case SelectableObjectType.TargetCenterCard:
+			case SelectableObjectType.TargetAnyPlayer:
+			case SelectableObjectType.TargetOtherPlayer:
+			case SelectableObjectType.TargetFork:
+				if(subActionSelection.Count > 0) {
+					subActionSelection.Add(pendingSelection[0]);
+					pendingSelection.RemoveAt(0);
+				} else {
+					Debug.Log("Not enough input to fill in selections. Waiting for input...");
+					return false;
+				}
+				break;
+			case SelectableObjectType.Self:
+				subActionSelection.Add(gamePlayer.locationId);
+				break;
+			default:
+				Debug.LogError("Unexpected target type: " + patients[i].ToString());
+				break;
+			}
+		}
+		return true;
+	}
+
+	private void TryResolveSelection() {
+		//Iterate over button groups and try to fill in selections.
+		for(int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
+
+			if(nightSelections.Count >= i) continue;
+			List<int> subActionSelection;
+			if(TryResolveSubActionSelection(gamePlayer.prompt.hiddenAction[i].targets, pendingSelection, out subActionSelection)) {
+				nightSelections.Add(subActionSelection);
+				continue;
+			} else {
+				//create buttons and wait for input
+				ClearBox(nightInput_ButtonBox);
+				foreach (ButtonInfo info in gamePlayer.prompt.buttonGroupsBySubactionIndex[i]) {
+					AddLocationButton (info.label, info.locationId, nightInput_ButtonBox);
+				}
+				return;
+			}
+		}
+
+		//If selections are resolved, check lastSelection to see if player chose anything.
+		if(lastSelection == -1) {
+			//If not, give ready button which will in term submit full hidden action
+			ClearBox(nightInput_ButtonBox);
+			AddLocationButton("Ready", -1, nightInput_ButtonBox);
+		} else {
+			//If so, submit full hidden action
+			client.SubmitNightAction(nightSelections);
+		}
+	}
+
+	private void ClearBox(Transform box) {
+		foreach(Transform child in box) {
+			Destroy(child.gameObject);
 		}
 	}
 
@@ -181,10 +263,10 @@ public class PlayerUi : MonoBehaviour
 				descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
 				descriptionStrings.Add (gamePlayer.prompt.cohortString);
 				nightInput_Description.text = string.Join (" ", descriptionStrings.ToArray ());
-				foreach (ButtonInfo info in gamePlayer.prompt.buttons) {
-					AddLocationButton (info.label, info.locationId, nightInput_ButtonBox);
-				}
-				night_Selections = new List<int> ();
+
+				nightSelections = new List<List<int>>();
+				pendingSelection = new List<int>();
+				TryResolveSelection();
 				break;
 			case UiScreen.Day_Voting:
 
@@ -251,9 +333,7 @@ public class PlayerUi : MonoBehaviour
 		currentScreen = targetScreen;
 	}
 
-	private void SubmitNightAction (int[] locationId) {
-
-		Selection selection = new Selection (locationId);
+	private void SubmitNightAction (List<List<int>> selection) {
 		foreach (Transform button in nightInput_ButtonBox.transform) {
 			Destroy (button.gameObject);
 		}

@@ -15,30 +15,30 @@ public class Team
 			name = TeamName.Village,
 			description = "You are on the village team.",
 			winRequirements = new WinRequirement[] {
-				new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustDie, 
-					new WinRequirement[] { new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustNotDie) } )
+				new WinRequirement (new Selector(Nature.Werewolf), WinPredicate.MustDie, 
+					new WinRequirement[] { new WinRequirement(new Selector(Nature.Villageperson), WinPredicate.MustNotDie, null) } )
 			}
 		},
 		new Team() {
 			name = TeamName.Werewolf,
 			description = "You are on the werewolf team.",
 			winRequirements = new WinRequirement[] {
-				new NatureWinRequirement (Nature.Werewolf, WinPredicate.MustNotDie, new WinRequirement[] {
-					new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
-					new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
+				new WinRequirement (new Selector(Nature.Werewolf), WinPredicate.MustNotDie, new WinRequirement[] {
+					new WinRequirement(new Selector(Nature.Villageperson), WinPredicate.MustDie, null),
+					new WinRequirement(new Selector(Relation.Self), WinPredicate.MustNotDie, null)
 				}),
-				new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
+				new WinRequirement (new Selector(Role.Tanner), WinPredicate.MustNotDie, null)
 			}
 		},
 		new Team() {
 			name = TeamName.Vampire,
 			description = "You are on the vampire team.",
 			winRequirements = new WinRequirement[] {
-				new NatureWinRequirement (Nature.Vampire, WinPredicate.MustNotDie, new WinRequirement[] {
-					new NatureWinRequirement(Nature.Villageperson, WinPredicate.MustDie),
-					new RelationWinRequirement(Relation.Self, WinPredicate.MustNotDie)
+				new WinRequirement (new Selector(Nature.Vampire), WinPredicate.MustNotDie, new WinRequirement[] {
+					new WinRequirement(new Selector(Nature.Villageperson), WinPredicate.MustDie, null),
+					new WinRequirement(new Selector(Relation.Self), WinPredicate.MustNotDie, null)
 				}),
-				new RoleWinRequirement (Role.Tanner, WinPredicate.MustNotDie)
+				new WinRequirement (new Selector(Role.Tanner), WinPredicate.MustNotDie, null)
 			}
 		},
 		new Team() {
@@ -90,13 +90,13 @@ public class CardData
 	public Role role = Role.None;
 	public TeamName team = TeamName.None;
 	public Nature nature;
-	public WinRequirement[] winRequirements;
+	public WinRequirement winRequirement;
 	public Order order = Order.None;
 	public Selector cohort = Selector.None;
-	public Prompt promptIfCohort = null;
-	public Prompt prompt = null;
-	public List<HiddenAction> nightActions = new List<HiddenAction>();
-	public List<HiddenAction> nightActionsIfCohort = new List<HiddenAction>();
+	public string promptIfCohort = null;
+	public string prompt = null;
+	public List<SubAction> hiddenAction = new List<SubAction>();
+	public List<SubAction> hiddenActionIfCohort = new List<SubAction>();
 	public string duskActions = null;
 	public string duskActionsIfCohort = null;
 
@@ -185,41 +185,17 @@ public enum Relation {
 	Self = 0,
 }
 
-public abstract class WinRequirement
+public class WinRequirement
 {
+	public Selector subject;
 	public WinPredicate predicate;
 	public WinRequirement[] fallback; //Requirement to use if selected role doesn't exist (use for villagers, minion, apprentice tanner, apprentice assassin)
-	public bool isEmpty {
-		get {
-			return predicate == WinPredicate.None;
-		}
-	}
 
-	public WinRequirement (WinPredicate predicate, WinRequirement[] fallback)
+	public WinRequirement (Selector subject, WinPredicate predicate, WinRequirement[] fallback)
 	{
+		this.subject = subject;
 		this.predicate = predicate;
 		this.fallback = fallback;
-	}
-}
-
-public class RoleWinRequirement : WinRequirement {
-	public Role role = Role.None;
-	public RoleWinRequirement (Role role, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
-		this.role = role;
-	}
-}
-
-public class NatureWinRequirement : WinRequirement {
-	public Nature nature = Nature.None;
-	public NatureWinRequirement (Nature nature, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
-		this.nature = nature;
-	}
-}
-
-public class RelationWinRequirement : WinRequirement {
-	public Relation relation = Relation.None;
-	public RelationWinRequirement (Relation relation, WinPredicate predicate, WinRequirement[] fallback = null) : base(predicate, fallback) {
-		this.relation = relation;
 	}
 }
 
@@ -251,35 +227,13 @@ public class Order {
 }
 
 [System.Serializable]
-public enum OptionsSet {
-	None = 0,
-	May_CenterCard = 1,
-	May_OtherPlayerOrTwoCenterCards = 2,
-	May_OtherPlayer = 3,
-	May_TwoOtherPlayers = 4,
-	Must_CenterCard = 5,
-	May_UpToTwoOtherPlayersCars = 6,
-}
-
-[System.Serializable]
-public class Prompt {
-	public bool isEmpty = true;
-	public string explanation;
-	public OptionsSet options;
-
-	public Prompt() { }
-
-	public Prompt(string explanation, OptionsSet options = OptionsSet.None) {
-		this.isEmpty = false;
-		this.explanation = explanation;
-		this.options = options;
-	}
-}
-
-public enum TargetType {
-	Self = -1,
-	SelectionA = 0,
-	SelectionB = 1,
+public enum SelectableObjectType {
+	Self = 0,
+	TargetCenterCard = 1,
+	TargetOtherPlayer = 2,
+	TargetAnyPlayer = 3,
+	LastTarget = 4,
+	TargetFork = 5,
 }
 
 [System.Serializable]
@@ -287,17 +241,21 @@ public enum ActionType {
 	None = -1,
 	ViewOne = 0,
 	SwapTwo = 1,
-	ViewUpToTwo = 2,
+	ViewTwo = 2,
+	ChooseFork = 3,
 }
 
 [System.Serializable]
-public class HiddenAction {
+public class SubAction {
 	public ActionType actionType;
-	public List<TargetType> targets;
+	public List<SelectableObjectType> targets;
+	public bool isMandatory;
 
-	public HiddenAction(ActionType actionType, List<TargetType> targets) {
+
+	public SubAction(ActionType actionType, List<SelectableObjectType> targets, bool isMandatory) {
 		this.actionType = actionType;
 		this.targets = targets;
+		this.isMandatory = isMandatory;
 	}
 }
 
@@ -315,6 +273,7 @@ public class Selector {
 	public Role role = Role.None;
 	public Nature nature = Nature.None;
 	public SpecialSelection specialSelection = SpecialSelection.None;
+	public Relation relation = Relation.None;
 	public bool isEmpty = true;
 
 	public static Selector None {
@@ -337,6 +296,11 @@ public class Selector {
 
 	public Selector(SpecialSelection specialSelection) {
 		this.specialSelection = specialSelection;
+		this.isEmpty = false;
+	}
+
+	public Selector(Relation relation) {
+		this.relation = relation;
 		this.isEmpty = false;
 	}
 

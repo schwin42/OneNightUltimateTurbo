@@ -1,0 +1,3042 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1022155353516760}
+  m_IsPrefabParent: 1
+--- !u!1 &1022155353516760
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4058557380223230}
+  - component: {fileID: 114952845880272404}
+  m_Layer: 0
+  m_Name: GameData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4058557380223230
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1022155353516760}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 188.72064, y: 290.39264, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114952845880272404
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1022155353516760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 011af2f90115a463e834b2388f0d13ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardData:
+  - role: 14
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 27
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -1
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 26
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 13
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may view a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 29
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 3
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 10
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 26
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -1
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceAssassin
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 35
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 2
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 38
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: Z
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 3
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 16
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 17
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: -8
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 23
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -4
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceLove
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 40
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 1
+      secondary: 1
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 42
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 22
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -5
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceDisease
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 18
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: -7
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 41
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: If any werewolves or minions exist, they know you're a werewolf
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 4
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 8
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You must choose a center card to swap cards with.
+    hiddenAction:
+    - actionType: 1
+      targets: 0000000001000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 36
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: D
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 11
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 7
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 0
+      targets: 00000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 24
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -3
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceTraitor
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 31
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: D
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 5
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: 
+    cohort:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt the other mason'
+    prompt: There is no other mason.
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 2
+  - role: 6
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 3
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 12
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: C
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: You may view another player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 15
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 33
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 25
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -2
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceClarity
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 43
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 21
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 2
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 39
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 1
+      secondary: 0
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 3
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose another player to swap cards with and view your new card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0000000004000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 8
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 3
+      targets: 05000000
+      isMandatory: 0
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 1
+    - actionType: 2
+      targets: 01000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 28
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 37
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 10
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 20
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 44
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 2
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 30
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 9
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose two other players to swap cards between.
+    hiddenAction:
+    - actionType: 1
+      targets: 0200000002000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 19
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 34
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 1
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt a werewolf'
+    prompt: There are no other werewolves. You may look at a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 2
+  - role: 32
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose to view a card from the center. If you do, you must swap
+      that with a player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0400000003000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  totalCardPool:
+  - role: 14
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 37
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 18
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: -7
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 34
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 4
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 8
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You must choose a center card to swap cards with.
+    hiddenAction:
+    - actionType: 1
+      targets: 0000000001000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 7
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 0
+      targets: 00000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 5
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: 
+    cohort:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt the other mason'
+    prompt: There is no other mason.
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 2
+  - role: 5
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: 
+    cohort:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt the other mason'
+    prompt: There is no other mason.
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 2
+  - role: 6
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 3
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 3
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose another player to swap cards with and view your new card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0000000004000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 10
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 9
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose two other players to swap cards between.
+    hiddenAction:
+    - actionType: 1
+      targets: 0200000002000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 1
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt a werewolf'
+    prompt: There are no other werewolves. You may look at a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 2
+  - role: 1
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt a werewolf'
+    prompt: There are no other werewolves. You may look at a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 2
+  - role: 13
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may view a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 41
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: If any werewolves or minions exist, they know you're a werewolf
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 12
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: C
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: You may view another player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 32
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose to view a card from the center. If you do, you must swap
+      that with a player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0400000003000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 17
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: -8
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 23
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -4
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceLove
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 22
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -5
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceDisease
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 36
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: D
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 24
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -3
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceTraitor
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 31
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: D
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 33
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 25
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -2
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceClarity
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 0
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 21
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 2
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 20
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 44
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 2
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 19
+    team: 2
+    nature: 2
+    order:
+      isEmpty: 0
+      primary: -6
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceVampire
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 27
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -1
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 26
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 26
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: -1
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: PlaceAssassin
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 39
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 1
+      secondary: 0
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 38
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: Z
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 3
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 15
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 40
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 1
+      secondary: 1
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 28
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 30
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 29
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 3
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 10
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 8
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 3
+      targets: 05000000
+      isMandatory: 0
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 1
+    - actionType: 2
+      targets: 01000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 35
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: C
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 2
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 42
+    team: -1
+    nature: 3
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 43
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 16
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 11
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  readyPool:
+  - role: 4
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 8
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You must choose a center card to swap cards with.
+    hiddenAction:
+    - actionType: 1
+      targets: 0000000001000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 7
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 9
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 0
+      targets: 00000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: 1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 5
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: 
+    cohort:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt the other mason'
+    prompt: There is no other mason.
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 2
+  - role: 5
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 4
+      secondary: 
+    cohort:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt the other mason'
+    prompt: There is no other mason.
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 5
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 2
+  - role: 6
+    team: 1
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 3
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 3
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose another player to swap cards with and view your new card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0000000004000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 10
+    team: -1
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 9
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 7
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose two other players to swap cards between.
+    hiddenAction:
+    - actionType: 1
+      targets: 0200000002000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 2
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 2
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 3
+  - role: 1
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt a werewolf'
+    prompt: There are no other werewolves. You may look at a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 2
+  - role: 1
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: 
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: '{0} was dealt a werewolf'
+    prompt: There are no other werewolves. You may look at a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 2
+  - role: 13
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may view a card from the center.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 41
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 1
+      primary: 0
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: If any werewolves or minions exist, they know you're a werewolf
+    hiddenAction: []
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    maxQuantity: 1
+  - role: 12
+    team: 1
+    nature: 1
+    order:
+      isEmpty: 0
+      primary: 2
+      secondary: C
+    cohort:
+      role: 0
+      nature: 1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 0
+    promptIfCohort: 
+    prompt: You may view another player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 0
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 32
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 6
+      secondary: B
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: You may choose to view a card from the center. If you do, you must swap
+      that with a player's card.
+    hiddenAction:
+    - actionType: 0
+      targets: 01000000
+      isMandatory: 0
+    - actionType: 1
+      targets: 0400000003000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1
+  - role: 8
+    team: 0
+    nature: 0
+    order:
+      isEmpty: 0
+      primary: 5
+      secondary: 
+    cohort:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    promptIfCohort: 
+    prompt: 
+    hiddenAction:
+    - actionType: 3
+      targets: 05000000
+      isMandatory: 0
+    - actionType: 0
+      targets: 02000000
+      isMandatory: 1
+    - actionType: 2
+      targets: 01000000
+      isMandatory: 1
+    hiddenActionIfCohort: []
+    duskActions: 
+    duskActionsIfCohort: 
+    seedRequirement:
+      role: 0
+      nature: -1
+      specialSelection: -1
+      relation: -1
+      isEmpty: 1
+    maxQuantity: 1

@@ -8,9 +8,9 @@ public abstract class GamePayload : RemotePayload {
 
 public class NightActionPayload : GamePayload {
 	public int sourceClientId;
-	public Selection selection;
+	public int[][] selection;
 
-	public NightActionPayload (int sourceClientId, Selection selection) {
+	public NightActionPayload (int sourceClientId, int[][] selection) {
 		this.sourceClientId = sourceClientId;
 		this.selection = selection;
 	}

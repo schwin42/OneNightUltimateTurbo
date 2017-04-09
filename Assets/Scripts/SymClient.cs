@@ -88,7 +88,7 @@ public class SymClient : MonoBehaviour{
 		connector.JoinSession(playerName);
 	}
 
-	public void SubmitNightAction(Selection selection) {
+	public void SubmitNightAction(int[][] selection) {
 		connector.BroadcastEvent (new NightActionPayload (selfClientId, selection)); 
 	}
 

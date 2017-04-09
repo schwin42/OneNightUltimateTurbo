@@ -44,9 +44,9 @@ public class AsymClient : MonoBehaviour {
 		OnuBroadcastMessage(OnuMessage.StartGame, new StartGameMessage () { randomSeed = randomSeed });
 	}
 
-	public void SubmitNightAction(Selection selection) {
+	public void SubmitNightAction(List<List<int>> selection) {
 		Debug.Log ("Sending night action");
-		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceClientId = selfClientId, selection = selection.locationIds });
+		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceClientId = selfClientId, selection = selection.Select(a => a.ToArray()).ToArray() });
 	}
 
 	public void SubmitVote(int votee) {
@@ -152,7 +152,7 @@ public class AsymClient : MonoBehaviour {
 	private void OnNightActionReceived(NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
-		gameMaster.ReceiveNightAction (message.sourceClientId, new Selection (message.selection));
+		gameMaster.ReceiveNightAction (message.sourceClientId, message.selection);
 	}
 
 	private void OnVoteReceived(NetworkMessage netMessage) {

@@ -92,9 +92,9 @@ public class WinTests {
 		GamePlayer villagerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Villager);
 		GamePlayer drunkDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Drunk);
 
-		gm.ReceiveNightAction(werewolfDealtPlayer, new Selection(-1));
-		gm.ReceiveNightAction(villagerDealtPlayer, new Selection());
-		gm.ReceiveNightAction(drunkDealtPlayer, new Selection(gm.centerCards.Single(cs => cs.centerCardIndex == 0).locationId));
+		gm.ReceiveNightAction(werewolfDealtPlayer, new int[][] { new int[] { -1 } } );
+		gm.ReceiveNightAction(villagerDealtPlayer, null);
+		gm.ReceiveNightAction(drunkDealtPlayer, new int[][] { new int[] { gm.centerSlots.Single(cs => cs.centerCardIndex == 0).locationId, drunkDealtPlayer.locationId } });
 
 		gm.ReceiveVote(werewolfDealtPlayer, villagerDealtPlayer.locationId);
 		gm.ReceiveVote(villagerDealtPlayer, werewolfDealtPlayer.locationId);
@@ -102,6 +102,43 @@ public class WinTests {
 
 		Assert.IsTrue(drunkDealtPlayer.didWin);
 	}
+		
+	[Test]
+	public void VillagersWinAndWerewolvesWinIfBothDie() {
+		GameMaster gm = new GameMaster();
+
+		gm.StartGame(new List<string> { "A", "B", "C", "D", "E" },
+			new Role[] {Role.Werewolf, Role.Werewolf, Role.Villager, Role.Villager, Role.Tanner, Role.Mason, Role.Mason, Role.Troublemaker },
+			false
+		);
+
+		GamePlayer[] werewolfDealtPlayers = gm.players.Where(p => p.dealtCard.data.role == Role.Werewolf).ToArray();
+		GamePlayer[] villagerDealtPlayers = gm.players.Where(p => p.dealtCard.data.role == Role.Villager).ToArray();
+		GamePlayer tannerDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Tanner);
+
+		foreach(GamePlayer player in werewolfDealtPlayers) {
+			gm.ReceiveNightAction(player, new int[][] { new int[] { -1 } });
+		}
+
+		foreach(GamePlayer player in villagerDealtPlayers) {
+			gm.ReceiveNightAction(player, new int[][] { new int[] { -1 } });
+		}
+
+		gm.ReceiveNightAction(tannerDealtPlayer, new int[][] { new int[] { -1 } });
+
+		foreach(GamePlayer player in werewolfDealtPlayers) {
+			gm.ReceiveVote(player, villagerDealtPlayers[0].locationId);
+		}
+
+		foreach(GamePlayer player in villagerDealtPlayers) {
+			gm.ReceiveVote(player, werewolfDealtPlayers[0].locationId);
+		}
+
+		gm.ReceiveVote(tannerDealtPlayer, tannerDealtPlayer.locationId);
+
+		Assert.IsTrue(!WerewolvesDidWin(gm.players) && VillagersDidWin(gm.players));
+	}
+
 
 	private static bool VillagersDidWin(List<GamePlayer> players) {
 		List<bool> villagerWins = new List<bool>();
@@ -123,5 +160,5 @@ public class WinTests {
 		return werewolfWins.All(p => p == true);
 	}
 
-	//Villagers win and werewolves lose if both a villager and werewolf die
+
 }

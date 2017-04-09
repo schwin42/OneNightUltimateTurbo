@@ -28,7 +28,7 @@ public class StartGameMessage : MessageBase {
 
 public class NightActionMessage : MessageBase {
 	public int sourceClientId;
-	public int[] selection;
+	public int[][] selection;
 }
 
 public class VoteMessage : MessageBase {
