@@ -257,7 +257,7 @@ public class GameMaster {
 			GamePlayer actingPlayer = actingPlayersByTurnOrder [i];
 			List<int> skippableIndeces = new List<int>();
 			for (int j = 0; j < actingPlayer.dealtCard.data.hiddenAction.Count; j++) {
-				//TODO check if skippable due to fork
+				//check if skippable due to fork
 				if(skippableIndeces.Contains(j)) continue;
 				SubAction subAction = actingPlayer.dealtCard.data.hiddenAction[j];
 				if(actingPlayer.nightLocationSelection[j][0] == -1) {
