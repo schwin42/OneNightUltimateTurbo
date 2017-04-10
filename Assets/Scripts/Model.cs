@@ -341,10 +341,10 @@ public class Selector {
 				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.duskActions.Contains("Place"));
 				break;
 			case SpecialSelection.CardSwapper:
-				Debug.Log("Special selection not handled: " + specialSelection);
+				Debug.LogWarning("Special selection not handled: " + specialSelection);
 				return -1;
 			case SpecialSelection.MoveOrViewer:
-				Debug.Log("Special selection not handled: " + specialSelection);
+				Debug.LogWarning("Special selection not handled: " + specialSelection);
 				return -1;
 			case SpecialSelection.SeerOrApprenticeSeer:
 				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.role == Role.Seer || cd.role == Role.ApprenticeSeer);

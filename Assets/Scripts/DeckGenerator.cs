@@ -21,7 +21,7 @@ public static class DeckGenerator {
 					return ReplaceUnseededCardsWithWerewolfOrVampire(deck, instancePool, replacementIndeces, 2 - werewolfOrVampireCount).Select(cd => cd.role).ToList();
 				}
 			} else {
-				Debug.Log ("Deck already valid, no need to fix");
+//				Debug.Log ("Deck already valid, no need to fix");
 				return deck.Select(cd => cd.role).ToList();
 			}
 		}
@@ -37,7 +37,7 @@ public static class DeckGenerator {
 			if (i != cardCount - 1) {
 				CardData card = inputInstancePool [0];
 				deck.Add(card);
-				Debug.Log ("Adding: " + card.role.ToString());
+//				Debug.Log ("Adding: " + card.role.ToString());
 				inputInstancePool.RemoveAt(0);
 
 				//If seed requirement does not exist, continue
@@ -46,7 +46,7 @@ public static class DeckGenerator {
 				// Check if seed requirement already exists in the deck
 				int index = card.seedRequirement.TryGetFirstIndex(deck);
 				if(index != -1 && index != i) { //If seed req exists and deck and is not the current card
-					Debug.Log("Seed requirement already exists in deck, continuing...");
+//					Debug.Log("Seed requirement already exists in deck, continuing...");
 					continue;
 				}
 
@@ -54,7 +54,7 @@ public static class DeckGenerator {
 				int seedIndex = card.seedRequirement.TryGetFirstIndex(inputInstancePool);
 				if(seedIndex != -1) {
 					deck.Add (inputInstancePool [seedIndex]);
-					Debug.Log("Adding " + card.role.ToString() + "'s seed requirement: " + inputInstancePool[seedIndex].role.ToString()); 
+//					Debug.Log("Adding " + card.role.ToString() + "'s seed requirement: " + inputInstancePool[seedIndex].role.ToString()); 
 					inputInstancePool.RemoveAt (seedIndex);
 					i++;
 				} else {
@@ -65,7 +65,7 @@ public static class DeckGenerator {
 				int nextSeedIndex = inputInstancePool.IndexOf(inputInstancePool.First(cd => cd.seedRequirement.isEmpty));
 				CardData card = inputInstancePool [nextSeedIndex];
 				deck.Add (card);
-				Debug.Log("Adding seedless card: " + card.role.ToString());
+//				Debug.Log("Adding seedless card: " + card.role.ToString());
 				inputInstancePool.RemoveAt (nextSeedIndex);
 			}
 		}
@@ -83,10 +83,10 @@ public static class DeckGenerator {
 
 	private static List<CardData> ReplaceUnseededCardsWithWerewolfOrVampire(List<CardData> deck, List<CardData> instancePool, List<int> replacementIndeces, int count) {
 		//TODO Allow these cards to check seed requirements as well
-		Debug.Log ("Replacing " + count + " cards with werewolves or vampires" );
+//		Debug.Log ("Replacing " + count + " cards with werewolves or vampires" );
 		for (int i = 0; i < count; i++) {
 			int nextWovCard = instancePool.IndexOf(instancePool.First (cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire));
-			Debug.Log ("Swapping " + deck [i].role.ToString () + " for " + instancePool [nextWovCard].role.ToString ());
+//			Debug.Log ("Swapping " + deck [i].role.ToString () + " for " + instancePool [nextWovCard].role.ToString ());
 			deck.RemoveAt (replacementIndeces[i]);
 			deck.Insert (replacementIndeces[i], instancePool [nextWovCard]);
 			instancePool.RemoveAt(nextWovCard);

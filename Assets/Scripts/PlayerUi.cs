@@ -132,7 +132,6 @@ public class PlayerUi : MonoBehaviour
 	public void HandleButtonClick (Button button, int selection)
 	{
 		button.interactable = false;
-		print("DISABLED BUTTON: " + button.name);
 		if (currentScreen == UiScreen.Night_InputControl) {
 			if (selection == -2) { //Didn't even have an action, return empty
 				_nightSelections = new List<List<int>> ();
@@ -160,28 +159,36 @@ public class PlayerUi : MonoBehaviour
 		subActionSelection = new List<int> ();
 		for (int i = 0; i < patients.Count; i++) {
 			switch (patients [i]) {
-			case SelectableObjectType.LastTarget:
-				subActionSelection.Add (lastSelection);
-				break;
-			case SelectableObjectType.TargetCenterCard:
-			case SelectableObjectType.TargetAnyPlayer:
-			case SelectableObjectType.TargetOtherPlayer:
-			case SelectableObjectType.TargetFork:
-				if (pendingSelection.Count > 0) {
+				case SelectableObjectType.LastTarget:
+					subActionSelection.Add (lastSelection);
+					break;
+				case SelectableObjectType.TargetCenterCard:
+				case SelectableObjectType.TargetAnyPlayer:
+				case SelectableObjectType.TargetOtherPlayer:
+					if (pendingSelection.Count > 0) {
 						subActionSelection.Add (pendingSelection [0]);
-					skippableSubactionIndeces.Add(pendingSelection[0]);
-					pendingSelection.RemoveAt (0);	
-				} else {
-					Debug.Log ("Waiting for input...");
-					return false;
-				}
-				break;
-			case SelectableObjectType.Self:
-				subActionSelection.Add (gamePlayer.locationId);
-				break;
-			default:
-				Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
-				break;
+						pendingSelection.RemoveAt (0);	
+					} else {
+						Debug.Log ("Waiting for input...");
+						return false;
+					}
+					break;
+				case SelectableObjectType.TargetFork:
+					if (pendingSelection.Count > 0) {
+						subActionSelection.Add (pendingSelection [0]);
+						skippableSubactionIndeces.Add (pendingSelection [0]);
+						pendingSelection.RemoveAt (0);	
+					} else {
+						Debug.Log ("Waiting for input...");
+						return false;
+					}
+					break;
+				case SelectableObjectType.Self:
+					subActionSelection.Add (gamePlayer.locationId);
+					break;
+				default:
+					Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
+					break;
 			}
 		}
 		return true;
@@ -192,14 +199,15 @@ public class PlayerUi : MonoBehaviour
 		//Iterate over button groups and try to fill in selections.
 		for (int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
 
-			if (_nightSelections.Count > i) continue;
-			if(skippableSubactionIndeces.Contains(i)) { 
-				_nightSelections.Add(new List<int> { -1 });
+			if (_nightSelections.Count > i)
+				continue;
+			if (skippableSubactionIndeces.Contains (i)) {
+				_nightSelections.Add (new List<int> { -1 });
 				continue;
 			}
 			List<int> subActionSelection;
 			if (TryResolveSubActionSelection (gamePlayer.prompt.hiddenAction [i].targets, pendingSelection.ToList (), out subActionSelection)) {
-				pendingSelection = new List<int>();
+				pendingSelection = new List<int> ();
 				_nightSelections.Add (subActionSelection);
 				continue;
 			} else {
@@ -236,24 +244,24 @@ public class PlayerUi : MonoBehaviour
 			return;
 
 		switch (targetScreen) {
-		case UiScreen.PlayerEntry:
-			playerEntry_HostButton.interactable = true;
-			playerEntry_JoinButton.interactable = true;
-			break;
-		case UiScreen.Lobby:
+			case UiScreen.PlayerEntry:
+				playerEntry_HostButton.interactable = true;
+				playerEntry_JoinButton.interactable = true;
+				break;
+			case UiScreen.Lobby:
 
-			AsymClient asymClient = client as AsymClient;
-			if (asymClient != null) {
-				if (asymClient.localServer != null) {
-					print ("is host, ip address: " + Network.player.ipAddress);
-					lobby_AddressLabel.text = Network.player.ipAddress;
-				} else {
-					print ("is client, network address: " + asymClient.client.connection.address);
-					lobby_AddressLabel.text = asymClient.client.connection.address;
+				AsymClient asymClient = client as AsymClient;
+				if (asymClient != null) {
+					if (asymClient.localServer != null) {
+						print ("is host, ip address: " + Network.player.ipAddress);
+						lobby_AddressLabel.text = Network.player.ipAddress;
+					} else {
+						print ("is client, network address: " + asymClient.client.connection.address);
+						lobby_AddressLabel.text = asymClient.client.connection.address;
+					}
 				}
-			}
-			break;
-		case UiScreen.Night_InputControl:
+				break;
+			case UiScreen.Night_InputControl:
 					//Team allegiance- You are on the werewolf team.
 					//Nature clarity if relevant- You are a villageperson.
 					//Special win conditions- If there are no other werewolves, you win if an *other* player dies.
@@ -261,73 +269,73 @@ public class PlayerUi : MonoBehaviour
 					//Cohort players- Allen is a wersewolf.
 					//Location selection- You may look at the card of another player or two cards from the center.
 					//Selection controls- [Buttons for the three center cards]
-			List<string> descriptionStrings = new List<string> ();
-			descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
-			descriptionStrings.Add (gamePlayer.prompt.cohortString);
-			nightInput_Description.text = string.Join (" ", descriptionStrings.ToArray ());
+				List<string> descriptionStrings = new List<string> ();
+				descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
+				descriptionStrings.Add (gamePlayer.prompt.cohortString);
+				nightInput_Description.text = string.Join (" ", descriptionStrings.ToArray ());
 
-			_nightSelections = new List<List<int>> ();
-			pendingSelection = new List<int> ();
-			skippableSubactionIndeces = new List<int>();
-			TryResolveSelection ();
-			break;
-		case UiScreen.Day_Voting:
+				_nightSelections = new List<List<int>> ();
+				pendingSelection = new List<int> ();
+				skippableSubactionIndeces = new List<int> ();
+				TryResolveSelection ();
+				break;
+			case UiScreen.Day_Voting:
 
 					//Create buttons 
-			foreach (GamePlayer p in client.Gm.players) {
-				AddLocationButton (p.name, p.locationId, day_VoteButtonBox);
-			}
-			AddLocationButton ("[No one]", -1, day_VoteButtonBox);
+				foreach (GamePlayer p in client.Gm.players) {
+					AddLocationButton (p.name, p.locationId, day_VoteButtonBox);
+				}
+				AddLocationButton ("[No one]", -1, day_VoteButtonBox);
 
-			string descriptionText = "";
+				string descriptionText = "";
 					//Write description
 					//Dealt role- "You were dealt the werewolf."
-			descriptionText += "You were dealt the " + gamePlayer.dealtCard.data.role.ToString () + ". ";
+				descriptionText += "You were dealt the " + gamePlayer.dealtCard.data.role.ToString () + ". ";
 					//Team allegiance- "The werewolf is on the werewolf team"
-			descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is on the " + gamePlayer.dealtCard.data.team.ToString () + ". ";
+				descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is on the " + gamePlayer.dealtCard.data.team.ToString () + ". ";
 					//Nature clarity if relevant- "The minion is a villageperson."
-			descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is a " + gamePlayer.dealtCard.data.nature + ". ";
+				descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is a " + gamePlayer.dealtCard.data.nature + ". ";
 					//Special win conditions- "If there are no other werewolves, the minion wins if an *other* player dies."
 					//Cohort type- "You can see other werewolves."
 					//Cohort players- "Allen was dealt the werewolf."
-			if (gamePlayer.cohortLocations != null) {
-				if (gamePlayer.cohortLocations.Length == 0) {
-					descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
-				} else {
-					foreach (int locationId in gamePlayer.cohortLocations) {
-						descriptionText += "You observed that " + client.Gm.locationsById [locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
+				if (gamePlayer.cohortLocations != null) {
+					if (gamePlayer.cohortLocations.Length == 0) {
+						descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
+					} else {
+						foreach (int locationId in gamePlayer.cohortLocations) {
+							descriptionText += "You observed that " + client.Gm.locationsById [locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
+						}
 					}
 				}
-			}
 					//Observation- "You observed center card #2 to be the seer at +2";
-			foreach (Observation observation in gamePlayer.observations) {
-				descriptionText += "You observed " + client.Gm.locationsById [observation.locationId].name + " to be the " +
-				client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
-			}
-			day_Description.text = descriptionText;
+				foreach (Observation observation in gamePlayer.observations) {
+					descriptionText += "You observed " + client.Gm.locationsById [observation.locationId].name + " to be the " +
+					client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
+				}
+				day_Description.text = descriptionText;
 
 
 			//Set deck display
-			List<Role> randomDeckList = client.Gm.orderedDeckList.OrderBy(x => UnityEngine.Random.value).ToList();
-			string deckString = "";
-			for(int i = 0; i < randomDeckList.Count; i++) {
+				List<Role> randomDeckList = client.Gm.orderedDeckList.OrderBy (x => UnityEngine.Random.value).ToList ();
+				string deckString = "";
+				for (int i = 0; i < randomDeckList.Count; i++) {
 				
-				if(i != 0) {
-					deckString += "\n";
+					if (i != 0) {
+						deckString += "\n";
+					}
+					deckString += randomDeckList [i].ToString ();
 				}
-				deckString += randomDeckList[i].ToString();
-			}
-			day_DeckDisplay.text = deckString;
+				day_DeckDisplay.text = deckString;
 
 
 				//Set timer
 
-			break;
-		case UiScreen.Result:
-			result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
-			string descriptionString = "";
+				break;
+			case UiScreen.Result:
+				result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
+				string descriptionString = "";
 					//Current player's identity "You are the werewolf."
-			descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
+				descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
 					//Player(s) that died "Frank and Ellen died."
 					//Dying players' identities "Frank was the werewolf. Ellen was the mason."
 					//TODO Restore death printing
@@ -335,8 +343,8 @@ public class PlayerUi : MonoBehaviour
 					//			for(int i = 0; i < killedPlayers.Length; i++) {
 					//				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
 					//			}
-			result_Description.text = descriptionString;
-			break;
+				result_Description.text = descriptionString;
+				break;
 		}
 
 		if (currentScreen == UiScreen.Uninitialized) {
@@ -405,7 +413,6 @@ public class PlayerUi : MonoBehaviour
 
 	public void HandlePlayersUpdated (List<string> playerNames)
 	{
-		print ("Players updated");
 		string s = "";
 		for (int i = 0; i < playerNames.Count; i++) {
 			s += playerNames [i];

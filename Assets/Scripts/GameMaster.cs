@@ -532,7 +532,7 @@ public class CenterCardSlot : ILocation {
 		this.dealtCard = card;
 		this._currentCard = card;
 		_locationId = gameMaster.RegisterLocation(this);
-		Debug.Log("Registered center card #" + (index + 1) + " as locationId = " + _locationId);
+//		Debug.Log("Registered center card #" + (index + 1) + " as locationId = " + _locationId);
 	}
 }
 
