@@ -49,21 +49,21 @@ public class GameData : MonoBehaviour {
 		instance.cardData = new List<CardData>();
 		instance.totalCardPool = new List<CardData>();
 		instance.readyPool = new List<CardData>();
-		TeamName cardTeam = TeamName.None;
+		TeamName cardTeam = TeamName.NoTeam;
 		foreach(Dictionary<string, string> dict in roleDicts) {
 			Role cardRole = ((Role)Enum.Parse(typeof(Role), dict["Role"].Replace(" ", "")));
 			switch(dict["Team"]) {
 			case "Werewolf":
-				cardTeam = TeamName.Werewolf;
+				cardTeam = TeamName.WerewolfTeam;
 				break;
 			case "Vampire":
-				cardTeam = TeamName.Vampire;
+				cardTeam = TeamName.VampireTeam;
 				break;
 			case "Village":
-				cardTeam = TeamName.Village;
+				cardTeam = TeamName.VillageTeam;
 				break;
 			case "NoTeam":
-				cardTeam = TeamName.None;
+				cardTeam = TeamName.NoTeam;
 				break;
 				default:
 				Debug.LogError("Unhandled team: " + dict["Team"]);

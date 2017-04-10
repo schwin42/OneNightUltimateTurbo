@@ -12,7 +12,7 @@ public class Team
 
 	public static List<Team> teams = new List<Team> () {
 		new Team() {
-			name = TeamName.Village,
+			name = TeamName.VillageTeam,
 			description = "You are on the village team.",
 			winRequirements = new WinRequirement[] {
 				new WinRequirement (new Selector(Nature.Werewolf), WinPredicate.MustDie, 
@@ -20,7 +20,7 @@ public class Team
 			}
 		},
 		new Team() {
-			name = TeamName.Werewolf,
+			name = TeamName.WerewolfTeam,
 			description = "You are on the werewolf team.",
 			winRequirements = new WinRequirement[] {
 				new WinRequirement (new Selector(Nature.Werewolf), WinPredicate.MustNotDie, new WinRequirement[] {
@@ -31,7 +31,7 @@ public class Team
 			}
 		},
 		new Team() {
-			name = TeamName.Vampire,
+			name = TeamName.VampireTeam,
 			description = "You are on the vampire team.",
 			winRequirements = new WinRequirement[] {
 				new WinRequirement (new Selector(Nature.Vampire), WinPredicate.MustNotDie, new WinRequirement[] {
@@ -42,7 +42,7 @@ public class Team
 			}
 		},
 		new Team() {
-			name = TeamName.None,
+			name = TeamName.NoTeam,
 			description = "You are not on a team.",
 			winRequirements = new WinRequirement[] { },
 		},
@@ -58,10 +58,10 @@ public class NoTeam : Team {
 [System.Serializable]
 public enum TeamName
 {
-	None = -1,
-	Village = 0,
-	Werewolf = 1,
-	Vampire = 2,
+	NoTeam = -1,
+	VillageTeam = 0,
+	WerewolfTeam = 1,
+	VampireTeam = 2,
 }
 
 [System.Serializable]
@@ -88,7 +88,7 @@ public class CardData
 {
 	//Game rules
 	public Role role = Role.None;
-	public TeamName team = TeamName.None;
+	public TeamName team = TeamName.NoTeam;
 	public Nature nature;
 	public WinRequirement winRequirement;
 	public Order order = Order.None;
@@ -283,6 +283,19 @@ public class Selector {
 	}
 
 	private Selector() { }
+
+	public override string ToString() {
+		if(role != Role.None) {
+			return role.ToString();
+		} else if(nature != Nature.None) {
+			return nature.ToString();
+		} else if (relation != Relation.None) {
+			return relation.ToString();
+		} else {
+			Debug.LogError("unhandled selector type");
+			return null;
+		}
+	}
 
 	public Selector(Role role) {
 		this.role = role;

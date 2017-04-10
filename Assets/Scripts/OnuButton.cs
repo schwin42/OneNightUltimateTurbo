@@ -6,9 +6,11 @@ public class OnuButton : MonoBehaviour {
 
 	PlayerUi playerUi;
 	int locationId;
+	Button button;
 
 	void Start() {
-		GetComponent<Button>().onClick.AddListener(HandleClick);
+		button = GetComponent<Button>();
+		button.onClick.AddListener(HandleClick);
 	}
 
 	public void Initialize(PlayerUi playerUi, int locationId) {
@@ -17,6 +19,6 @@ public class OnuButton : MonoBehaviour {
 	}
 
 	void HandleClick () {
-		playerUi.HandleButtonClick(locationId);
+		playerUi.HandleButtonClick(button, locationId);
 	}
 }

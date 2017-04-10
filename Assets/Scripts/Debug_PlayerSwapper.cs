@@ -39,25 +39,25 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 	void Update()
 	{
 
-		if (Input.GetKeyUp(KeyCode.Alpha1)) {
+		if (Input.GetKeyUp(KeyCode.BackQuote)) {
 			ActivatePlayer(0);
-		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha1)) {
 			ActivatePlayer(1);
-		} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
 			ActivatePlayer(2);
-		} else if (Input.GetKeyUp(KeyCode.Alpha4)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
 			ActivatePlayer(3);
-		} else if (Input.GetKeyUp(KeyCode.Alpha5)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha4)) {
 			ActivatePlayer(4);
-		} else if (Input.GetKeyUp(KeyCode.Alpha6)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha5)) {
 			ActivatePlayer(5);
-		} else if (Input.GetKeyUp(KeyCode.Alpha7)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha6)) {
 			ActivatePlayer(6);
-		} else if (Input.GetKeyUp(KeyCode.Alpha8)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha7)) {
 			ActivatePlayer(7);
-		} else if (Input.GetKeyUp(KeyCode.Alpha9)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha8)) {
 			ActivatePlayer(8);
-		} else if (Input.GetKeyUp(KeyCode.Alpha0)) {
+		} else if (Input.GetKeyUp(KeyCode.Alpha9)) {
 			ActivatePlayer(9);
 		}
 	}

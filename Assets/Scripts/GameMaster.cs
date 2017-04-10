@@ -32,6 +32,7 @@ public class GameMaster {
 
 	//The deck will be selected/ randomly generated before game start
 	public List<RealCard> gameDeck;
+	public List<Role> orderedDeckList;
 
 	//Configuration
 	PlayerUi ui;
@@ -51,6 +52,8 @@ public class GameMaster {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
 		}
+
+		this.orderedDeckList = orderedDeckList;
 
 		//Instantiate deck
 		gameDeck = new List<RealCard>();
@@ -264,12 +267,12 @@ public class GameMaster {
 					break; //Player chose not to act, end night action processing for this player
 				}
 				if(subAction.actionType == ActionType.ChooseFork) { //Instead of location ID, selection is chosen fork - 0 or 1
-					//TODO Add fork case
+					//Add fork case
 					if(actingPlayer.nightLocationSelection[j].Length != 1) {
 						Debug.LogError("Unexpected number of subaction selections for ChooseFork: " + actingPlayer.nightLocationSelection[j].Length);
 						continue;
 					} else {
-						skippableIndeces.Add(j + 1 + (1 - actingPlayer.nightLocationSelection[j][0]));
+						skippableIndeces.Add((actingPlayer.nightLocationSelection[j][0]));
 					}
 				} else if(subAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
 
@@ -325,6 +328,7 @@ public class GameMaster {
 	public void ReceiveDirective(GamePayload payload) {
 		if(payload is NightActionPayload) {
 			NightActionPayload nightAction = (NightActionPayload)payload;
+			Debug.Log("Received night action from: " + nightAction.sourceClientId);
 			ReceiveNightAction(players.Single(gp => gp.clientId == nightAction.sourceClientId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
@@ -447,7 +451,7 @@ public class RealizedPrompt {
 					break;
 				} else if(hiddenAction[i].targets[j] == SelectableObjectType.TargetFork) {
 					for(int k = 0; k < 2; k++) {
-						buttonGroup.Add(new ButtonInfo(k, "Option #" + (k + 1).ToString()));
+						buttonGroup.Add(new ButtonInfo(j + 1 + (1 - k), "Option #" + (k + 1).ToString()));
 					}
 					if(!hiddenAction[i].isMandatory) buttonGroup.Add(new ButtonInfo(-1, "Pass"));
 					break;
@@ -509,7 +513,7 @@ public class CenterCardSlot : ILocation {
 	}
 	public string name { 
 		get {
-			return "center card #" + (centerCardIndex + 1);
+			return "Center Card #" + (centerCardIndex + 1);
 		}
 	}
 	public int centerCardIndex;

@@ -82,12 +82,14 @@ public class SymClient : MonoBehaviour, IClient {
 			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
 			gm = new GameMaster(ui); //Implement random seed
 
-			//Shuffle deck
-			print("RANDOM SEED: "+ randomSeed);
+			//Get random deck and shuffle (using seed)
 			selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByClientId.Count + 3, randomSeed, true);
 			selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
 
-//			selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.MysticWolf, Role.DreamWolf, Role.Mason, Role.Mason, Role.Insomniac, Role.Troublemaker, Role.Drunk } ;
+//			selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Seer, Role.Troublemaker, Role.ApprenticeSeer };
+			selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Seer, Role.Troublemaker,  Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf} ;
+
+//			selectedDeckBlueprint = new List<Role> { Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf, Role.Robber, Role.Seer, Role.Troublemaker, Role.Villager, Role.Villager, Role.Werewolf } ;
 
 			gm.StartGame(playerNamesByClientId, selectedDeckBlueprint);
 		} else {
