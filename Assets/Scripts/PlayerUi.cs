@@ -133,8 +133,7 @@ public class PlayerUi : MonoBehaviour
 	{
 		button.interactable = false;
 		if (currentScreen == UiScreen.Night_InputControl) {
-			if (selection == -2) { //Didn't even have an action, return empty
-				_nightSelections = new List<List<int>> ();
+			if (selection == -2) { //Didn't even have an action. Use existing derived selection
 				CompleteNightAction (_nightSelections);
 			} else if (selection == -1) {
 				_nightSelections = new List<List<int>> ();
@@ -222,7 +221,7 @@ public class PlayerUi : MonoBehaviour
 		if (lastSelection == -1) {
 			//If not, give ready button which will in term submit full hidden action
 			ClearBox (nightInput_ButtonBox);
-			AddLocationButton ("Ready", -1, nightInput_ButtonBox);
+			AddLocationButton ("Ready", -2, nightInput_ButtonBox);
 		} else {
 			//If so, submit full hidden action
 			CompleteNightAction (_nightSelections);
@@ -307,7 +306,7 @@ public class PlayerUi : MonoBehaviour
 				}
 					//Observation- "You observed center card #2 to be the seer at +2";
 				foreach (Observation observation in gamePlayer.observations) {
-					descriptionText += "You observed " + client.Gm.locationsById [observation.locationId].name + " to be the " +
+					descriptionText += "You observed " + (observation.locationId == gamePlayer.locationId ? "yourself" : client.Gm.locationsById [observation.locationId].name ) + " to be the " +
 					client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 				}
 				day_Description.text = descriptionText;
