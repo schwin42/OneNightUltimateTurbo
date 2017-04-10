@@ -87,7 +87,7 @@ public class SymClient : MonoBehaviour, IClient {
 			selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
 
 //			selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Seer, Role.Troublemaker, Role.ApprenticeSeer };
-			selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Seer, Role.Troublemaker,  Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf} ;
+			selectedDeckBlueprint = new List<Role> { Role.Witch, Role.Seer, Role.Troublemaker,  Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf} ;
 
 //			selectedDeckBlueprint = new List<Role> { Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf, Role.Robber, Role.Seer, Role.Troublemaker, Role.Villager, Role.Villager, Role.Werewolf } ;
 

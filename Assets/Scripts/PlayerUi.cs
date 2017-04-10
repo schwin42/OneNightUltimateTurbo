@@ -150,8 +150,6 @@ public class PlayerUi : MonoBehaviour
 		} else if (currentScreen == UiScreen.Day_Voting) {
 			SubmitVote (selection);
 		}
-
-
 	}
 
 	private bool TryResolveSubActionSelection (List<SelectableObjectType> patients, List<int> pendingSelection, out List<int> subActionSelection)
