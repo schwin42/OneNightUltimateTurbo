@@ -67,7 +67,7 @@ public class ManipulationTests {
 		}
 
 		gm.players[0].nightLocationSelection = new int[][] {
-			new int[] { 1 }, // Choose second option to view two
+			new int[] { 1 }, // Choose to skip first action
 			new int[] { -1 }, //View player action not used
 			new int[] { gm.centerSlots[0].locationId , gm.centerSlots[2].locationId }, //View first and third
 		};
@@ -90,7 +90,7 @@ public class ManipulationTests {
 		gm.players[1].ReceiveDealtCard(new RealCard(gm, Role.Villager));
 
 		gm.players[0].nightLocationSelection = new int[][] {
-			new int[] { 0 }, //Choose first option to view one
+			new int[] { 2 }, //Choose to skip second option
 			new int[] { gm.players[1].locationId }, //View werewolf
 			new int[] { -1 }, //View two not used
 		};
