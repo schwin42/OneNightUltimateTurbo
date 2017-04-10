@@ -21,29 +21,27 @@ public class SymVirtualServer : MonoBehaviour {
 	//State
 	private int nextClientId = 0;
 	public Dictionary<int, EditorSymConnector> connectorsByClientId = new Dictionary<int, EditorSymConnector>();
-	List<int> clientIds = new List<int>();
-	List<string> clientNames = new List<string>();
+	Dictionary<int, string> playerNamesByClientId = new Dictionary<int, string>();
 	
 	public void HandleClientNewUser(EditorSymConnector newConnector, string name) {
 //		Debug.Log("Server received new user");
 		//Send players updated payload
-		int newLocationId = nextClientId;
+		int newClientId = nextClientId;
 		nextClientId++;
 
-		connectorsByClientId.Add(newLocationId, newConnector);
+		connectorsByClientId.Add(newClientId, newConnector);
 
-		clientIds.Add(newLocationId);
-		clientNames.Add(name);
+		playerNamesByClientId.Add(newClientId, name);
 		
-		foreach(int clientId in clientIds.ToArray()) {
+		foreach(KeyValuePair<int, string> kp in playerNamesByClientId) {
 //			Debug.Log("clientId key, self: " + kp.Key + ", " + selfClientId);
-			if(clientId == newLocationId) { //Send welcome payload only to new player
+			if(kp.Key == newClientId) { //Send welcome payload only to new player
 				Debug.Log("Sending welcome basket");
-				newConnector.HandlePayloadReceived(new WelcomeBasketPayload(newLocationId, clientNames, clientIds));
+				newConnector.HandlePayloadReceived(new WelcomeBasketPayload(newClientId, playerNamesByClientId));
 			} else {
 //				Debug.Log("Sending update other, connector client id:" + selfClientId);
 
-				connectorsByClientId[clientId].HandlePayloadReceived(new UpdateOtherPayload(newLocationId, clientNames, clientIds));
+				connectorsByClientId[kp.Key].HandlePayloadReceived(new UpdateOtherPayload(newClientId, playerNamesByClientId));
 			}
 		}
 

@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 114895381329900754}
   - component: {fileID: 222275026678817278}
   - component: {fileID: 114478323639445944}
-  - component: {fileID: 114034091393041428}
+  - component: {fileID: 114694253494261334}
   m_Layer: 5
   m_Name: PlayerPanelAsym
   m_TagString: Untagged
@@ -554,21 +554,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Title
---- !u!114 &114034091393041428
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1653342361748770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57079aeacaa7c0542b8f43e8980a643e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerName: 
-  clientPlayerNamesByClientIds: []
-  selfClientId: 0
-  selectedDeckBlueprint: 010000000100000006000000030000000900000007000000040000000500000005000000
 --- !u!114 &114035675378120082
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1232,11 +1217,11 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 80
+    m_FontSize: 40
     m_FontStyle: 0
     m_BestFit: 1
-    m_MinSize: 8
-    m_MaxSize: 80
+    m_MinSize: 4
+    m_MaxSize: 40
     m_Alignment: 1
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1273,6 +1258,19 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114694253494261334
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1653342361748770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27282abb084b448adb85565ad8144945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfClientId: -1
+  selectedDeckBlueprint: 030000000100000009000000010000000200000002000000
 --- !u!114 &114695457429956918
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2334,7 +2332,7 @@ RectTransform:
   m_GameObject: {fileID: 1653342361748770}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.9999978, y: 0.9999978, z: 0.9999978}
   m_Children:
   - {fileID: 224496300297781568}
   - {fileID: 224532651104923370}
@@ -2348,7 +2346,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000061035156}
+  m_AnchoredPosition: {x: 0, y: -0.00012207031}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224929093407354638

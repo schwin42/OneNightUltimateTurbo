@@ -46,10 +46,9 @@ public class DeckGeneratorTests {
 	[Test]
 	public void DeckToStartGameUnit() {
 		GameMaster gm = new GameMaster();
-		Role[] selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(3 + 3, true).ToArray();
-		gm.StartGame(new List<string> { "A", "B", "C" },
-			selectedDeckBlueprint,
-			false
+		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(3 + 3, Mathf.FloorToInt(Random.value * 100000), true).ToList();
+		gm.StartGame(new Dictionary<int, string> { { 0, "0"  }, { 1, "1" }, {2, "2" } },
+			selectedDeckBlueprint
 		);
 
 		Assert.IsTrue(gm.centerSlots.Count == 3);

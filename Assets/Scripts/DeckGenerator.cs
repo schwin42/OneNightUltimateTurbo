@@ -5,22 +5,24 @@ using System.Linq;
 
 public static class DeckGenerator {
 
-	public static Role[] GenerateRandomizedDeck(int cardCount, bool readyOnly) {
+	public static List<Role> GenerateRandomizedDeck(int cardCount, int randomSeed, bool readyOnly) {
 		List<CardData> instancePool;
 		List<CardData> deck;
 		List<int> replacementIndeces;
 		for(int i = 0; i < 100; i++) { //Iterate to 100 instead of while loop, to prevent infinite loops
-			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces, readyOnly);
+			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces, randomSeed, readyOnly);
 			int werewolfOrVampireCount = deck.Count(cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire);
 			if (werewolfOrVampireCount < 2) {
+				//Not enough werewolves/villagers
 				if(replacementIndeces.Count < 2 - werewolfOrVampireCount) {
-					continue;
+					randomSeed++;
+					continue; //Invalid deck, try again
 				} else {
-					return ReplaceUnseededCardsWithWerewolfOrVampire(deck, instancePool, replacementIndeces, 2 - werewolfOrVampireCount).Select(cd => cd.role).ToArray();
+					return ReplaceUnseededCardsWithWerewolfOrVampire(deck, instancePool, replacementIndeces, 2 - werewolfOrVampireCount).Select(cd => cd.role).ToList();
 				}
 			} else {
 				Debug.Log ("Deck already valid, no need to fix");
-				return deck.Select(cd => cd.role).ToArray();
+				return deck.Select(cd => cd.role).ToList();
 			}
 		}
 		Debug.LogError("Exceeded 100 attempts to generate valid deck");
@@ -71,11 +73,12 @@ public static class DeckGenerator {
 		return deck;
 	}
 
-	private static List<CardData> GenerateNewUnfixedDeck(int cardCount, out List<CardData> resultantInstancePool, out List<int> replacementIndeces, bool readyOnly) {
+	private static List<CardData> GenerateNewUnfixedDeck(int cardCount, out List<CardData> resultantInstancePool, out List<int> replacementIndeces, int randomSeed, bool readyOnly) {
 
 		List<CardData> sourceCardPool = readyOnly ? GameData.instance.readyPool : GameData.instance.totalCardPool;
-		List<CardData> newRandomInstancePool = sourceCardPool.OrderBy(x => Random.value).ToList();
-		return GenerateNewUnfixedDeck(cardCount, newRandomInstancePool, out resultantInstancePool, out replacementIndeces); 
+		List<CardData> randomOrderCardPool = Utility.ShuffleListBySeed(sourceCardPool, randomSeed);
+
+		return GenerateNewUnfixedDeck(cardCount, randomOrderCardPool, out resultantInstancePool, out replacementIndeces); 
 	}
 
 	private static List<CardData> ReplaceUnseededCardsWithWerewolfOrVampire(List<CardData> deck, List<CardData> instancePool, List<int> replacementIndeces, int count) {

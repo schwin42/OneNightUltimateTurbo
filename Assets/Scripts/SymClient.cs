@@ -4,12 +4,26 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
-public class SymClient : MonoBehaviour{
-	public string playerName;
+public class SymClient : MonoBehaviour, IClient {
+	private string _playerName = null;
+	public string PlayerName { 
+		get { 
+			return _playerName; 
+		}
+		set {
+			_playerName = value;
+		}
+	}
+	public int ClientId { 
+		get { 
+			return selfClientId; 
+		}
+	}
 	public int selfClientId = -1;
 
-	public List<string> playerNames;
-	public List<int> connectedClientIds;
+	public List<Role> selectedDeckBlueprint;
+
+	Dictionary<int, string> playerNamesByClientId;
 
 	//Configuration
 	private EditorSymConnector _connector;
@@ -31,19 +45,11 @@ public class SymClient : MonoBehaviour{
 	}
 
 	//State
-	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
-	private List<Role> selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Werewolf, Role.Troublemaker, Role.Werewolf, Role.Villager, Role.Villager };
+	public GameMaster Gm { get { return gm; } }
+	public GameMaster gm; //Game masters don't need to exist outside the scope of the game
 
 	public SymClient() {
 		_connector = new EditorSymConnector(this);
-	}
-
-	public void SetName(string s) {
-		playerName = s;
-	}
-
-	public void SetSelectedDeck(List<Role> deckBlueprint) {
-		this.selectedDeckBlueprint = deckBlueprint;
 	}
 
 	public void BeginGame() {
@@ -55,37 +61,43 @@ public class SymClient : MonoBehaviour{
 //		Debug.Log("self: " + selfClientId);
 		//If game event, pass to GameMaster
 		if(payload is GamePayload) {
-			gameMaster.ReceiveDirective((GamePayload)payload);
+			gm.ReceiveDirective((GamePayload)payload);
 		} else if(payload is WelcomeBasketPayload) { 
 			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
 			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
 			this.selfClientId = basket.sourceClientId;
 			Debug.Log("Self client id set to: " + selfClientId);
-			playerNames = basket.playerNames;
-			connectedClientIds = basket.clientIds;
-			ui.HandlePlayersUpdated(playerNames);
-			print("welcome basket for " + playerName + ". Player names: " + playerNames.Count);
+			playerNamesByClientId = basket.playerNamesByClientId;
+			ui.HandleClientJoined(PlayerName);
+			ui.HandlePlayersUpdated(playerNamesByClientId.Select(kp => kp.Value).ToList());
 		} else if(payload is UpdateOtherPayload) {
 			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-			this.playerNames = update.playerNames;
-			this.connectedClientIds = update.clientIds;
-			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
-			ui.HandlePlayersUpdated(playerNames);
-			print("update other for " + playerName + ". Player names: " + playerNames.Count);
+			this.playerNamesByClientId = update.playerNamesByClientId;
+//			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
+			ui.HandlePlayersUpdated(playerNamesByClientId.Select(kp => kp.Value).ToList());
+//			print("update other for " + this.PlayerName + ". Player names: " + playerNames.Count);
 		} else if (payload is StartGamePayload) {
 			Debug.Log("Start game received by: " + selfClientId);
 			StartGamePayload start = ((StartGamePayload)payload);
 			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
-			gameMaster = new GameMaster(ui); //Implement random seed
-//			gameMaster.StartGame(playerNames, selectedDeckBlueprint.ToArray(), true, randomSeed);
+			gm = new GameMaster(ui); //Implement random seed
+
+			//Shuffle deck
+			print("RANDOM SEED: "+ randomSeed);
+			selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByClientId.Count + 3, randomSeed, true);
+			selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
+
+//			selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.MysticWolf, Role.DreamWolf, Role.Mason, Role.Mason, Role.Insomniac, Role.Troublemaker, Role.Drunk } ;
+
+			gm.StartGame(playerNamesByClientId, selectedDeckBlueprint);
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
 	}
 
-	public void JoinGame()
+	public void JoinSession(string s)
 	{
-		connector.JoinSession(playerName);
+		connector.JoinSession(this.PlayerName);
 	}
 
 	public void SubmitNightAction(int[][] selection) {
@@ -96,9 +108,9 @@ public class SymClient : MonoBehaviour{
 		connector.BroadcastEvent (new VotePayload (selfClientId, locationId));
 	}
 
-	void Start()
+	public void Initialize()
 	{
 		_ui = GetComponent<PlayerUi>();
-//		_ui.Initialize(this);
+		_ui.Initialize(this);
 	}
 }

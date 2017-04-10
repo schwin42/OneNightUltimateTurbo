@@ -4,14 +4,30 @@ using UnityEngine;
 
 public class Debug_PlayerSwapper : MonoBehaviour {
 
-	List<Transform> playerPanels;
+	public List<Transform> playerPanels;
+	public List<PlayerUi> playerUis;
+	public List<SymClient> clients;
 
 	// Use this for initialization
 	void Start () {
 		playerPanels = new List<Transform>();
+		playerUis = new List<PlayerUi>();
+		clients = new List<SymClient>();
+		int i = 0;
 		foreach (Transform child in transform) {
 			playerPanels.Add(child);
+			playerPanels[i].gameObject.name = i.ToString();
+			playerUis.Add(child.GetComponent<PlayerUi>());
+			SymClient client = child.GetComponent<SymClient>();
+			clients.Add(client);
+			client.Initialize();
+			client.PlayerName = i.ToString();
+			client.JoinSession("");
+			i++;
 		}
+
+		clients[0].BeginGame();
+
 	}
 
 	void ActivatePlayer(int targetIndex) {

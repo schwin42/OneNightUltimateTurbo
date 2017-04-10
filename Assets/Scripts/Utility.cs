@@ -5,9 +5,9 @@ using System.Linq;
 
 public static class Utility {
 
-	public static List<RealCard> ShuffleCards(List<RealCard> cards, int randomSeed) {
+	public static List<T> ShuffleListBySeed<T>(List<T> cards, int randomSeed) {
 		System.Random random = new System.Random (randomSeed);
-		Dictionary<double, RealCard> cardsByOrder = new Dictionary<double, RealCard>();
+		Dictionary<double, T> cardsByOrder = new Dictionary<double, T>();
 		for(int i = 0; i < cards.Count; i++) {
 			cardsByOrder.Add (random.NextDouble (), cards [i]);
 		}

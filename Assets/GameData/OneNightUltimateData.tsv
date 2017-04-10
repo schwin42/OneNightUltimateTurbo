@@ -11,10 +11,10 @@ Robber	Done	Done	Implemented	Village	Villageperson	6			You may choose another pl
 Tanner	Done	Done	Implemented	NoTeam	Villageperson		Role.Tanner_MustDie									1	Werewolf
 Troublemaker	Done	Done	Implemented	Village	Villageperson	7			You may choose two other players to swap cards between.			May_SwapTwo(TargetOtherPlayer,TargetOtherPlayer)				1	Werewolf
 Villager	Done	Done	Implemented	Village	Villageperson										Villager	3	Werewolf
-Werewolf	Done	Done	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	{0} was dealt a werewolf		May_ViewOne(TargetCenterCard)				2	Werewolf
+Werewolf	Done	Done	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	{0} was dealt a werewolf.		May_ViewOne(TargetCenterCard)				2	Werewolf
 Apprentice Seer	Low	Done	Implemented	Village	Villageperson	5B			You may view a card from the center.			May_ViewOne(TargetCenterCard)				1	Daybreak
-Dream Wolf	Low	Untested	Implemented	Werewolf	Werewolf				If any werewolves or minions exist, they know you're a werewolf						NatureWerewolf	1	Daybreak
-Mystic Wolf	Medium	Untested	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You may view another player's card.			May_ViewOne(TargetOtherPlayer)				1	Daybreak
+Dream Wolf	Low	Untested	Implemented	Werewolf	Werewolf				If any werewolves or minions exist, they know you're a werewolf.						NatureWerewolf	1	Daybreak
+Mystic Wolf	Medium	Untested	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You observed no other werewolves. You may view another player's card.	{0} was dealt a werewolf.		May_ViewOne(TargetOtherPlayer)				1	Daybreak
 Witch	High	Done	Implemented	Village	Villageperson	6B			You may choose to view a card from the center. If you do, you must swap that with a player's card.			May_ViewOne(TargetCenterCard);Must_SwapTwo(LastTarget,TargetAnyPlayer)				1	Daybreak
 Copycat	Low	Variable Nature	IncompleteEntry	NoTeam	Variable	-8										1	Vampire
 Cupid	High	Marks	IncompleteEntry	Village	Villageperson	-4					PlaceLove					1	Vampire

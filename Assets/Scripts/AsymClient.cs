@@ -5,14 +5,24 @@ using System.Linq;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class AsymClient : MonoBehaviour {
+public class AsymClient : MonoBehaviour, IClient {
 	public const short PORT = 7777;
-	public string playerName;
-	public List<string> clientPlayerNamesByClientIds;
+	private string _playerName = null;
+	public string PlayerName {
+		get {
+			return _playerName;
+		}
+		set {
+			_playerName = value;
+		}
+	}
+	public Dictionary<int, string> clientPlayerNamesByClientIds;
 	public NetworkClient client;
+	public int ClientId { get { return selfClientId; } }
 	public int selfClientId = -1;
 	public Server localServer = null;
-	public GameMaster gameMaster; //Game masters don't need to exist outside the scope of the game
+	public GameMaster Gm { get { return gm; } }
+	public GameMaster gm; //Game masters don't need to exist outside the scope of the game
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -23,17 +33,13 @@ public class AsymClient : MonoBehaviour {
 		}
 	}
 
-	public void SetName(string s) {
-		this.playerName = s;
-	}
-
-	public void HostRoom() {
+	public void HostSession() {
 		Debug.Log("Attempting to host room.");
 		SetupServer ();
 		SetupLocalClient ();
 	}
 
-	public void JoinRoom(string networkAddress) {
+	public void JoinSession(string networkAddress) {
 		SetupClient (networkAddress);
 	}
 
@@ -44,7 +50,7 @@ public class AsymClient : MonoBehaviour {
 		OnuBroadcastMessage(OnuMessage.StartGame, new StartGameMessage () { randomSeed = randomSeed });
 	}
 
-	public void SubmitNightAction(List<List<int>> selection) {
+	public void SubmitNightAction(int[][] selection) {
 		Debug.Log ("Sending night action");
 		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceClientId = selfClientId, selection = selection.Select(a => a.ToArray()).ToArray() });
 	}
@@ -102,8 +108,8 @@ public class AsymClient : MonoBehaviour {
 
 	private void OnClientConnected(NetworkMessage message) {
 		Debug.Log ("Client connected, sending introduction");
-		ui.HandleClientJoined (playerName);
-		client.Send (OnuMessage.Introduction, new IntroductionMessage () { playerName = playerName });
+		ui.HandleClientJoined (this.PlayerName);
+		client.Send (OnuMessage.Introduction, new IntroductionMessage () { playerName = this.PlayerName });
 	}
 
 	private void OnServerIntroductionReceived(NetworkMessage netMessage) {
@@ -137,28 +143,33 @@ public class AsymClient : MonoBehaviour {
 	private void OnPlayerUpdateReceived(NetworkMessage netMessage) {
 		print ("Received players updated message");
 		PlayersUpdatedMessage message = netMessage.ReadMessage<PlayersUpdatedMessage> ();
-		clientPlayerNamesByClientIds = message.playerNamesByClientId.ToList();
-		ui.HandlePlayersUpdated (clientPlayerNamesByClientIds);
+//		clientPlayerNamesByClientIds = message.playerNamesByClientId;
+		clientPlayerNamesByClientIds = new Dictionary<int, string>();
+		for(int i = 0; i < message.playerNamesByClientId.Length; i++) {
+			clientPlayerNamesByClientIds.Add(i, message.playerNamesByClientId[i]);
+		}
+
+		ui.HandlePlayersUpdated (message.playerNamesByClientId.ToList());
 	}
 
 	private void OnStartGameRecieved(NetworkMessage netMessage) {
 		print ("Start game received.");
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
-		gameMaster = new GameMaster(ui); //Implement random seed
-		Role[] selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(clientPlayerNamesByClientIds.Count + 3, true).ToArray();
-		gameMaster.StartGame(clientPlayerNamesByClientIds, selectedDeckBlueprint, true, message.randomSeed);
+		gm = new GameMaster(ui); //Implement random seed
+		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(clientPlayerNamesByClientIds.Count + 3, message.randomSeed, true).ToList();
+		gm.StartGame(clientPlayerNamesByClientIds, selectedDeckBlueprint);
 	}
 
 	private void OnNightActionReceived(NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
-		gameMaster.ReceiveNightAction (message.sourceClientId, message.selection);
+		gm.ReceiveNightAction (message.sourceClientId, message.selection);
 	}
 
 	private void OnVoteReceived(NetworkMessage netMessage) {
 		print ("Vote received");
 		VoteMessage message = netMessage.ReadMessage<VoteMessage> ();
-		gameMaster.ReceiveVote (message.sourceClientId, message.voteeLocationId);
+		gm.ReceiveVote (message.sourceClientId, message.voteeLocationId);
 	}
 
 	public class Server {

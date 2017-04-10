@@ -46,7 +46,7 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(List<string> playersByClientId, Role[] deckList, bool randomizeDeck, int randomSeed = -1) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(Dictionary<int, string> playerNamesByClientId, List<Role> orderedDeckList) { //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
@@ -54,7 +54,7 @@ public class GameMaster {
 
 		//Instantiate deck
 		gameDeck = new List<RealCard>();
-		foreach(Role role in deckList) {
+		foreach(Role role in orderedDeckList) {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
@@ -62,21 +62,16 @@ public class GameMaster {
 //		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
 
 		//Validate configuration
-		if(gameDeck.Count != playersByClientId.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playersByClientId.Count + ", " + playersByClientId.Count + 
-				", deck = " + gameDeck.Count + ", " + deckList.Length);
+		if(gameDeck.Count != playerNamesByClientId.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNamesByClientId.Count + ", " + playerNamesByClientId.Count + 
+				", deck = " + gameDeck.Count + ", " + orderedDeckList.Count);
 			return;
 		}
 
 		//Create players
 		players = new List<GamePlayer>();
-		for(int i = 0; i < playersByClientId.Count; i++) {
-			players.Add(new GamePlayer(this, i, playersByClientId[i]));
-		}
-
-		//Shuffle deck
-		if (randomizeDeck) {
-			gameDeck = Utility.ShuffleCards (gameDeck, randomSeed);
+		for(int i = 0; i < playerNamesByClientId.Count; i++) {
+			players.Add(new GamePlayer(this, i, playerNamesByClientId[i]));
 		}
 
 		string s = "Game deck: ";

@@ -83,9 +83,8 @@ public class WinTests {
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
 		GameMaster gm = new GameMaster();
 
-		gm.StartGame(new List<string> { "A", "B", "C" },
-			new Role[] {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason },
-			false
+		gm.StartGame(new Dictionary<int, string> { { 0, "0"  }, { 1, "1" }, {2, "2" } },
+			new List<Role> {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason }
 		);
 			
 		GamePlayer werewolfDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
@@ -107,9 +106,8 @@ public class WinTests {
 	public void VillagersWinAndWerewolvesWinIfBothDie() {
 		GameMaster gm = new GameMaster();
 
-		gm.StartGame(new List<string> { "A", "B", "C", "D", "E" },
-			new Role[] {Role.Werewolf, Role.Werewolf, Role.Villager, Role.Villager, Role.Tanner, Role.Mason, Role.Mason, Role.Troublemaker },
-			false
+		gm.StartGame(new Dictionary<int, string> { { 0, "0"  }, { 1, "1" }, {2, "2" }, {3, "3"}, {4, "4"} },
+			new List<Role> {Role.Werewolf, Role.Werewolf, Role.Villager, Role.Villager, Role.Tanner, Role.Mason, Role.Mason, Role.Troublemaker }
 		);
 
 		GamePlayer[] werewolfDealtPlayers = gm.players.Where(p => p.dealtCard.data.role == Role.Werewolf).ToArray();

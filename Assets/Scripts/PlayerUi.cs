@@ -39,7 +39,7 @@ public class PlayerUi : MonoBehaviour
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject> ();
 
-	AsymClient client;
+	IClient client;
 	GamePlayer gamePlayer;
 
 	Text playerName;
@@ -69,7 +69,7 @@ public class PlayerUi : MonoBehaviour
 	Text result_Title;
 	Text result_Description;
 
-	public void Initialize (AsymClient client)
+	public void Initialize (IClient client)
 	{
 
 		this.client = client;
@@ -135,7 +135,7 @@ public class PlayerUi : MonoBehaviour
 			for(int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
 				nightSelections.Add(new List<int> { -1 });
 			}
-			client.SubmitNightAction(nightSelections);
+			client.SubmitNightAction(nightSelections.Select(a => a.ToArray()).ToArray());
 		} else {
 			pendingSelection.Add(subSelection);
 			lastSelection = subSelection;
@@ -176,7 +176,7 @@ public class PlayerUi : MonoBehaviour
 			case SelectableObjectType.TargetAnyPlayer:
 			case SelectableObjectType.TargetOtherPlayer:
 			case SelectableObjectType.TargetFork:
-				if(subActionSelection.Count > 0) {
+				if(pendingSelection.Count > 0) {
 					subActionSelection.Add(pendingSelection[0]);
 					pendingSelection.RemoveAt(0);
 				} else {
@@ -221,7 +221,7 @@ public class PlayerUi : MonoBehaviour
 			AddLocationButton("Ready", -1, nightInput_ButtonBox);
 		} else {
 			//If so, submit full hidden action
-			client.SubmitNightAction(nightSelections);
+			client.SubmitNightAction(nightSelections.Select(a => a.ToArray()).ToArray());
 		}
 	}
 
@@ -243,13 +243,16 @@ public class PlayerUi : MonoBehaviour
 				break;
 			case UiScreen.Lobby:
 
-				if (client.localServer != null) {
-					print ("is host, ip address: " + Network.player.ipAddress);
-					lobby_AddressLabel.text = Network.player.ipAddress;
-				} else {
-					print ("is client, network address: " + client.client.connection.address);
-					lobby_AddressLabel.text = client.client.connection.address;
-				}
+			AsymClient asymClient = client as AsymClient;
+			if(asymClient != null) {
+				if ( asymClient.localServer != null) {
+						print ("is host, ip address: " + Network.player.ipAddress);
+						lobby_AddressLabel.text = Network.player.ipAddress;
+					} else {
+					print ("is client, network address: " + asymClient.client.connection.address);
+					lobby_AddressLabel.text = asymClient.client.connection.address;
+					}
+			}
 				break;
 			case UiScreen.Night_InputControl:
 					//Team allegiance- You are on the werewolf team.
@@ -271,7 +274,7 @@ public class PlayerUi : MonoBehaviour
 			case UiScreen.Day_Voting:
 
 					//Create buttons 
-				foreach (GamePlayer p in client.gameMaster.players) {
+				foreach (GamePlayer p in client.Gm.players) {
 					AddLocationButton (p.name, p.locationId, day_VoteButtonBox);
 				}
 				AddLocationButton ("[No one]", -1, day_VoteButtonBox);
@@ -292,14 +295,14 @@ public class PlayerUi : MonoBehaviour
 						descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
 					} else {
 						foreach (int locationId in gamePlayer.cohortLocations) {
-							descriptionText += "You observed that " + client.gameMaster.locationsById[locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString() + ". ";
+							descriptionText += "You observed that " + client.Gm.locationsById[locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString() + ". ";
 						}
 					}
 				}
 					//Observation- "You observed center card #2 to be the seer at +2";
 				foreach (Observation observation in gamePlayer.observations) {
-					descriptionText += "You observed " + client.gameMaster.locationsById [observation.locationId].name + " to be the " +
-					client.gameMaster.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString ();
+				descriptionText += "You observed " + client.Gm.locationsById [observation.locationId].name + " to be the " +
+					client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString ();
 				}
 				day_Description.text = descriptionText;
 
@@ -334,11 +337,9 @@ public class PlayerUi : MonoBehaviour
 	}
 
 	private void SubmitNightAction (List<List<int>> selection) {
-		foreach (Transform button in nightInput_ButtonBox.transform) {
-			Destroy (button.gameObject);
-		}
+		ClearBox(nightInput_ButtonBox);
 
-		client.SubmitNightAction (selection);
+		client.SubmitNightAction (selection.Select(a => a.ToArray()).ToArray());
 	}
 
 	private void SubmitVote (int locationId) {
@@ -351,25 +352,37 @@ public class PlayerUi : MonoBehaviour
 
 	public void HandleJoinButtonPressed () {
 		//Set persistent player name
-		client.SetName (playerEntry_NameField.text);
-		playerName.text = client.playerName;
+		client.PlayerName = playerEntry_NameField.text;
+		playerName.text = client.PlayerName;
 
 		playerEntry_HostButton.interactable = false;
 		playerEntry_JoinButton.interactable = false;
 
 		//Join game
-		client.JoinRoom (playerEntry_AddressField.text);
+		AsymClient asymClient = client as AsymClient;
+		if(asymClient != null) {
+			client.JoinSession (playerEntry_AddressField.text);
+		} else {
+			client.JoinSession();
+		}
+
 	}
 
 	public void HandleHostButtonPressed () {
-		client.SetName (playerEntry_NameField.text);
-		playerName.text = client.playerName;
+		AsymClient asymClient = client as AsymClient;
+		if(asymClient == null) {
+			Debug.LogError("Host button pressed outside of asym client");
+			return;
+		}
+
+		client.PlayerName = playerEntry_NameField.text;
+		playerName.text = client.PlayerName;
 
 		//Disable button
 		playerEntry_HostButton.interactable = false;
 		playerEntry_JoinButton.interactable = false;
 
-		client.HostRoom ();
+		asymClient.HostSession ();
 	}
 
 	public void HandlePlayersUpdated (List<string> playerNames)	{
@@ -390,7 +403,7 @@ public class PlayerUi : MonoBehaviour
 	}
 
 	public void SetGamePlayers () {
-		gamePlayer = client.gameMaster.players.Single (gp => gp.clientId == client.selfClientId);
+		gamePlayer = client.Gm.players.Single (gp => gp.clientId == client.ClientId);
 	}
 
 	public void HandleHostStarted (string hostPlayerName) {

@@ -27,31 +27,22 @@ public class VotePayload : GamePayload {
 }
 
 public abstract class PlayerUpdatePayload : RemotePayload { //Player join, player leave
+	//Source location id is newly assigned self
+	public int sourceClientId;
+	public Dictionary<int, string> playerNamesByClientId;
+
+	public PlayerUpdatePayload (int sourceClientId, Dictionary<int, string> playerNamesByClientId) {
+		this.sourceClientId = sourceClientId;
+		this.playerNamesByClientId = playerNamesByClientId;
+	}
 }
 
 public class WelcomeBasketPayload : PlayerUpdatePayload { //This is the only event that is only sent to one device. Don't you feel special?
-	//Source location id is newly assigned self
-	public int sourceClientId;
-	public List<string> playerNames;
-	public List<int> clientIds;
-
-	public WelcomeBasketPayload (int sourceClientId, List<string> playerNames, List<int> clientIds) {
-		this.sourceClientId = sourceClientId;
-		this.playerNames = playerNames;
-		this.clientIds = clientIds;
-	}
+	public WelcomeBasketPayload(int sourceClientId, Dictionary<int, string> playerNamesByClientId) : base (sourceClientId, playerNamesByClientId) { }
 }
 
-public class UpdateOtherPayload : PlayerUpdatePayload {
-	public int sourceClientId;
-	public List<string> playerNames;
-	public List<int> clientIds;
-
-	public UpdateOtherPayload (int sourceClientId, List<string> playerNames, List<int> clientIds) {
-		this.sourceClientId = sourceClientId;
-		this.playerNames = playerNames;
-		this.clientIds = clientIds;
-	}
+public class UpdateOtherPayload : PlayerUpdatePayload { 
+	public UpdateOtherPayload(int sourceClientId, Dictionary<int, string> playerNamesByClientId) : base (sourceClientId, playerNamesByClientId) { }
 }
 
 public class StartGamePayload : RemotePayload {
