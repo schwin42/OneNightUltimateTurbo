@@ -19,41 +19,44 @@ public class SymVirtualServer : MonoBehaviour {
 	}
 
 	//State
-	private int nextClientId = 0;
-	public Dictionary<int, EditorSymConnector> connectorsByClientId = new Dictionary<int, EditorSymConnector>();
-	Dictionary<int, string> playerNamesByClientId = new Dictionary<int, string>();
+	private int nextUserIdInt = 0;
+	public Dictionary<string, SymClient> clientsByUserId = new Dictionary<string, SymClient>();
+	Dictionary<string, string> playerNamesByUserId = new Dictionary<string, string>();
 	
-	public void HandleClientNewUser(EditorSymConnector newConnector, string name) {
+	public void HandleClientNewUser(SymClient client, string name) {
 //		Debug.Log("Server received new user");
 		//Send players updated payload
-		int newClientId = nextClientId;
-		nextClientId++;
+		string newUserId = nextUserIdInt.ToString();
+		nextUserIdInt++;
 
-		connectorsByClientId.Add(newClientId, newConnector);
+		clientsByUserId.Add(newUserId, client);
 
-		playerNamesByClientId.Add(newClientId, name);
+		playerNamesByUserId.Add(newUserId, name);
 		
-		foreach(KeyValuePair<int, string> kp in playerNamesByClientId) {
+		foreach(KeyValuePair<string, string> kp in playerNamesByUserId) {
 //			Debug.Log("clientId key, self: " + kp.Key + ", " + selfClientId);
-			if(kp.Key == newClientId) { //Send welcome payload only to new player
-				Debug.Log("Sending welcome basket");
-				newConnector.HandlePayloadReceived(new WelcomeBasketPayload(newClientId, playerNamesByClientId));
+			if(kp.Key == newUserId) { //Send welcome payload only to new player
+				client.HandleRemotePayload(new WelcomeBasketPayload(newUserId, playerNamesByUserId));
 			} else {
 //				Debug.Log("Sending update other, connector client id:" + selfClientId);
 
-				connectorsByClientId[kp.Key].HandlePayloadReceived(new UpdateOtherPayload(newClientId, playerNamesByClientId));
+				clientsByUserId[kp.Key].HandleRemotePayload(new UpdateOtherPayload(newUserId, playerNamesByUserId));
 			}
 		}
 	}
 
 	public void HandleClientSendEvent(RemotePayload payload) {
+		if(payload is StartGamePayload) {
+		}
 		//Echo event to all players
-		foreach(KeyValuePair<int, EditorSymConnector> kp in connectorsByClientId) {
-			kp.Value.HandlePayloadReceived(payload);
+		foreach(KeyValuePair<string, SymClient> kp in clientsByUserId) {
+			kp.Value.HandleRemotePayload(payload);
 		}
 	}
 
-	public void Disconnect(EditorSymConnector connector) {
-		connectorsByClientId.Remove (connectorsByClientId.Single (kp => kp.Value == connector).Key);
+	public void Disconnect(SymClient client) {
+		string userId = clientsByUserId.Single (kp => kp.Value == client).Key;
+		clientsByUserId.Remove (userId);
+		playerNamesByUserId.Remove(userId);
 	}
 }

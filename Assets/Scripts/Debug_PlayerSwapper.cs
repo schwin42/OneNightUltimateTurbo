@@ -20,13 +20,16 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 			playerUis.Add(child.GetComponent<PlayerUi>());
 			SymClient client = child.GetComponent<SymClient>();
 			clients.Add(client);
-			client.Initialize();
+			client.Start();
 			client.PlayerName = i.ToString();
-			client.JoinSession("");
+//			client.JoinSession();
 			i++;
 		}
 
-		clients[0].BeginGame();
+//		clients[0].BeginSession();
+//		clients[0].JoinSession(
+
+//		clients[0].BeginGame();
 
 	}
 
@@ -39,25 +42,25 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 	void Update()
 	{
 
-		if (Input.GetKeyUp(KeyCode.BackQuote)) {
+		if (Input.GetKeyUp(KeyCode.Q)) {
 			ActivatePlayer(0);
-		} else if (Input.GetKeyUp(KeyCode.Alpha1)) {
+		} else if (Input.GetKeyUp(KeyCode.W)) {
 			ActivatePlayer(1);
-		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
+		} else if (Input.GetKeyUp(KeyCode.E)) {
 			ActivatePlayer(2);
-		} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
+		} else if (Input.GetKeyUp(KeyCode.R)) {
 			ActivatePlayer(3);
-		} else if (Input.GetKeyUp(KeyCode.Alpha4)) {
+		} else if (Input.GetKeyUp(KeyCode.T)) {
 			ActivatePlayer(4);
-		} else if (Input.GetKeyUp(KeyCode.Alpha5)) {
+		} else if (Input.GetKeyUp(KeyCode.Y)) {
 			ActivatePlayer(5);
-		} else if (Input.GetKeyUp(KeyCode.Alpha6)) {
+		} else if (Input.GetKeyUp(KeyCode.U)) {
 			ActivatePlayer(6);
-		} else if (Input.GetKeyUp(KeyCode.Alpha7)) {
+		} else if (Input.GetKeyUp(KeyCode.I)) {
 			ActivatePlayer(7);
-		} else if (Input.GetKeyUp(KeyCode.Alpha8)) {
+		} else if (Input.GetKeyUp(KeyCode.O)) {
 			ActivatePlayer(8);
-		} else if (Input.GetKeyUp(KeyCode.Alpha9)) {
+		} else if (Input.GetKeyUp(KeyCode.P)) {
 			ActivatePlayer(9);
 		}
 	}

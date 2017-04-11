@@ -46,7 +46,7 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 			string name = "Player" + i.ToString();
 			players[i].gameObject.name = name;
 			players[i].PlayerName = name;
-			players[i].connector.JoinSession(players[i].PlayerName);
+			players[i].JoinSession("");
 		}
 
 	}

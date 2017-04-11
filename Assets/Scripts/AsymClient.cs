@@ -16,10 +16,10 @@ public class AsymClient : MonoBehaviour, IClient {
 			_playerName = value;
 		}
 	}
-	public Dictionary<int, string> clientPlayerNamesByClientIds;
+	public Dictionary<string, string> playerNamesByUserIds;
 	public NetworkClient client;
-	public int ClientId { get { return selfClientId; } }
-	public int selfClientId = -1;
+	public string UserId { get { return selfUserId; } }
+	public string selfUserId;
 	public Server localServer = null;
 	public GameMaster Gm { get { return gm; } }
 	public GameMaster gm; //Game masters don't need to exist outside the scope of the game
@@ -33,14 +33,15 @@ public class AsymClient : MonoBehaviour, IClient {
 		}
 	}
 
-	public void HostSession() {
+	public void BeginSession() {
 		Debug.Log("Attempting to host room.");
 		SetupServer ();
 		SetupLocalClient ();
 	}
 
 	public void JoinSession(string networkAddress) {
-		SetupClient (networkAddress);
+		Debug.LogError("I broke it.");
+//		SetupClient (networkAddress);
 	}
 
 	public void BeginGame() {
@@ -52,12 +53,12 @@ public class AsymClient : MonoBehaviour, IClient {
 
 	public void SubmitNightAction(int[][] selection) {
 		Debug.Log ("Sending night action");
-		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceClientId = selfClientId, selection = selection.Select(a => a.ToArray()).ToArray() });
+		OnuBroadcastMessage (OnuMessage.NightAction, new NightActionMessage () { sourceUserId = selfUserId, selection = selection.Select(a => a.ToArray()).ToArray() });
 	}
 
 	public void SubmitVote(int votee) {
 		Debug.Log ("Sending vote");
-		OnuBroadcastMessage (OnuMessage.VotePayload, new VoteMessage () { sourceClientId = selfClientId, voteeLocationId = votee });
+		OnuBroadcastMessage (OnuMessage.VotePayload, new VoteMessage () { sourceUserId = selfUserId, voteeLocationId = votee });
 	}
 
 	private void OnuBroadcastMessage(short msgType, MessageBase message) {
@@ -112,7 +113,8 @@ public class AsymClient : MonoBehaviour, IClient {
 
 	private void OnClientConnected(NetworkMessage message) {
 		Debug.Log ("Client connected, sending introduction");
-		ui.HandleClientJoined (this.PlayerName);
+		Debug.LogError("Busted");
+//		ui.HandleSessionStarted (this.PlayerName);
 		client.Send (OnuMessage.Introduction, new IntroductionMessage () { playerName = this.PlayerName });
 	}
 
@@ -121,14 +123,15 @@ public class AsymClient : MonoBehaviour, IClient {
 		print ("Introduction received by server: " + message.playerName);
 		localServer.playerNamesByClientId.Add(message.playerName);
 
-		netMessage.conn.Send (OnuMessage.Welcome, new WelcomeMessage () { clientId = localServer.playerNamesByClientId.Count - 1 });
+		Debug.LogError("Done broke it.");
+//		netMessage.conn.Send (OnuMessage.Welcome, new WelcomeMessage () { userId = localServer.playerNamesByClientId.Count - 1 });
 		NetworkServer.SendToAll (OnuMessage.PlayersUpdated, new PlayersUpdatedMessage () { playerNamesByClientId =  localServer.playerNamesByClientId.ToArray() });
 	}
 
 	private void OnWelcomeReceived(NetworkMessage netMessage) {
 		print ("Welcome received.");
 		WelcomeMessage message = netMessage.ReadMessage<WelcomeMessage> ();
-		selfClientId = message.clientId;
+		selfUserId = message.userId;
 	}
 
 	private void ServerEchoMessage(NetworkMessage netMessage) {
@@ -148,10 +151,12 @@ public class AsymClient : MonoBehaviour, IClient {
 		print ("Received players updated message");
 		PlayersUpdatedMessage message = netMessage.ReadMessage<PlayersUpdatedMessage> ();
 //		clientPlayerNamesByClientIds = message.playerNamesByClientId;
-		clientPlayerNamesByClientIds = new Dictionary<int, string>();
-		for(int i = 0; i < message.playerNamesByClientId.Length; i++) {
-			clientPlayerNamesByClientIds.Add(i, message.playerNamesByClientId[i]);
-		}
+		playerNamesByUserIds = new Dictionary<string, string>();
+
+		Debug.LogError("Broke it.");
+//		for(int i = 0; i < message.playerNamesByClientId.Length; i++) {
+//			playerNamesByUserIds.Add(i, message.playerNamesByClientId[i]);
+//		}
 
 		ui.HandlePlayersUpdated (message.playerNamesByClientId.ToList());
 	}
@@ -160,20 +165,20 @@ public class AsymClient : MonoBehaviour, IClient {
 		print ("Start game received.");
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
 		gm = new GameMaster(ui); //Implement random seed
-		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(clientPlayerNamesByClientIds.Count + 3, message.randomSeed, true).ToList();
-		gm.StartGame(clientPlayerNamesByClientIds, new GameSettings(selectedDeckBlueprint));
+		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByUserIds.Count + 3, message.randomSeed, true).ToList();
+		gm.StartGame(playerNamesByUserIds, new GameSettings(selectedDeckBlueprint));
 	}
 
 	private void OnNightActionReceived(NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
-		gm.ReceiveNightAction (message.sourceClientId, message.selection);
+		gm.ReceiveNightAction (message.sourceUserId, message.selection);
 	}
 
 	private void OnVoteReceived(NetworkMessage netMessage) {
 		print ("Vote received");
 		VoteMessage message = netMessage.ReadMessage<VoteMessage> ();
-		gm.ReceiveVote (message.sourceClientId, message.voteeLocationId);
+		gm.ReceiveVote (message.sourceUserId, message.voteeLocationId);
 	}
 
 	public class Server {

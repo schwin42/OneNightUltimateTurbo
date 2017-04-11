@@ -47,7 +47,7 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(Dictionary<int, string> playerNamesByClientId, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(Dictionary<string, string> playerNamesByUserId, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
@@ -65,16 +65,16 @@ public class GameMaster {
 //		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
 
 		//Validate configuration
-		if(gameDeck.Count != playerNamesByClientId.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNamesByClientId.Count + ", " + playerNamesByClientId.Count + 
+		if(gameDeck.Count != playerNamesByUserId.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNamesByUserId.Count + ", " + playerNamesByUserId.Count + 
 				", deck = " + gameDeck.Count + ", " + gameSettings.deckList.Count);
 			return;
 		}
 
 		//Create players
 		players = new List<GamePlayer>();
-		for(int i = 0; i < playerNamesByClientId.Count; i++) {
-			players.Add(new GamePlayer(this, i, playerNamesByClientId[i]));
+		foreach(KeyValuePair<string, string> kvp in playerNamesByUserId) {
+			players.Add(new GamePlayer(this, kvp.Key, kvp.Value));
 		}
 
 		string s = "Game deck: ";
@@ -335,17 +335,17 @@ public class GameMaster {
 		if(payload is NightActionPayload) {
 			NightActionPayload nightAction = (NightActionPayload)payload;
 			Debug.Log("Received night action from: " + nightAction.sourceClientId);
-			ReceiveNightAction(players.Single(gp => gp.clientId == nightAction.sourceClientId), nightAction.selection);
+			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceClientId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
-			ReceiveVote(players.Single(gp => gp.clientId == vote.sourceClientId), vote.voteeLocationId);
+			ReceiveVote(players.Single(gp => gp.userId == vote.sourceClientId), vote.voteeLocationId);
 		} else {
 			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
 		}
 	}
 
-	public void ReceiveNightAction(int sourceClientId, int[][] selection) {
-		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+	public void ReceiveNightAction(string sourceUserId, int[][] selection) {
+		GamePlayer player = players.Single (gp => gp.userId == sourceUserId);
 		ReceiveNightAction (player, selection);
 	}
 
@@ -362,8 +362,8 @@ public class GameMaster {
 		}
 	}
 
-	public void ReceiveVote(int sourceClientId, int locationId) {
-		GamePlayer player = players.Single (gp => gp.clientId == sourceClientId);
+	public void ReceiveVote(string sourceUserId, int locationId) {
+		GamePlayer player = players.Single (gp => gp.userId == sourceUserId);
 		ReceiveVote (player, locationId);
 	}
 

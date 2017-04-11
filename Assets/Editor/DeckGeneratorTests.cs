@@ -47,7 +47,7 @@ public class DeckGeneratorTests {
 	public void DeckToStartGameUnit() {
 		GameMaster gm = new GameMaster();
 		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(3 + 3, Mathf.FloorToInt(Random.value * 100000), true).ToList();
-		gm.StartGame(new Dictionary<int, string> { { 0, "0"  }, { 1, "1" }, {2, "2" } },
+		gm.StartGame(new Dictionary<string, string> { { "0", "0"  }, { "1", "1" }, {"2", "2" } },
 			new GameSettings(selectedDeckBlueprint)
 		);
 

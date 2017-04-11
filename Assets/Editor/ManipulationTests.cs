@@ -16,9 +16,9 @@ public class ManipulationTests {
 		//Arrange
 		GameMaster gm = new GameMaster(); 
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "0"),
-			new GamePlayer(gm, 1, "1"),
-			new GamePlayer(gm, 2, "2"),
+			new GamePlayer(gm, "0", "0"),
+			new GamePlayer(gm, "1", "1"),
+			new GamePlayer(gm, "2", "2"),
 		};
 
 		int dealtTroublemakerLocationId = -1;
@@ -55,7 +55,7 @@ public class ManipulationTests {
 	public void SeersViewTwoActionWorks() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "0")
+			new GamePlayer(gm, "0", "0")
 		};
 
 		gm.players[0].ReceiveDealtCard(new RealCard(gm, Role.Seer));
@@ -82,8 +82,8 @@ public class ManipulationTests {
 	public void SeersViewOneActionWorks() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "0"),
-			new GamePlayer(gm, 1, "1"),
+			new GamePlayer(gm, "0", "0"),
+			new GamePlayer(gm, "1", "1"),
 		};
 
 		gm.players[0].ReceiveDealtCard(new RealCard(gm, Role.Seer));
@@ -104,7 +104,7 @@ public class ManipulationTests {
 	public void ApprenticeSeersNightActionWork() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, 0, "0")
+			new GamePlayer(gm, "0", "0")
 		};
 
 		gm.players[0].ReceiveDealtCard(new RealCard(gm, Role.ApprenticeSeer));
@@ -128,8 +128,8 @@ public class ManipulationTests {
 	public void WitchNightActionWorks() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer>() {
-			new GamePlayer(gm, 0, "0"),
-			new GamePlayer(gm, 1, "1"),
+			new GamePlayer(gm, "0", "0"),
+			new GamePlayer(gm, "1", "1"),
 		};
 
 		gm.players[0].ReceiveDealtCard(new RealCard(gm, Role.Witch));

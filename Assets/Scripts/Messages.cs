@@ -15,7 +15,7 @@ public class IntroductionMessage : MessageBase { //Sent from client to server on
 }
 
 public class WelcomeMessage : MessageBase {
-	public int clientId;
+	public string userId;
 }
 
 public class PlayersUpdatedMessage : MessageBase { //Sent from server to all clients on player join
@@ -27,11 +27,11 @@ public class StartGameMessage : MessageBase {
 }
 
 public class NightActionMessage : MessageBase {
-	public int sourceClientId;
+	public string sourceUserId;
 	public int[][] selection;
 }
 
 public class VoteMessage : MessageBase {
-	public int sourceClientId;
+	public string sourceUserId;
 	public int voteeLocationId;
 }

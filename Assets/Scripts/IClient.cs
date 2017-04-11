@@ -7,9 +7,10 @@ public interface IClient {
 	GameMaster Gm { get; }
 
 	string PlayerName { get; set; }
-	int ClientId { get; }
+	string UserId { get; }
 
-	void JoinSession(string networkAddress = null);
+	void BeginSession();
+	void JoinSession(string roomKey);
 	void BeginGame();
 
 	void SubmitNightAction(int[][] selection);

@@ -35,12 +35,14 @@ public class PlayerUi : MonoBehaviour
 	private UiScreen currentScreen = UiScreen.Uninitialized;
 	private List<int> pendingSelection;
 	private List<List<int>> _nightSelections;
-	private int lastSelection = -1;
+	private int lastSelection;
 	private List<int> skippableSubactionIndeces;
 
 	//Day State
-	float timer; //In seconds
-	int currentVote = -2; //Vote by location id, with -1 indicating vote for no one and -2 indicating no vote
+	float timer;
+	//In seconds
+	int currentVote = -2;
+	//Vote by location id, with -1 indicating vote for no one and -2 indicating no vote
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject> ();
 
@@ -51,7 +53,7 @@ public class PlayerUi : MonoBehaviour
 
 	//Player Entry
 	InputField title_NameField;
-	InputField title_AddressField;
+	InputField title_roomKey;
 	Button title_HostButton;
 	Button title_JoinButton;
 
@@ -82,7 +84,8 @@ public class PlayerUi : MonoBehaviour
 		this.client = client;
 
 		foreach (UiScreen screen in Enum.GetValues(typeof(UiScreen))) {
-			if (screen == UiScreen.Uninitialized) continue;
+			if (screen == UiScreen.Uninitialized)
+				continue;
 			screenGosByEnum [screen] = transform.Find (screen.ToString ()).gameObject;
 		}
 
@@ -90,7 +93,7 @@ public class PlayerUi : MonoBehaviour
 
 		//Title
 		title_NameField = transform.Find ("Title/NameField").GetComponent<InputField> ();
-		title_AddressField = transform.Find ("Title/AddressField").GetComponent<InputField> ();
+		title_roomKey = transform.Find ("Title/AddressField").GetComponent<InputField> ();
 		title_HostButton = transform.Find ("Title/HostButton").GetComponent<Button> ();
 		title_JoinButton = transform.Find ("Title/JoinButton").GetComponent<Button> ();
 
@@ -107,7 +110,7 @@ public class PlayerUi : MonoBehaviour
 		//Day
 		day_VoteButtonBox = transform.Find ("Day/Panel/Grid/");
 		day_Description = transform.Find ("Day/Description").GetComponent<Text> ();
-		day_TimeRemaining = transform.Find("Day/TimeRemaining").GetComponent<Text>();
+		day_TimeRemaining = transform.Find ("Day/TimeRemaining").GetComponent<Text> ();
 		day_DeckDisplay = transform.Find ("Day/Panel/DeckDisplay/Text").GetComponent<Text> ();
 		day_ToggleGroup = day_VoteButtonBox.GetComponent<ToggleGroup> ();
 
@@ -119,7 +122,8 @@ public class PlayerUi : MonoBehaviour
 
 	}
 
-	void Update() {
+	void Update ()
+	{
 		if (currentScreen == UiScreen.Day) {
 			timer -= Time.deltaTime;
 			day_TimeRemaining.text = GetTimerText (timer);
@@ -134,7 +138,8 @@ public class PlayerUi : MonoBehaviour
 		night_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
 	}
 
-	private void AddActionButton(string label, int selectionId) {
+	private void AddActionButton (string label, int selectionId)
+	{
 		GameObject go = Instantiate (PrefabResource.instance.hiddenActionButton) as GameObject;
 		go.transform.SetParent (night_ButtonBox, false);
 		go.GetComponentInChildren<Text> ().text = label;
@@ -142,7 +147,8 @@ public class PlayerUi : MonoBehaviour
 		onuButton.Initialize (this, selectionId);
 	}
 
-	private void AddVoteButton(string label, int selectionId) {
+	private void AddVoteButton (string label, int selectionId)
+	{
 		GameObject go = Instantiate (PrefabResource.instance.voteButton) as GameObject;
 		go.transform.SetParent (day_VoteButtonBox, false);
 		go.GetComponentInChildren<Text> ().text = label;
@@ -168,7 +174,8 @@ public class PlayerUi : MonoBehaviour
 		}
 	}
 
-	public void HandleToggleChange(int selection) {
+	public void HandleToggleChange (int selection)
+	{
 		currentVote = selection;
 		SubmitVote (selection);
 	}
@@ -178,36 +185,36 @@ public class PlayerUi : MonoBehaviour
 		subActionSelection = new List<int> ();
 		for (int i = 0; i < patients.Count; i++) {
 			switch (patients [i]) {
-				case SelectableObjectType.LastTarget:
-					subActionSelection.Add (lastSelection);
-					break;
-				case SelectableObjectType.TargetCenterCard:
-				case SelectableObjectType.TargetAnyPlayer:
-				case SelectableObjectType.TargetOtherPlayer:
-					if (pendingSelection.Count > 0) {
-						subActionSelection.Add (pendingSelection [0]);
-						pendingSelection.RemoveAt (0);	
-					} else {
-						Debug.Log ("Waiting for input...");
-						return false;
-					}
-					break;
-				case SelectableObjectType.TargetFork:
-					if (pendingSelection.Count > 0) {
-						subActionSelection.Add (pendingSelection [0]);
-						skippableSubactionIndeces.Add (pendingSelection [0]);
-						pendingSelection.RemoveAt (0);	
-					} else {
-						Debug.Log ("Waiting for input...");
-						return false;
-					}
-					break;
-				case SelectableObjectType.Self:
-					subActionSelection.Add (gamePlayer.locationId);
-					break;
-				default:
-					Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
-					break;
+			case SelectableObjectType.LastTarget:
+				subActionSelection.Add (lastSelection);
+				break;
+			case SelectableObjectType.TargetCenterCard:
+			case SelectableObjectType.TargetAnyPlayer:
+			case SelectableObjectType.TargetOtherPlayer:
+				if (pendingSelection.Count > 0) {
+					subActionSelection.Add (pendingSelection [0]);
+					pendingSelection.RemoveAt (0);	
+				} else {
+					Debug.Log ("Waiting for input...");
+					return false;
+				}
+				break;
+			case SelectableObjectType.TargetFork:
+				if (pendingSelection.Count > 0) {
+					subActionSelection.Add (pendingSelection [0]);
+					skippableSubactionIndeces.Add (pendingSelection [0]);
+					pendingSelection.RemoveAt (0);	
+				} else {
+					Debug.Log ("Waiting for input...");
+					return false;
+				}
+				break;
+			case SelectableObjectType.Self:
+				subActionSelection.Add (gamePlayer.locationId);
+				break;
+			default:
+				Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
+				break;
 			}
 		}
 		return true;
@@ -240,7 +247,7 @@ public class PlayerUi : MonoBehaviour
 		}
 
 		//If selections are resolved, check lastSelection to see if player chose anything.
-		if (lastSelection == -1) {
+		if (lastSelection == -2) {
 			//If not, give ready button which will in term submit full hidden action
 			ClearBox (night_ButtonBox);
 			AddActionButton ("Ready", -2);
@@ -263,24 +270,24 @@ public class PlayerUi : MonoBehaviour
 			return;
 
 		switch (targetScreen) {
-			case UiScreen.Title:
-				title_HostButton.interactable = true;
-				title_JoinButton.interactable = true;
-				break;
-			case UiScreen.Lobby:
-				lobby_StartButton.interactable = true;
-				AsymClient asymClient = client as AsymClient;
-				if (asymClient != null) {
-					if (asymClient.localServer != null) {
-						print ("is host, ip address: " + Network.player.ipAddress);
-						lobby_AddressLabel.text = Network.player.ipAddress;
-					} else {
-						print ("is client, network address: " + asymClient.client.connection.address);
-						lobby_AddressLabel.text = asymClient.client.connection.address;
-					}
+		case UiScreen.Title:
+			title_HostButton.interactable = true;
+			title_JoinButton.interactable = true;
+			break;
+		case UiScreen.Lobby:
+			lobby_StartButton.interactable = true;
+			AsymClient asymClient = client as AsymClient;
+			if (asymClient != null) {
+				if (asymClient.localServer != null) {
+					print ("is host, ip address: " + Network.player.ipAddress);
+					lobby_AddressLabel.text = Network.player.ipAddress;
+				} else {
+					print ("is client, network address: " + asymClient.client.connection.address);
+					lobby_AddressLabel.text = asymClient.client.connection.address;
 				}
-				break;
-			case UiScreen.Night:
+			}
+			break;
+		case UiScreen.Night:
 					//Team allegiance- You are on the werewolf team.
 					//Nature clarity if relevant- You are a villageperson.
 					//Special win conditions- If there are no other werewolves, you win if an *other* player dies.
@@ -288,110 +295,113 @@ public class PlayerUi : MonoBehaviour
 					//Cohort players- Allen is a wersewolf.
 					//Location selection- You may look at the card of another player or two cards from the center.
 					//Selection controls- [Buttons for the three center cards]
-				List<string> descriptionStrings = new List<string> ();
-				descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
-				descriptionStrings.Add (gamePlayer.prompt.promptText);
-				night_Description.text = string.Join (" ", descriptionStrings.ToArray ());
+			List<string> descriptionStrings = new List<string> ();
+			descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
+			descriptionStrings.Add (gamePlayer.prompt.promptText);
+			night_Description.text = string.Join (" ", descriptionStrings.ToArray ());
 
-				_nightSelections = new List<List<int>> ();
-				pendingSelection = new List<int> ();
-				skippableSubactionIndeces = new List<int> ();
-				TryResolveSelection ();
-				break;
-			case UiScreen.Day:
+			_nightSelections = new List<List<int>> ();
+			pendingSelection = new List<int> ();
+			skippableSubactionIndeces = new List<int> ();
+			lastSelection = -2;
+			TryResolveSelection ();
+			break;
+		case UiScreen.Day:
 
 					//Create buttons 
-				foreach (GamePlayer p in client.Gm.players) {
-					AddVoteButton (p.name, p.locationId);
-				}
-				AddVoteButton ("[No one]", -1);
+			ClearBox(day_VoteButtonBox);
+			day_ToggleGroup.SetAllTogglesOff();
+			foreach (GamePlayer p in client.Gm.players) {
+				AddVoteButton (p.name, p.locationId);
+			}
+			AddVoteButton ("[No one]", -1);
 
 				//Set initial time remaining
-				timer = client.Gm.gameSettings.gameTimer;
-				day_TimeRemaining.text = GetTimerText (timer);
-				currentVote = -2;
+			timer = client.Gm.gameSettings.gameTimer;
+			day_TimeRemaining.text = GetTimerText (timer);
+			currentVote = -2;
 
-				string descriptionText = "";
+			string descriptionText = "";
 					//Write description
 					//Dealt role- "You were dealt the werewolf."
-				descriptionText += "You were dealt the " + gamePlayer.dealtCard.data.role.ToString () + ". ";
+			descriptionText += "You were dealt the " + gamePlayer.dealtCard.data.role.ToString () + ". ";
 					//Team allegiance- "The werewolf is on the werewolf team"
-				descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is on the " + gamePlayer.dealtCard.data.team.ToString () + ". ";
+			descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is on the " + gamePlayer.dealtCard.data.team.ToString () + ". ";
 					//Nature clarity if relevant- "The minion is a villageperson."
-				descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is a " + gamePlayer.dealtCard.data.nature + ". ";
+			descriptionText += "The " + gamePlayer.dealtCard.data.role.ToString () + " is a " + gamePlayer.dealtCard.data.nature + ". ";
 					//Special win conditions- "If there are no other werewolves, the minion wins if an *other* player dies."
 					//Cohort type- "You can see other werewolves."
 					//Cohort players- "Allen was dealt the werewolf."
-				if (gamePlayer.prompt.cohorts != null) {
-					if (gamePlayer.prompt.cohorts.Length == 0) {
-						descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
-					} else {
-						foreach (int locationId in gamePlayer.prompt.cohorts) {
-							descriptionText += "You observed that " + client.Gm.locationsById [locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
-						}
+			if (gamePlayer.prompt.cohorts != null) {
+				if (gamePlayer.prompt.cohorts.Length == 0) {
+					descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
+				} else {
+					foreach (int locationId in gamePlayer.prompt.cohorts) {
+						descriptionText += "You observed that " + client.Gm.locationsById [locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
 					}
 				}
+			}
 				//Observation- "You observed center card #2 to be the seer at +2";
-				foreach (Observation observation in gamePlayer.observations) {
-					descriptionText += "You observed " + GetPlayerName(observation.locationId) + " to be the " +
-					client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
-				}
+			foreach (Observation observation in gamePlayer.observations) {
+				descriptionText += "You observed " + GetPlayerName (observation.locationId) + " to be the " +
+				client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
+			}
 
 				//Night selection reminder- "You swapped cards between Jimmy and yourself"
-				List<int> skippableIndeces = new List<int>();
-				for (int i = 0; i < gamePlayer.dealtCard.data.hiddenAction.Count; i++) {
-					SubAction subAction = gamePlayer.dealtCard.data.hiddenAction [i];
-					switch (subAction.actionType) {
-						case ActionType.ChooseFork:
-							skippableIndeces.Add (_nightSelections [i][0]);
-							break;
-						case ActionType.SwapTwo:
-							if (_nightSelections [i][0] == -1) {
-								descriptionText += "You chose not to swap cards.";
-							} else {
-								descriptionText += "You swapped cards between " + GetPlayerName (_nightSelections [i] [0]) + " and " + GetPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString() + ".";
-							}
-							break;
-						case ActionType.ViewOne:
-						case ActionType.ViewTwo:
-							//Observations already handled, do nothing.
-							break;
-						default:
-							Debug.LogError ("Unhandled subaction type: " + subAction);
-							break;
+			List<int> skippableIndeces = new List<int> ();
+			for (int i = 0; i < gamePlayer.dealtCard.data.hiddenAction.Count; i++) {
+				SubAction subAction = gamePlayer.dealtCard.data.hiddenAction [i];
+				switch (subAction.actionType) {
+				case ActionType.ChooseFork:
+					skippableIndeces.Add (_nightSelections [i] [0]);
+					break;
+				case ActionType.SwapTwo:
+					if (_nightSelections [i] [0] == -1) {
+						descriptionText += "You chose not to swap cards.";
+					} else {
+						descriptionText += "You swapped cards between " + GetPlayerName (_nightSelections [i] [0]) + " and " + GetPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 					}
+					break;
+				case ActionType.ViewOne:
+				case ActionType.ViewTwo:
+							//Observations already handled, do nothing.
+					break;
+				default:
+					Debug.LogError ("Unhandled subaction type: " + subAction);
+					break;
 				}
+			}
 
-				day_Description.text = descriptionText;
+			day_Description.text = descriptionText;
 
 			//Set deck display
-				List<Role> randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
-				string deckString = "";
-				for (int i = 0; i < randomDeckList.Count; i++) {
+			List<Role> randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
+			string deckString = "";
+			for (int i = 0; i < randomDeckList.Count; i++) {
 				
-					if (i != 0) {
-						deckString += "\n";
-					}
-					deckString += randomDeckList [i].ToString ();
+				if (i != 0) {
+					deckString += "\n";
 				}
-				day_DeckDisplay.text = deckString;
-				break;
-			case UiScreen.Result:
-				result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
-				string descriptionString = "";
+				deckString += randomDeckList [i].ToString ();
+			}
+			day_DeckDisplay.text = deckString;
+			break;
+		case UiScreen.Result:
+			result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
+			string descriptionString = "";
 					//Current player's identity "You are the werewolf."
-				descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
+			descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
 					//Player(s) that died "Frank and Ellen died."
 					//Dying players' identities "Frank was the werewolf. Ellen was the mason."
-				GamePlayer[] killedPlayers = client.Gm.players.Where (p => p.killed == true).ToArray ();
-				for (int i = 0; i < killedPlayers.Length; i++) {
-					descriptionString += killedPlayers [i].name + " the " + killedPlayers [i].currentCard.name + " died with " + client.Gm.players.Count (gp => gp.votedLocation == killedPlayers [i].locationId) + " votes. ";
-				}
-				if (killedPlayers.Length == 0) {
-					descriptionString += "No one received enough votes to be killed.";
-				}
-				result_Description.text = descriptionString;
-				break;
+			GamePlayer[] killedPlayers = client.Gm.players.Where (p => p.killed == true).ToArray ();
+			for (int i = 0; i < killedPlayers.Length; i++) {
+				descriptionString += killedPlayers [i].name + " the " + killedPlayers [i].currentCard.name + " died with " + client.Gm.players.Count (gp => gp.votedLocation == killedPlayers [i].locationId) + " votes. ";
+			}
+			if (killedPlayers.Length == 0) {
+				descriptionString += "No one received enough votes to be killed.";
+			}
+			result_Description.text = descriptionString;
+			break;
 		}
 
 		if (currentScreen == UiScreen.Uninitialized) {
@@ -412,12 +422,14 @@ public class PlayerUi : MonoBehaviour
 		client.SubmitNightAction (selection.Select (a => a.ToArray ()).ToArray ());
 	}
 
-	private void SubmitVote (int locationId) {
+	private void SubmitVote (int locationId)
+	{
 		currentVote = locationId;
 		client.SubmitVote (locationId);
 	}
 
-	public void HandleJoinButtonPressed () {
+	public void HandleJoinButtonPressed ()
+	{
 
 		//Set persistent player name
 		client.PlayerName = title_NameField.text;
@@ -427,30 +439,32 @@ public class PlayerUi : MonoBehaviour
 		title_JoinButton.interactable = false;
 
 		//Join game
-		AsymClient asymClient = client as AsymClient;
-		if (asymClient != null) {
-			client.JoinSession (title_AddressField.text);
-		} else {
-			client.JoinSession ();
-		}
+		client.JoinSession(title_roomKey.text);
 	}
 
 	public void HandleHostButtonPressed ()
 	{
-		AsymClient asymClient = client as AsymClient;
-		if (asymClient == null) {
-			Debug.LogError ("Host button pressed outside of asym client");
-			return;
-		}
-
-		client.PlayerName = title_NameField.text;
-		playerName.text = client.PlayerName;
-
+//		AsymClient asymClient = client as AsymClient;
+//		if (asymClient == null) {
+//			Debug.LogError ("Host button pressed outside of asym client");
+//			return;
+//		}
+//
+//		client.PlayerName = title_NameField.text;
+//		playerName.text = client.PlayerName;
+//
 		//Disable button
 		title_HostButton.interactable = false;
 		title_JoinButton.interactable = false;
 
-		asymClient.HostSession ();
+		playerName.text = title_NameField.text;
+		client.PlayerName = title_NameField.text;
+
+		client.BeginSession();
+//
+//		asymClient.HostSession ();
+
+
 	}
 
 	public void HandlePlayersUpdated (List<string> playerNames)
@@ -473,7 +487,7 @@ public class PlayerUi : MonoBehaviour
 
 	public void SetGamePlayers ()
 	{
-		gamePlayer = client.Gm.players.Single (gp => gp.clientId == client.ClientId);
+		gamePlayer = client.Gm.players.Single (gp => gp.userId == client.UserId);
 	}
 
 	public void HandleHostStarted (string hostPlayerName)
@@ -482,31 +496,36 @@ public class PlayerUi : MonoBehaviour
 		SetState (UiScreen.Lobby);
 	}
 
-	public void HandleClientJoined (string clientName)
+	public void HandleEnteredRoom (string clientName, string roomKey)
 	{
+		lobby_AddressLabel.text = roomKey;
 		lobby_PlayersLabel.text = clientName;
 		SetState (UiScreen.Lobby);
 	}
 
-	public void HandlePlayAgainButton() {
+	public void HandlePlayAgainButton ()
+	{
 		client.BeginGame ();
 	}
 
-	public void HandleQuitToTitleButton() {
+	public void HandleQuitToTitleButton ()
+	{
 		client.Disconnect ();
 		SetState (UiScreen.Title);
 	}
 
-	private string GetPlayerName(int locationId) {
+	private string GetPlayerName (int locationId)
+	{
 		return locationId == gamePlayer.locationId ? "yourself" : client.Gm.locationsById [locationId].name;
 	}
 
-	private string GetTimerText(float seconds) {
+	private string GetTimerText (float seconds)
+	{
 		if (seconds < 0.0f) {
 			return "00\"00'000";
 		} else {
-			TimeSpan t = TimeSpan.FromSeconds( seconds );
-			return string.Format("{0:D2}\"{1:D2}'{2:D3}",  
+			TimeSpan t = TimeSpan.FromSeconds (seconds);
+			return string.Format ("{0:D2}\"{1:D2}'{2:D3}",  
 				t.Minutes, 
 				t.Seconds, 
 				t.Milliseconds);
