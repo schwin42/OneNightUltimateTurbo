@@ -157,7 +157,7 @@ public class AsymClient : MonoBehaviour, IClient {
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
 		gm = new GameMaster(ui); //Implement random seed
 		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(clientPlayerNamesByClientIds.Count + 3, message.randomSeed, true).ToList();
-		gm.StartGame(clientPlayerNamesByClientIds, selectedDeckBlueprint);
+		gm.StartGame(clientPlayerNamesByClientIds, new GameSettings(selectedDeckBlueprint));
 	}
 
 	private void OnNightActionReceived(NetworkMessage netMessage) {

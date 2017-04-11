@@ -31,12 +31,16 @@ public class PlayerUi : MonoBehaviour
 
 	}
 
-	//State
+	//Night State
 	private UiScreen currentScreen = UiScreen.Uninitialized;
 	private List<int> pendingSelection;
 	private List<List<int>> _nightSelections;
 	private int lastSelection = -1;
 	private List<int> skippableSubactionIndeces;
+
+	//Day State
+	float timer; //In seconds
+	int currentVote = -2; //Vote by location id, with -1 indicating vote for no one and -2 indicating no vote
 
 	private Dictionary<UiScreen, GameObject> screenGosByEnum = new Dictionary<UiScreen, GameObject> ();
 
@@ -57,15 +61,16 @@ public class PlayerUi : MonoBehaviour
 	Text lobby_AddressLabel;
 
 	//Night input screen
-	Text nightInput_Title;
-	Text nightInput_Description;
-	Transform nightInput_ButtonBox;
-	Text day_DeckDisplay;
+	Text night_Title;
+	Text night_Description;
+	Transform night_ButtonBox;
 
 	//Day voting
 	Transform day_VoteButtonBox;
 	Text day_Description;
-	//	Text day_Timer;
+	Text day_TimeRemaining;
+	Text day_DeckDisplay;
+	ToggleGroup day_ToggleGroup;
 
 	//Result
 	Text result_Title;
@@ -96,15 +101,16 @@ public class PlayerUi : MonoBehaviour
 		lobby_AddressLabel = transform.Find ("Lobby/Address").GetComponent<Text> ();
 
 		//Night_InputControl
-		nightInput_Title = transform.Find ("Night_InputControl/Title").GetComponent<Text> ();
-		nightInput_Description = transform.Find ("Night_InputControl/Description").GetComponent<Text> ();
-		nightInput_ButtonBox = transform.Find ("Night_InputControl/Grid").transform;
+		night_Title = transform.Find ("Night_InputControl/Title").GetComponent<Text> ();
+		night_Description = transform.Find ("Night_InputControl/Description").GetComponent<Text> ();
+		night_ButtonBox = transform.Find ("Night_InputControl/Grid").transform;
 
 		//Day_Voting
-		day_VoteButtonBox = transform.Find ("Day_Voting/Grid/");
+		day_VoteButtonBox = transform.Find ("Day_Voting/Panel/Grid/");
 		day_Description = transform.Find ("Day_Voting/Description").GetComponent<Text> ();
-//		day_Timer = transform.Find("Day_Voting/Timer").GetComponent<Text>();
-		day_DeckDisplay = transform.Find ("Day_Voting/DeckDisplay/Text").GetComponent<Text> ();
+		day_TimeRemaining = transform.Find("Day_Voting/TimeRemaining").GetComponent<Text>();
+		day_DeckDisplay = transform.Find ("Day_Voting/Panel/DeckDisplay/Text").GetComponent<Text> ();
+		day_ToggleGroup = day_VoteButtonBox.GetComponent<ToggleGroup> ();
 
 		//Result
 		result_Title = transform.Find ("Result/Title").GetComponent<Text> ();
@@ -114,41 +120,58 @@ public class PlayerUi : MonoBehaviour
 
 	}
 
-	public void WriteRoleToTitle ()
-	{
-		nightInput_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
+	void Update() {
+		if (currentScreen == UiScreen.Day_Voting) {
+			timer -= Time.deltaTime;
+			day_TimeRemaining.text = GetTimerText (timer);
+			if (timer <= 0 && currentVote == -2) {
+				SubmitVote (-1);
+			}
+		}
 	}
 
-	private void AddLocationButton (string label, int locationId, Transform parent)
+	public void WriteRoleToTitle ()
 	{
-		GameObject go = Instantiate (PrefabResource.instance.locationButton) as GameObject;
-		go.transform.SetParent (parent.transform, false);
-		Text uiText = go.GetComponentInChildren<Text> ();
-		uiText.text = label;
+		night_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
+	}
+
+	private void AddActionButton(string label, int selectionId) {
+		GameObject go = Instantiate (PrefabResource.instance.hiddenActionButton) as GameObject;
+		go.transform.SetParent (night_ButtonBox, false);
+		go.GetComponentInChildren<Text> ().text = label;
 		OnuButton onuButton = go.GetComponent<OnuButton> ();
-		onuButton.Initialize (this, locationId);
+		onuButton.Initialize (this, selectionId);
+	}
+
+	private void AddVoteButton(string label, int selectionId) {
+		GameObject go = Instantiate (PrefabResource.instance.voteButton) as GameObject;
+		go.transform.SetParent (day_VoteButtonBox, false);
+		go.GetComponentInChildren<Text> ().text = label;
+		OnuToggle onuToggle = go.GetComponent<OnuToggle> ();
+		onuToggle.Initialize (this, day_ToggleGroup, selectionId, -2); //Negative two indicates no selection
 	}
 
 	public void HandleButtonClick (Button button, int selection)
 	{
 		button.interactable = false;
-		if (currentScreen == UiScreen.Night_InputControl) {
-			if (selection == -2) { //Didn't even have an action. Use existing derived selection
-				CompleteNightAction (_nightSelections);
-			} else if (selection == -1) {
-				_nightSelections = new List<List<int>> ();
-				for (int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
-					_nightSelections.Add (new List<int> { -1 });
-				}
-				CompleteNightAction (_nightSelections);
-			} else {
-				pendingSelection.Add (selection);
-				lastSelection = selection;
-				TryResolveSelection ();
+		if (selection == -2) { //Didn't even have an action. Use existing derived selection
+			CompleteNightAction (_nightSelections);
+		} else if (selection == -1) {
+			_nightSelections = new List<List<int>> ();
+			for (int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
+				_nightSelections.Add (new List<int> { -1 });
 			}
-		} else if (currentScreen == UiScreen.Day_Voting) {
-			SubmitVote (selection);
+			CompleteNightAction (_nightSelections);
+		} else {
+			pendingSelection.Add (selection);
+			lastSelection = selection;
+			TryResolveSelection ();
 		}
+	}
+
+	public void HandleToggleChange(int selection) {
+		currentVote = selection;
+		SubmitVote (selection);
 	}
 
 	private bool TryResolveSubActionSelection (List<SelectableObjectType> patients, List<int> pendingSelection, out List<int> subActionSelection)
@@ -209,9 +232,9 @@ public class PlayerUi : MonoBehaviour
 				continue;
 			} else {
 				//create buttons and wait for input
-				ClearBox (nightInput_ButtonBox);
+				ClearBox (night_ButtonBox);
 				foreach (ButtonInfo info in gamePlayer.prompt.buttonGroupsBySubactionIndex[i]) {
-					AddLocationButton (info.label, info.locationId, nightInput_ButtonBox);
+					AddActionButton (info.label, info.locationId);
 				}
 				return;
 			}
@@ -220,8 +243,8 @@ public class PlayerUi : MonoBehaviour
 		//If selections are resolved, check lastSelection to see if player chose anything.
 		if (lastSelection == -1) {
 			//If not, give ready button which will in term submit full hidden action
-			ClearBox (nightInput_ButtonBox);
-			AddLocationButton ("Ready", -2, nightInput_ButtonBox);
+			ClearBox (night_ButtonBox);
+			AddActionButton ("Ready", -2);
 		} else {
 			//If so, submit full hidden action
 			CompleteNightAction (_nightSelections);
@@ -268,8 +291,8 @@ public class PlayerUi : MonoBehaviour
 					//Selection controls- [Buttons for the three center cards]
 				List<string> descriptionStrings = new List<string> ();
 				descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
-				descriptionStrings.Add (gamePlayer.prompt.cohortString);
-				nightInput_Description.text = string.Join (" ", descriptionStrings.ToArray ());
+				descriptionStrings.Add (gamePlayer.prompt.promptText);
+				night_Description.text = string.Join (" ", descriptionStrings.ToArray ());
 
 				_nightSelections = new List<List<int>> ();
 				pendingSelection = new List<int> ();
@@ -280,9 +303,14 @@ public class PlayerUi : MonoBehaviour
 
 					//Create buttons 
 				foreach (GamePlayer p in client.Gm.players) {
-					AddLocationButton (p.name, p.locationId, day_VoteButtonBox);
+					AddVoteButton (p.name, p.locationId);
 				}
-				AddLocationButton ("[No one]", -1, day_VoteButtonBox);
+				AddVoteButton ("[No one]", -1);
+
+				//Set initial time remaining
+				timer = client.Gm.gameSettings.gameTimer;
+				day_TimeRemaining.text = GetTimerText (timer);
+				currentVote = -2;
 
 				string descriptionText = "";
 					//Write description
@@ -295,25 +323,50 @@ public class PlayerUi : MonoBehaviour
 					//Special win conditions- "If there are no other werewolves, the minion wins if an *other* player dies."
 					//Cohort type- "You can see other werewolves."
 					//Cohort players- "Allen was dealt the werewolf."
-				if (gamePlayer.cohortLocations != null) {
-					if (gamePlayer.cohortLocations.Length == 0) {
+				if (gamePlayer.prompt.cohorts != null) {
+					if (gamePlayer.prompt.cohorts.Length == 0) {
 						descriptionText += "You observed that no one was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
 					} else {
-						foreach (int locationId in gamePlayer.cohortLocations) {
+						foreach (int locationId in gamePlayer.prompt.cohorts) {
 							descriptionText += "You observed that " + client.Gm.locationsById [locationId].name + " was dealt a " + gamePlayer.dealtCard.data.cohort.ToString () + ". ";
 						}
 					}
 				}
-					//Observation- "You observed center card #2 to be the seer at +2";
+				//Observation- "You observed center card #2 to be the seer at +2";
 				foreach (Observation observation in gamePlayer.observations) {
-					descriptionText += "You observed " + (observation.locationId == gamePlayer.locationId ? "yourself" : client.Gm.locationsById [observation.locationId].name ) + " to be the " +
+					descriptionText += "You observed " + GetPlayerName(observation.locationId) + " to be the " +
 					client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 				}
+
+				//Night selection reminder- "You swapped cards between Jimmy and yourself"
+				List<int> skippableIndeces = new List<int>();
+				for (int i = 0; i < gamePlayer.dealtCard.data.hiddenAction.Count; i++) {
+					SubAction subAction = gamePlayer.dealtCard.data.hiddenAction [i];
+					switch (subAction.actionType) {
+						case ActionType.ChooseFork:
+							skippableIndeces.Add (_nightSelections [i][0]);
+							break;
+						case ActionType.SwapTwo:
+							if (_nightSelections [i][0] == -1) {
+								descriptionText += "You chose not to swap cards.";
+							} else {
+								descriptionText += "You swapped cards between " + GetPlayerName (_nightSelections [i] [0]) + " and " + GetPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString() + ".";
+							}
+							break;
+						case ActionType.ViewOne:
+						case ActionType.ViewTwo:
+							//Observations already handled, do nothing.
+							break;
+						default:
+							Debug.LogError ("Unhandled subaction type: " + subAction);
+							break;
+					}
+				}
+
 				day_Description.text = descriptionText;
 
-
 			//Set deck display
-				List<Role> randomDeckList = client.Gm.orderedDeckList.OrderBy (x => UnityEngine.Random.value).ToList ();
+				List<Role> randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
 				string deckString = "";
 				for (int i = 0; i < randomDeckList.Count; i++) {
 				
@@ -323,10 +376,6 @@ public class PlayerUi : MonoBehaviour
 					deckString += randomDeckList [i].ToString ();
 				}
 				day_DeckDisplay.text = deckString;
-
-
-				//Set timer
-
 				break;
 			case UiScreen.Result:
 				result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
@@ -335,11 +384,13 @@ public class PlayerUi : MonoBehaviour
 				descriptionString += "You are the " + gamePlayer.currentCard.name + ". ";
 					//Player(s) that died "Frank and Ellen died."
 					//Dying players' identities "Frank was the werewolf. Ellen was the mason."
-					//TODO Restore death printing
-					//			GamePlayer[] killedPlayers = GameController.instance.players.Where(p => p.killed == true).ToArray();
-					//			for(int i = 0; i < killedPlayers.Length; i++) {
-					//				descriptionString += killedPlayers[i].name + " the " + killedPlayers[i].currentCard.name + " died with X votes. ";
-					//			}
+				GamePlayer[] killedPlayers = client.Gm.players.Where (p => p.killed == true).ToArray ();
+				for (int i = 0; i < killedPlayers.Length; i++) {
+					descriptionString += killedPlayers [i].name + " the " + killedPlayers [i].currentCard.name + " died with " + client.Gm.players.Count (gp => gp.votedLocation == killedPlayers [i].locationId) + " votes. ";
+				}
+				if (killedPlayers.Length == 0) {
+					descriptionString += "No one received enough votes to be killed.";
+				}
 				result_Description.text = descriptionString;
 				break;
 		}
@@ -357,22 +408,17 @@ public class PlayerUi : MonoBehaviour
 
 	private void CompleteNightAction (List<List<int>> selection)
 	{
-		ClearBox (nightInput_ButtonBox);
+		ClearBox (night_ButtonBox);
 
 		client.SubmitNightAction (selection.Select (a => a.ToArray ()).ToArray ());
 	}
 
-	private void SubmitVote (int locationId)
-	{
-
-		foreach (Transform button in day_VoteButtonBox.transform) {
-			Destroy (button.gameObject);
-		}
+	private void SubmitVote (int locationId) {
+		currentVote = locationId;
 		client.SubmitVote (locationId);
 	}
 
-	public void HandleJoinButtonPressed ()
-	{
+	public void HandleJoinButtonPressed () {
 
 		//Set persistent player name
 		client.PlayerName = playerEntry_NameField.text;
@@ -441,5 +487,21 @@ public class PlayerUi : MonoBehaviour
 	{
 		lobby_PlayersLabel.text = clientName;
 		SetState (UiScreen.Lobby);
+	}
+
+	private string GetPlayerName(int locationId) {
+		return locationId == gamePlayer.locationId ? "yourself" : client.Gm.locationsById [locationId].name;
+	}
+
+	private string GetTimerText(float seconds) {
+		if (seconds < 0.0f) {
+			return "00\"00'000";
+		} else {
+			TimeSpan t = TimeSpan.FromSeconds( seconds );
+			return string.Format("{0:D2}\"{1:D2}'{2:D3}",  
+				t.Minutes, 
+				t.Seconds, 
+				t.Milliseconds);
+		}
 	}
 }

@@ -13,5 +13,6 @@ public class PrefabResource : MonoBehaviour {
 		}
 	}
 
-	public GameObject locationButton;
+	public GameObject hiddenActionButton;
+	public GameObject voteButton;
 }

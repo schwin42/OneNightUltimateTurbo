@@ -32,7 +32,7 @@ public class GameMaster {
 
 	//The deck will be selected/ randomly generated before game start
 	public List<RealCard> gameDeck;
-	public List<Role> orderedDeckList;
+	public GameSettings gameSettings;
 
 	//Configuration
 	PlayerUi ui;
@@ -47,17 +47,17 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(Dictionary<int, string> playerNamesByClientId, List<Role> orderedDeckList) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(Dictionary<int, string> playerNamesByClientId, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
 		}
 
-		this.orderedDeckList = orderedDeckList;
+		this.gameSettings = gameSettings;
 
 		//Instantiate deck
 		gameDeck = new List<RealCard>();
-		foreach(Role role in orderedDeckList) {
+		foreach(Role role in gameSettings.deckList) {
 			gameDeck.Add(new RealCard(this, role));
 		}
 
@@ -67,7 +67,7 @@ public class GameMaster {
 		//Validate configuration
 		if(gameDeck.Count != playerNamesByClientId.Count + 3) {
 			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNamesByClientId.Count + ", " + playerNamesByClientId.Count + 
-				", deck = " + gameDeck.Count + ", " + orderedDeckList.Count);
+				", deck = " + gameDeck.Count + ", " + gameSettings.deckList.Count);
 			return;
 		}
 
@@ -256,10 +256,16 @@ public class GameMaster {
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			GamePlayer actingPlayer = actingPlayersByTurnOrder [i];
 			List<int> skippableIndeces = new List<int>();
-			for (int j = 0; j < actingPlayer.dealtCard.data.hiddenAction.Count; j++) {
+			List<SubAction> hiddenAction;
+			if (actingPlayer.prompt.cohorts != null && actingPlayer.prompt.cohorts.Length > 0) {
+				hiddenAction = actingPlayer.dealtCard.data.hiddenActionIfCohort;
+			} else {
+				hiddenAction = actingPlayer.dealtCard.data.hiddenAction;
+			}
+			for (int j = 0; j < hiddenAction.Count; j++) {
 				//check if skippable due to fork
 				if(skippableIndeces.Contains(j)) continue;
-				SubAction subAction = actingPlayer.dealtCard.data.hiddenAction[j];
+				SubAction subAction = hiddenAction[j];
 				if(actingPlayer.nightLocationSelection[j][0] == -1) {
 					if(subAction.isMandatory) {
 						Debug.LogError("Action is mandatory, but no selection was received.");
@@ -363,12 +369,21 @@ public class GameMaster {
 
 	public void ReceiveVote(GamePlayer player, int locationId) {
 		if(currentPhase != GamePhase.Day) {
-			Debug.LogError("Received night action outside of Night_Input phase");
+			Debug.LogError("Received vote outside of day phase");
 			return;
 		}
 
 		player.votedLocation = locationId;
-		playersAwaitingResponseFrom.Remove(player);
+
+		if (locationId == -2) {
+			if (!playersAwaitingResponseFrom.Contains (player)) {
+				playersAwaitingResponseFrom.Add (player);
+			}
+		} else {
+			if (playersAwaitingResponseFrom.Contains (player)) {
+				playersAwaitingResponseFrom.Remove (player);
+			}
+		}
 
 		if(playersAwaitingResponseFrom.Count == 0) {
 			SetPhase(GamePhase.Result);
@@ -393,7 +408,8 @@ public class GameMaster {
 
 [System.Serializable]
 public class RealizedPrompt {
-	public string cohortString = "";
+	public int[] cohorts = null;
+	public string promptText = "";
 	public List<SubAction> hiddenAction;
 	public List<List<ButtonInfo>> buttonGroupsBySubactionIndex = new List<List<ButtonInfo>>();
 
@@ -402,22 +418,22 @@ public class RealizedPrompt {
 		GamePlayer self = players.Single(gp => gp.locationId == selfLocationId);
 		if(self.dealtCard.data.cohort.isEmpty) {
 			if(self.dealtCard.data.prompt != null) {
-				cohortString = self.dealtCard.data.prompt;
+				promptText = self.dealtCard.data.prompt;
 				hiddenAction = self.dealtCard.data.hiddenAction;
 			}
 		} else {
-			List<GamePlayer> cohorts = self.dealtCard.data.cohort.FilterPlayersByDealtCard(
+			List<GamePlayer> cohortPlayers = self.dealtCard.data.cohort.FilterPlayersByDealtCard(
 				players.Where(p => p.locationId != self.locationId).ToList()).ToList();
-			self.cohortLocations = cohorts.Select(p => p.locationId).ToArray();
-			if(cohorts.Count == 0) {
-				cohortString = self.dealtCard.data.prompt;
+			cohorts = cohortPlayers.Select(p => p.locationId).ToArray();
+			if(cohortPlayers.Count == 0) {
+				promptText = self.dealtCard.data.prompt;
 				hiddenAction = self.dealtCard.data.hiddenAction;
 			} else {
-				for(int i = 0; i < cohorts.Count; i++) {
+				for(int i = 0; i < cohortPlayers.Count; i++) {
 					if( i != 0) {
-						cohortString += " ";
+						promptText += " ";
 					}
-					cohortString += string.Format(self.dealtCard.data.promptIfCohort, cohorts[i].name);
+					promptText += string.Format(self.dealtCard.data.promptIfCohort, cohortPlayers[i].name);
 				}
 				hiddenAction = self.dealtCard.data.hiddenActionIfCohort;
 			}
