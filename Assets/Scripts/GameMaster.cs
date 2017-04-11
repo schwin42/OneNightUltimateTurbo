@@ -127,7 +127,7 @@ public class GameMaster {
 				player.prompt = new RealizedPrompt(player.locationId, players, centerSlots); //Player and center card state is passed to give prompt concrete id choices
 			}
 
-			if(ui != null) ui.SetState(PlayerUi.UiScreen.Night_InputControl);
+			if(ui != null) ui.SetState(PlayerUi.UiScreen.Night);
 
 			//Wait for responses
 			playersAwaitingResponseFrom = new List<GamePlayer>(players);
@@ -137,7 +137,7 @@ public class GameMaster {
 			ExecuteNightActionsInOrder();
 
 				//Reveal information to seer roles
-			if(ui != null) ui.SetState(PlayerUi.UiScreen.Day_Voting);
+			if(ui != null) ui.SetState(PlayerUi.UiScreen.Day);
 
 			playersAwaitingResponseFrom = new List<GamePlayer>(players);
 			break;

@@ -4,15 +4,15 @@ Dream Wolf	Low	Untested	Implemented	Werewolf	Werewolf				If any werewolves or mi
 Drunk	Done	Done	Implemented	Village	Villageperson	8			You must choose a center card to swap cards with.			Must_SwapTwo(Self,TargetCenterCard)				1	Werewolf
 Insomniac	Done	Done	Implemented	Village	Villageperson	9			The Insomniac views their own card.			Must_ViewOne(Self)			CardSwapper	1	Werewolf
 Mason	Done	Done	Implemented	Village	Villageperson	4		Mason	You observed no other mason.	{0} was dealt the other mason					Mason	2	Werewolf
-Minion	Done	Done	Implemented	Werewolf	Villageperson	3		NatureWerewolf							NatureWerewolf	1	Werewolf
-Mystic Wolf	Medium	Untested	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You observed no other werewolves. You may view another player's card.	{0} was dealt a werewolf.		May_ViewOne(TargetOtherPlayer)				1	Daybreak
+Minion	Done	Done	Implemented	Werewolf	Villageperson	3		NatureWerewolf	The Minion wins if there is at least one werewolf and they don't die. If there are no werewolves, the Minion wins if another player dies						NatureWerewolf	1	Werewolf
+Mystic Wolf	Medium	Done	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You observed no other werewolves. You may view another player's card.	{0} was dealt a werewolf.		May_ViewOne(TargetOtherPlayer)				1	Daybreak
 Robber	Done	Done	Implemented	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.			May_ViewOne(TargetOtherPlayer);Must_SwapTwo(Self,LastTarget)				1	Werewolf
-Seer	Very High	Untested	Implemented	Village	Villageperson	5			You may view another player's card or two cards from the center.			May_ChooseFork(TargetFork);Must_ViewOne(TargetOtherPlayer);Must_ViewTwo(TargetCenterCard,TargetCenterCard)				1	Werewolf
+Seer	Very High	Done	Implemented	Village	Villageperson	5			You may view another player's card or two cards from the center.			May_ChooseFork(TargetFork);Must_ViewOne(TargetOtherPlayer);Must_ViewTwo(TargetCenterCard,TargetCenterCard)				1	Werewolf
 Tanner	Done	Done	Implemented	NoTeam	Villageperson		Role.Tanner_MustDie		The Tanner only wins if they die.							1	Werewolf
 Troublemaker	Done	Done	Implemented	Village	Villageperson	7			You may choose two other players to swap cards between.			May_SwapTwo(TargetOtherPlayer,TargetOtherPlayer)				1	Werewolf
 Villager	Done	Done	Implemented	Village	Villageperson				The Villager has no action.						Villager	3	Werewolf
 Werewolf	Done	Done	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	{0} was dealt a werewolf.		May_ViewOne(TargetCenterCard)				2	Werewolf
-Witch	High	Done	Implemented	Village	Villageperson	6B			You may choose to view a card from the center. If you do, you must swap that with a player's card.			May_ViewOne(TargetCenterCard);Must_SwapTwo(LastTarget,TargetAnyPlayer)				1	Daybreak
+Witch	High	Feedback before act	Ready	Village	Villageperson	6B			You may choose to view a card from the center. If you do, you must swap that with a player's card.			May_ViewOne(TargetCenterCard);Must_SwapTwo(LastTarget,TargetAnyPlayer)				1	Daybreak
 Alpha Wolf	Low	4th Center Card	IncompleteEntry	Werewolf	Werewolf	2B										1	Daybreak
 Apprentice Assassin	High	Marks & Assassin Team	IncompleteEntry	NoTeam	Villageperson	-1B									Assassin	1	Vampire
 Assassin	High	Marks & Assassin Team	IncompleteEntry	NoTeam	Villageperson	-1					PlaceAssassin					1	Vampire

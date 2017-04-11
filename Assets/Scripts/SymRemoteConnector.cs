@@ -21,6 +21,8 @@ public abstract class SymRemoteConnector { //Singleton instance stored on GameCo
 
 	public abstract void BroadcastEvent(RemotePayload payload);
 
+	public abstract void Disconnect();
+
 	public void HandlePayloadReceived(RemotePayload payload) {
 		client.HandleRemotePayload(payload);
 	}
@@ -38,5 +40,9 @@ public class EditorSymConnector : SymRemoteConnector {
 	public override void BroadcastEvent (RemotePayload payload) {
 		SymVirtualServer.instance.HandleClientSendEvent(payload);
 //		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
+	}
+
+	public override void Disconnect() {
+		SymVirtualServer.instance.Disconnect (this);
 	}
 }

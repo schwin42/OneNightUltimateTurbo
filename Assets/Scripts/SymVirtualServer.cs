@@ -44,8 +44,6 @@ public class SymVirtualServer : MonoBehaviour {
 				connectorsByClientId[kp.Key].HandlePayloadReceived(new UpdateOtherPayload(newClientId, playerNamesByClientId));
 			}
 		}
-
-
 	}
 
 	public void HandleClientSendEvent(RemotePayload payload) {
@@ -53,5 +51,9 @@ public class SymVirtualServer : MonoBehaviour {
 		foreach(KeyValuePair<int, EditorSymConnector> kp in connectorsByClientId) {
 			kp.Value.HandlePayloadReceived(payload);
 		}
+	}
+
+	public void Disconnect(EditorSymConnector connector) {
+		connectorsByClientId.Remove (connectorsByClientId.Single (kp => kp.Value == connector).Key);
 	}
 }

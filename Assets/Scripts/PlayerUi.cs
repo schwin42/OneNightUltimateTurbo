@@ -23,10 +23,10 @@ public class PlayerUi : MonoBehaviour
 	public enum UiScreen
 	{
 		Uninitialized = -1,
-		PlayerEntry = 0,
-		Night_InputControl = 1,
-		Lobby = 2,
-		Day_Voting = 3,
+		Title = 0,
+		Lobby = 1,
+		Night = 2,
+		Day = 3,
 		Result = 4,
 
 	}
@@ -50,10 +50,10 @@ public class PlayerUi : MonoBehaviour
 	Text playerName;
 
 	//Player Entry
-	InputField playerEntry_NameField;
-	InputField playerEntry_AddressField;
-	Button playerEntry_HostButton;
-	Button playerEntry_JoinButton;
+	InputField title_NameField;
+	InputField title_AddressField;
+	Button title_HostButton;
+	Button title_JoinButton;
 
 	//Lobby
 	Text lobby_PlayersLabel;
@@ -82,46 +82,45 @@ public class PlayerUi : MonoBehaviour
 		this.client = client;
 
 		foreach (UiScreen screen in Enum.GetValues(typeof(UiScreen))) {
-			if (screen == UiScreen.Uninitialized)
-				continue;
+			if (screen == UiScreen.Uninitialized) continue;
 			screenGosByEnum [screen] = transform.Find (screen.ToString ()).gameObject;
 		}
 
 		playerName = transform.Find ("PlayerName").GetComponent<Text> ();
 
-		//PlayerEntry
-		playerEntry_NameField = transform.Find ("PlayerEntry/NameField").GetComponent<InputField> ();
-		playerEntry_AddressField = transform.Find ("PlayerEntry/AddressField").GetComponent<InputField> ();
-		playerEntry_HostButton = transform.Find ("PlayerEntry/HostButton").GetComponent<Button> ();
-		playerEntry_JoinButton = transform.Find ("PlayerEntry/JoinButton").GetComponent<Button> ();
+		//Title
+		title_NameField = transform.Find ("Title/NameField").GetComponent<InputField> ();
+		title_AddressField = transform.Find ("Title/AddressField").GetComponent<InputField> ();
+		title_HostButton = transform.Find ("Title/HostButton").GetComponent<Button> ();
+		title_JoinButton = transform.Find ("Title/JoinButton").GetComponent<Button> ();
 
 		//Lobby
 		lobby_PlayersLabel = transform.Find ("Lobby/Description").GetComponent<Text> ();
 		lobby_StartButton = transform.Find ("Lobby/StartButton").GetComponent<Button> ();
 		lobby_AddressLabel = transform.Find ("Lobby/Address").GetComponent<Text> ();
 
-		//Night_InputControl
-		night_Title = transform.Find ("Night_InputControl/Title").GetComponent<Text> ();
-		night_Description = transform.Find ("Night_InputControl/Description").GetComponent<Text> ();
-		night_ButtonBox = transform.Find ("Night_InputControl/Grid").transform;
+		//Night
+		night_Title = transform.Find ("Night/Title").GetComponent<Text> ();
+		night_Description = transform.Find ("Night/Description").GetComponent<Text> ();
+		night_ButtonBox = transform.Find ("Night/Grid").transform;
 
-		//Day_Voting
-		day_VoteButtonBox = transform.Find ("Day_Voting/Panel/Grid/");
-		day_Description = transform.Find ("Day_Voting/Description").GetComponent<Text> ();
-		day_TimeRemaining = transform.Find("Day_Voting/TimeRemaining").GetComponent<Text>();
-		day_DeckDisplay = transform.Find ("Day_Voting/Panel/DeckDisplay/Text").GetComponent<Text> ();
+		//Day
+		day_VoteButtonBox = transform.Find ("Day/Panel/Grid/");
+		day_Description = transform.Find ("Day/Description").GetComponent<Text> ();
+		day_TimeRemaining = transform.Find("Day/TimeRemaining").GetComponent<Text>();
+		day_DeckDisplay = transform.Find ("Day/Panel/DeckDisplay/Text").GetComponent<Text> ();
 		day_ToggleGroup = day_VoteButtonBox.GetComponent<ToggleGroup> ();
 
 		//Result
 		result_Title = transform.Find ("Result/Title").GetComponent<Text> ();
 		result_Description = transform.Find ("Result/Description").GetComponent<Text> ();
 
-		SetState (UiScreen.PlayerEntry);
+		SetState (UiScreen.Title);
 
 	}
 
 	void Update() {
-		if (currentScreen == UiScreen.Day_Voting) {
+		if (currentScreen == UiScreen.Day) {
 			timer -= Time.deltaTime;
 			day_TimeRemaining.text = GetTimerText (timer);
 			if (timer <= 0 && currentVote == -2) {
@@ -264,12 +263,12 @@ public class PlayerUi : MonoBehaviour
 			return;
 
 		switch (targetScreen) {
-			case UiScreen.PlayerEntry:
-				playerEntry_HostButton.interactable = true;
-				playerEntry_JoinButton.interactable = true;
+			case UiScreen.Title:
+				title_HostButton.interactable = true;
+				title_JoinButton.interactable = true;
 				break;
 			case UiScreen.Lobby:
-
+				lobby_StartButton.interactable = true;
 				AsymClient asymClient = client as AsymClient;
 				if (asymClient != null) {
 					if (asymClient.localServer != null) {
@@ -281,7 +280,7 @@ public class PlayerUi : MonoBehaviour
 					}
 				}
 				break;
-			case UiScreen.Night_InputControl:
+			case UiScreen.Night:
 					//Team allegiance- You are on the werewolf team.
 					//Nature clarity if relevant- You are a villageperson.
 					//Special win conditions- If there are no other werewolves, you win if an *other* player dies.
@@ -299,7 +298,7 @@ public class PlayerUi : MonoBehaviour
 				skippableSubactionIndeces = new List<int> ();
 				TryResolveSelection ();
 				break;
-			case UiScreen.Day_Voting:
+			case UiScreen.Day:
 
 					//Create buttons 
 				foreach (GamePlayer p in client.Gm.players) {
@@ -421,16 +420,16 @@ public class PlayerUi : MonoBehaviour
 	public void HandleJoinButtonPressed () {
 
 		//Set persistent player name
-		client.PlayerName = playerEntry_NameField.text;
+		client.PlayerName = title_NameField.text;
 		playerName.text = client.PlayerName;
 
-		playerEntry_HostButton.interactable = false;
-		playerEntry_JoinButton.interactable = false;
+		title_HostButton.interactable = false;
+		title_JoinButton.interactable = false;
 
 		//Join game
 		AsymClient asymClient = client as AsymClient;
 		if (asymClient != null) {
-			client.JoinSession (playerEntry_AddressField.text);
+			client.JoinSession (title_AddressField.text);
 		} else {
 			client.JoinSession ();
 		}
@@ -444,12 +443,12 @@ public class PlayerUi : MonoBehaviour
 			return;
 		}
 
-		client.PlayerName = playerEntry_NameField.text;
+		client.PlayerName = title_NameField.text;
 		playerName.text = client.PlayerName;
 
 		//Disable button
-		playerEntry_HostButton.interactable = false;
-		playerEntry_JoinButton.interactable = false;
+		title_HostButton.interactable = false;
+		title_JoinButton.interactable = false;
 
 		asymClient.HostSession ();
 	}
@@ -487,6 +486,15 @@ public class PlayerUi : MonoBehaviour
 	{
 		lobby_PlayersLabel.text = clientName;
 		SetState (UiScreen.Lobby);
+	}
+
+	public void HandlePlayAgainButton() {
+		client.BeginGame ();
+	}
+
+	public void HandleQuitToTitleButton() {
+		client.Disconnect ();
+		SetState (UiScreen.Title);
 	}
 
 	private string GetPlayerName(int locationId) {

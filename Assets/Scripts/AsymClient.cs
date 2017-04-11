@@ -68,6 +68,10 @@ public class AsymClient : MonoBehaviour, IClient {
 		}
 	}
 
+	public void Disconnect() {
+		//TODO Implement
+	}
+
 	private void SubscribeToMessages(NetworkClient client) {
 		client.RegisterHandler (MsgType.Connect, OnClientConnected);
 		client.RegisterHandler (OnuMessage.Welcome, OnWelcomeReceived);

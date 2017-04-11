@@ -15,5 +15,6 @@ public interface IClient {
 	void SubmitNightAction(int[][] selection);
 	void SubmitVote(int votee);
 
+	void Disconnect ();
 
 }

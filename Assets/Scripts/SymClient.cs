@@ -66,7 +66,6 @@ public class SymClient : MonoBehaviour, IClient {
 			WelcomeBasketPayload basket = ((WelcomeBasketPayload)payload);
 			Debug.Log("Welcome basket received for : " + basket.sourceClientId);
 			this.selfClientId = basket.sourceClientId;
-			Debug.Log("Self client id set to: " + selfClientId);
 			playerNamesByClientId = basket.playerNamesByClientId;
 			ui.HandleClientJoined(PlayerName);
 			ui.HandlePlayersUpdated(playerNamesByClientId.Select(kp => kp.Value).ToList());
@@ -78,20 +77,24 @@ public class SymClient : MonoBehaviour, IClient {
 //			print("update other for " + this.PlayerName + ". Player names: " + playerNames.Count);
 		} else if (payload is StartGamePayload) {
 			Debug.Log("Start game received by: " + selfClientId);
-			StartGamePayload start = ((StartGamePayload)payload);
-			int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
-			gm = new GameMaster(ui); //Implement random seed
+			if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
+				Debug.LogError ("Unable to start game. Game already in progress.");
+				return;
+			} else {
+				StartGamePayload start = ((StartGamePayload)payload);
+				int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
+				gm = new GameMaster(ui); //Implement random seed
 
-			//Get random deck and shuffle (using seed)
-			selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByClientId.Count + 3, randomSeed, true);
-			selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
+				//Get random deck and shuffle (using seed)
+				selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByClientId.Count + 3, randomSeed, true);
+				selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
 
-//			selectedDeckBlueprint = new List<Role> { Role.Robber, Role.Seer, Role.Troublemaker, Role.ApprenticeSeer };
-			selectedDeckBlueprint = new List<Role> { Role.Witch, Role.Seer, Role.Troublemaker,  Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf} ;
+				//			selectedDeckBlueprint = new List<Role> { Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf, Role.Robber, Role.Seer, Role.Troublemaker, Role.Villager, Role.Villager, Role.Werewolf } ;
+//				selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.DreamWolf, Role.Insomniac, Role.Villager, Role.Werewolf, Role.Robber };
+				//			selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.DreamWolf, Role.Insomniac, Role.Villager, Role.Villager };
 
-//			selectedDeckBlueprint = new List<Role> { Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf, Role.Robber, Role.Seer, Role.Troublemaker, Role.Villager, Role.Villager, Role.Werewolf } ;
-
-			gm.StartGame(playerNamesByClientId, selectedDeckBlueprint);
+				gm.StartGame(playerNamesByClientId, new GameSettings(selectedDeckBlueprint));
+			}
 		} else {
 			Debug.LogError("Unexpected payload type: " + payload.ToString());
 		}
@@ -114,5 +117,9 @@ public class SymClient : MonoBehaviour, IClient {
 	{
 		_ui = GetComponent<PlayerUi>();
 		_ui.Initialize(this);
+	}
+
+	public void Disconnect() {
+		connector.Disconnect ();
 	}
 }
