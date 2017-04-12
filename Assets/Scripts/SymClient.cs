@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 [System.Serializable]
 public class SymClient : MonoBehaviour, IClient {
@@ -35,6 +36,11 @@ public class SymClient : MonoBehaviour, IClient {
 
 	bool hasInitialized = false;
 
+	public delegate void ClientHandler(SymClient client);
+	public event ClientHandler OnEnteredRoom;
+	public delegate void UserIdHandler(string userId);
+	public event UserIdHandler OnUserConnected;
+
 	public void Start() {
 		if(!hasInitialized) {
 			_ui = GetComponent<PlayerUi>();
@@ -44,42 +50,70 @@ public class SymClient : MonoBehaviour, IClient {
 	}
 
 	public void InitiateGame() {
-		int randomSeed = Mathf.FloorToInt(Random.value * 1000000);
+		int randomSeed = Mathf.FloorToInt(UnityEngine.Random.value * 10000000);
 		SymRemoteConnector.instance.StartGame(this, new StartGamePayload(randomSeed));
 	}
 
 	public void HandleSessionStarted(string userId, string accessKey, string roomKey) {
-		Debug.Log(selfUserId + ": received handle session for : " + userId);
+		Debug.Log(userId + ": received handle session started");
 		this.selfUserId = userId;
 		connectedUsers.Add (selfUserId);
 		this.accessKey = accessKey;
 		this.roomKey = roomKey;
 //		playerNamesByUserId = basket.playerNamesByClientId;
 		ui.HandleEnteredRoom(connectedUsers, roomKey);
+
+		if(OnEnteredRoom != null) {
+			OnEnteredRoom.Invoke(this);
+		}
 	}
 
 	public void HandleJoinedSession(string selfUserId, string accessKey, List<string> allUsers) {
-		Debug.Log(selfUserId + ": received joined session for : " + selfUserId);
+		Debug.Log(selfUserId + ": received joined session with " + allUsers.Count + " users in room");
 		this.selfUserId = selfUserId;
 		this.accessKey = accessKey;
 		this.connectedUsers = allUsers;
 		ui.HandleEnteredRoom(connectedUsers, roomKey);
+
+		if(OnEnteredRoom != null) {
+			OnEnteredRoom.Invoke(this);
+		}
 	}
 
 	public void HandleOtherJoined(string userId) {
 		print (selfUserId + ": received handle other for " + userId);
 		connectedUsers.Add (userId);
 		ui.HandlePlayersUpdated (connectedUsers);
+		if(OnUserConnected != null) {
+			OnUserConnected.Invoke(userId);
+		}
 	}
 
 	public void HandleStartGamePayload(int randomSeed) {
+		if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
+			Debug.LogError ("Unable to start game. Game already in progress.");
+			return;
+		}
+		gm = new GameMaster(ui); //Implement random seed
 		selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(connectedUsers.Count + 3, randomSeed, true);
+
+//		selectedDeckBlueprint = new List<Role>() { Role.Insomniac, Role.Villager, Role.Villager, Role.Werewolf, Role.Insomniac, Role.Troublemaker };
+		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.MysticWolf, Role.Troublemaker, Role.Drunk, Role.Seer, Role.ApprenticeSeer };
+
 		selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
+		connectedUsers = connectedUsers.OrderBy(s => s).ToList();
 		gm.StartGame (connectedUsers, new GameSettings (selectedDeckBlueprint));
 	}
 
-	public void HandleGameMessage() {
-		Debug.LogError ("Not implemented.");
+	public void HandleActionMessage(string userId, int[][] selection) {
+		print("user id: " + userId);
+		Debug.Log(userId + " received action message: " + selection);
+		gm.ReceiveNightAction(userId, selection);
+	}
+
+	public void HandleVoteMessage(string userId, int votee) {
+		Debug.Log(userId + " received vote message: " + votee);
+		gm.ReceiveVote(userId, votee);
 	}
 
 	public void HandleRemoteError(ErrorType error) {
@@ -105,23 +139,6 @@ public class SymClient : MonoBehaviour, IClient {
 ////			print("update other for " + this.PlayerName + ". Player names: " + playerNames.Count);
 //		} else if (payload is StartGamePayload) {
 //			Debug.Log("Start game received by: " + selfUserId);
-//			if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
-//				Debug.LogError ("Unable to start game. Game already in progress.");
-//				return;
-//			} else {
-//				StartGamePayload start = ((StartGamePayload)payload);
-//				int randomSeed = Mathf.FloorToInt(start.randomSeed * 1000000);
-//				gm = new GameMaster(ui); //Implement random seed
-//
-//				//Get random deck and shuffle (using seed)
-//				selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByUserId.Count + 3, randomSeed, true);
-//				selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
-//
-//				//			selectedDeckBlueprint = new List<Role> { Role.ApprenticeSeer, Role.Drunk, Role.MysticWolf, Role.Robber, Role.Seer, Role.Troublemaker, Role.Villager, Role.Villager, Role.Werewolf } ;
-////				selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.DreamWolf, Role.Insomniac, Role.Villager, Role.Werewolf, Role.Robber };
-//				//			selectedDeckBlueprint = new List<Role> { Role.Werewolf, Role.DreamWolf, Role.Insomniac, Role.Villager, Role.Villager };
-//
-//				gm.StartGame(playerNamesByUserId, new GameSettings(selectedDeckBlueprint));
 //			}
 //		} else {
 //			Debug.LogError("Unexpected payload type: " + payload.ToString());

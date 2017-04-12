@@ -8,6 +8,11 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 	public List<PlayerUi> playerUis;
 	public List<SymClient> clients;
 
+	public List<SymClient> pendingPlayers;
+
+	bool playersJoined = false;
+	bool playersConnected = false;
+
 	// Use this for initialization
 	void Start () {
 		playerPanels = new List<Transform>();
@@ -25,7 +30,12 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 			i++;
 		}
 
-//		clients[0].BeginSession();
+//		clients[0].OnEnteredRoom += HandleSessionStarted;
+//		clients[0].OnUserConnected += HandleUserConnected;
+
+//		clients[0].BeginSession("0");
+
+
 //		clients[0].JoinSession(
 
 //		clients[0].BeginGame();
@@ -62,5 +72,43 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 		} else if (Input.GetKeyUp(KeyCode.P)) {
 			ActivatePlayer(9);
 		}
+	}
+
+	void HandleSessionStarted(SymClient client) {
+		pendingPlayers = new List<SymClient>();
+		for(int i = 1; i < clients.Count; i++) {
+			clients[i].OnEnteredRoom += HandleSessionJoined;
+			clients[i].OnUserConnected += HandleUserConnected;
+			clients[i].JoinSession(i.ToString(), clients[0].roomKey);
+			pendingPlayers.Add(clients[i]);
+		}
+
+	}
+
+	void HandleSessionJoined(SymClient client) {
+
+//		pendingPlayers.Remove(client);
+//
+//		if(pendingPlayers.Count == 0) {
+//			playersJoined = true;
+//		}
+//
+//		if(playersJoined && playersConnected) {
+//			clients[0].InitiateGame();
+//		}
+	}
+
+	void HandleUserConnected(string userId) {
+//		foreach(SymClient client in clients) {
+//			if(client.connectedUsers.Count < clients.Count) {
+//				return;
+//			}
+//		}
+//		playersConnected = true;
+//
+//
+//		if(playersJoined && playersConnected) {
+//			clients[0].InitiateGame();
+//		}
 	}
 }

@@ -104,12 +104,12 @@ public class GameMaster {
 		}
 
 		//Print player cards
-		foreach(GamePlayer player in players) {
-			Debug.Log(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
-		}
-		foreach(CenterCardSlot slot in centerSlots) {
-			Debug.Log(slot.currentCard.data.role.ToString() + " is " + slot.name);
-		}
+//		foreach(GamePlayer player in players) {
+//			Debug.Log(player.name + " is the " + player.dealtCard.data.role.ToString() + " " + player.dealtCard.data.order.ToString());
+//		}
+//		foreach(CenterCardSlot slot in centerSlots) {
+//			Debug.Log(slot.currentCard.data.role.ToString() + " is " + slot.name);
+//		}
 
 		//Generate prompts
 		foreach(GamePlayer player in players) {
@@ -332,8 +332,8 @@ public class GameMaster {
 	public void ReceiveDirective(GamePayload payload) {
 		if(payload is ActionPayload) {
 			ActionPayload nightAction = (ActionPayload)payload;
-			Debug.Log("Received night action from: " + nightAction.sourceClientId);
-			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceClientId), nightAction.selection);
+			Debug.Log("Received night action from: " + nightAction.sourceUserId);
+			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceUserId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
 			ReceiveVote(players.Single(gp => gp.userId == vote.sourceClientId), vote.voteeLocationId);

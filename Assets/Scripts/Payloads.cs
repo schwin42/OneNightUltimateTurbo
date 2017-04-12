@@ -15,11 +15,11 @@ public abstract class GamePayload : RemotePayload {
 
 public class ActionPayload : GamePayload {
 	public override PayloadType type { get { return PayloadType.SubmitAction; }	}
-	public string sourceClientId;
+	public string sourceUserId;
 	public int[][] selection;
 
 	public ActionPayload (string sourceUserId, int[][] selection) {
-		this.sourceClientId = sourceUserId;
+		this.sourceUserId = sourceUserId;
 		this.selection = selection;
 	}
 }
