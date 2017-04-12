@@ -109,18 +109,6 @@ public class CardData
 		//Role ideas
 		//The outcast- nature: villageperson, team: village, if the outcast dies, the villagers and the werewolves win, but the outcast loses
 		//The halfblood/ daywalker
-
-		//
-		//[System.Serializable]
-		//public class Mason : Card { //When randomly selecting cards, always use both Masons
-		//	public Mason () : base() {
-		//		team = Team.Village;
-		//		nature = Nature.Villageperson;
-		//		quantity = 2;
-		//		order = new Order(4);
-		//		seedRequirement = Role.Mason;
-		//	}
-		//}
 	}
 }
 
@@ -185,14 +173,17 @@ public enum Relation {
 	Self = 0,
 }
 
+//[System.Serializable]
 public class WinRequirement
 {
+	public bool isEmpty = true;
 	public Selector subject;
 	public WinPredicate predicate;
 	public WinRequirement[] fallback; //Requirement to use if selected role doesn't exist (use for villagers, minion, apprentice tanner, apprentice assassin)
 
 	public WinRequirement (Selector subject, WinPredicate predicate, WinRequirement[] fallback)
 	{
+		this.isEmpty = false;
 		this.subject = subject;
 		this.predicate = predicate;
 		this.fallback = fallback;

@@ -424,6 +424,7 @@ MonoBehaviour:
   playerPanels: []
   playerUis: []
   clients: []
+  pendingPlayers: []
 --- !u!222 &520452683
 CanvasRenderer:
   m_ObjectHideFlags: 0

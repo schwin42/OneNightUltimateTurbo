@@ -369,8 +369,8 @@ public class PlayerUi : MonoBehaviour
 //		SetState (UiScreen.Lobby);
 //	}
 
-	public void HandleEnteredRoom (List<string> userIds, string roomKey) {
-		lobby_AddressLabel.text = roomKey;
+	public void HandleEnteredRoom (List<string> userIds) {
+		lobby_AddressLabel.text = client.RoomKey;
 		HandlePlayersUpdated (userIds);
 		SetState (UiScreen.Lobby);
 	}

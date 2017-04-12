@@ -15,7 +15,8 @@ public class SymClient : MonoBehaviour, IClient {
 	public string selfUserId;
 
 	public string accessKey;
-	public string roomKey;
+	public string RoomKey { get { return roomKey; } }
+	private string roomKey;
 
 	public List<string> connectedUsers;
 
@@ -61,7 +62,7 @@ public class SymClient : MonoBehaviour, IClient {
 		this.accessKey = accessKey;
 		this.roomKey = roomKey;
 //		playerNamesByUserId = basket.playerNamesByClientId;
-		ui.HandleEnteredRoom(connectedUsers, roomKey);
+		ui.HandleEnteredRoom(connectedUsers);
 
 		if(OnEnteredRoom != null) {
 			OnEnteredRoom.Invoke(this);
@@ -73,7 +74,7 @@ public class SymClient : MonoBehaviour, IClient {
 		this.selfUserId = selfUserId;
 		this.accessKey = accessKey;
 		this.connectedUsers = allUsers;
-		ui.HandleEnteredRoom(connectedUsers, roomKey);
+		ui.HandleEnteredRoom(connectedUsers);
 
 		if(OnEnteredRoom != null) {
 			OnEnteredRoom.Invoke(this);
@@ -97,8 +98,8 @@ public class SymClient : MonoBehaviour, IClient {
 		gm = new GameMaster(ui); //Implement random seed
 		selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(connectedUsers.Count + 3, randomSeed, true);
 
-//		selectedDeckBlueprint = new List<Role>() { Role.Insomniac, Role.Villager, Role.Villager, Role.Werewolf, Role.Insomniac, Role.Troublemaker };
-		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.MysticWolf, Role.Troublemaker, Role.Drunk, Role.Seer, Role.ApprenticeSeer };
+		selectedDeckBlueprint = new List<Role>() { Role.Villager, Role.Villager, Role.Villager, Role.Tanner, Role.Minion, Role.Werewolf };
+//		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.MysticWolf, Role.Troublemaker, Role.Drunk, Role.Seer, Role.ApprenticeSeer };
 
 		selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
 		connectedUsers = connectedUsers.OrderBy(s => s).ToList();

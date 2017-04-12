@@ -647,8 +647,9 @@ MonoBehaviour:
       relation: -1
       isEmpty: 0
     promptIfCohort: 
-    prompt: The Minion wins if there is at least one werewolf and they don't die.
-      If there are no werewolves, the Minion wins if another player dies
+    prompt: The Minion is not a werewolf. If there is at least one werewolf, the Minion
+      wins if  none of them die. If there are no werewolves, the Minion wins if another
+      player dies
     hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
@@ -978,7 +979,7 @@ MonoBehaviour:
       relation: -1
       isEmpty: 1
     promptIfCohort: 
-    prompt: The Tanner only wins if they die.
+    prompt: The Tanner only wins if s/he dies.
     hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
@@ -1417,8 +1418,9 @@ MonoBehaviour:
       relation: -1
       isEmpty: 0
     promptIfCohort: 
-    prompt: The Minion wins if there is at least one werewolf and they don't die.
-      If there are no werewolves, the Minion wins if another player dies
+    prompt: The Minion is not a werewolf. If there is at least one werewolf, the Minion
+      wins if  none of them die. If there are no werewolves, the Minion wins if another
+      player dies
     hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
@@ -1540,7 +1542,7 @@ MonoBehaviour:
       relation: -1
       isEmpty: 1
     promptIfCohort: 
-    prompt: The Tanner only wins if they die.
+    prompt: The Tanner only wins if s/he dies.
     hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
@@ -2710,8 +2712,9 @@ MonoBehaviour:
       relation: -1
       isEmpty: 0
     promptIfCohort: 
-    prompt: The Minion wins if there is at least one werewolf and they don't die.
-      If there are no werewolves, the Minion wins if another player dies
+    prompt: The Minion is not a werewolf. If there is at least one werewolf, the Minion
+      wins if  none of them die. If there are no werewolves, the Minion wins if another
+      player dies
     hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
@@ -2809,32 +2812,6 @@ MonoBehaviour:
     - actionType: 2
       targets: 0100000001000000
       isMandatory: 1
-    hiddenActionIfCohort: []
-    duskActions: 
-    duskActionsIfCohort: 
-    seedRequirement:
-      role: 0
-      nature: -1
-      specialSelection: -1
-      relation: -1
-      isEmpty: 1
-    maxQuantity: 1
-  - role: 10
-    team: -1
-    nature: 0
-    order:
-      isEmpty: 1
-      primary: 0
-      secondary: 
-    cohort:
-      role: 0
-      nature: -1
-      specialSelection: -1
-      relation: -1
-      isEmpty: 1
-    promptIfCohort: 
-    prompt: The Tanner only wins if they die.
-    hiddenAction: []
     hiddenActionIfCohort: []
     duskActions: 
     duskActionsIfCohort: 

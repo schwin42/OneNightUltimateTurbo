@@ -79,7 +79,7 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 		for(int i = 1; i < clients.Count; i++) {
 			clients[i].OnEnteredRoom += HandleSessionJoined;
 			clients[i].OnUserConnected += HandleUserConnected;
-			clients[i].JoinSession(i.ToString(), clients[0].roomKey);
+			clients[i].JoinSession(i.ToString(), clients[0].RoomKey);
 			pendingPlayers.Add(clients[i]);
 		}
 

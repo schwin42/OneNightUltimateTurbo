@@ -7,6 +7,7 @@ public interface IClient {
 	GameMaster Gm { get; }
 
 	string UserId { get; }
+	string RoomKey { get; }
 
 	void BeginSession(string name);
 	void JoinSession(string name, string roomKey);

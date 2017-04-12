@@ -194,8 +194,10 @@ public class GameMaster {
 	}
 
 	private bool EvaluateRequirementRecursive(GamePlayer evaluatedPlayer, WinRequirement[] requirements) {
+		Debug.Log("Evaluating for " + evaluatedPlayer.userId + ", " + evaluatedPlayer.dealtCard.data.role);
 		//Get requirement relevant players
 		foreach(WinRequirement requirement in requirements) {
+			if(requirement.isEmpty) continue;
 			bool passed;
 			List<GamePlayer> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
 			if(criteriaPlayers.Count == 0) { 

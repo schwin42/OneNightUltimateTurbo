@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 
 [System.Serializable]
 public class AsymClient : MonoBehaviour, IClient {
+
+	public string RoomKey { get { return null; } }
 	public const short PORT = 7777;
 	private string _playerName = null;
 	public string PlayerName {
