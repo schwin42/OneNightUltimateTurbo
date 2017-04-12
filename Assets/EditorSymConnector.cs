@@ -12,7 +12,7 @@ public class EditorSymConnector : SymRemoteConnector {
 		SymVirtualServer.instance.HandleClientNewUser(client, name);
 	}
 
-	public override void StartGame(SymClient client) {
+	public override void StartGame(SymClient client, StartGamePayload payload) {
 		Debug.LogError ("Not implemented");
 	}
 

@@ -16,9 +16,9 @@ public class SymClient : MonoBehaviour, IClient {
 	public string accessKey;
 	public string roomKey;
 
-	public List<Role> selectedDeckBlueprint;
+	public List<string> connectedUsers;
 
-	List<string> connectedUsers;
+	public List<Role> selectedDeckBlueprint;
 
 	private PlayerUi _ui;
 	public PlayerUi ui
@@ -44,8 +44,8 @@ public class SymClient : MonoBehaviour, IClient {
 	}
 
 	public void InitiateGame() {
-		float randomSeed = Random.value; //Used to achieve deterministic consistency across clients
-		EditorSymConnector.instance.BroadcastMessage(this, new StartGamePayload(selfUserId, randomSeed));
+		int randomSeed = Mathf.FloorToInt(Random.value * 1000000);
+		SymRemoteConnector.instance.StartGame(this, new StartGamePayload(randomSeed));
 	}
 
 	public void HandleSessionStarted(string userId, string accessKey, string roomKey) {
@@ -140,7 +140,7 @@ public class SymClient : MonoBehaviour, IClient {
 	}
 
 	public void SubmitNightAction(int[][] selection) {
-		SymRemoteConnector.instance.BroadcastMessage (this, new NightActionPayload (selfUserId, selection)); 
+		SymRemoteConnector.instance.BroadcastMessage (this, new ActionPayload (selfUserId, selection)); 
 	}
 
 	public void SubmitVote(int locationId) {

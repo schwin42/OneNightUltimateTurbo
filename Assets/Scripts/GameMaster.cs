@@ -330,8 +330,8 @@ public class GameMaster {
 
 
 	public void ReceiveDirective(GamePayload payload) {
-		if(payload is NightActionPayload) {
-			NightActionPayload nightAction = (NightActionPayload)payload;
+		if(payload is ActionPayload) {
+			ActionPayload nightAction = (ActionPayload)payload;
 			Debug.Log("Received night action from: " + nightAction.sourceClientId);
 			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceClientId), nightAction.selection);
 		} else if(payload is VotePayload) {

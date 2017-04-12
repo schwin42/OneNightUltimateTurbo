@@ -96,7 +96,7 @@ public class PlayerUi : MonoBehaviour
 		title_JoinButton = transform.Find ("Title/JoinButton").GetComponent<Button> ();
 
 		//Lobby
-		lobby_PlayersLabel = transform.Find ("Lobby/Description").GetComponent<Text> ();
+		lobby_PlayersLabel = transform.Find ("Lobby/Description/Text").GetComponent<Text> ();
 		lobby_StartButton = transform.Find ("Lobby/StartButton").GetComponent<Button> ();
 		lobby_AddressLabel = transform.Find ("Lobby/Address").GetComponent<Text> ();
 
@@ -341,14 +341,13 @@ public class PlayerUi : MonoBehaviour
 //		asymClient.HostSession ();
 	}
 
-	public void HandlePlayersUpdated (List<string> playerNames)
-	{
+	public void HandlePlayersUpdated (List<string> userIds) {
 		string s = "";
-		for (int i = 0; i < playerNames.Count; i++) {
-			s += playerNames [i];
-			if (i < playerNames.Count - 1) {
+		for(int i = 0; i < userIds.Count; i++) {
+			if (i != 0) {
 				s += "\n";
 			}
+			s += GetImpartialPlayerName (userIds [i]);
 		}
 		lobby_PlayersLabel.text = s;
 	}
@@ -370,17 +369,9 @@ public class PlayerUi : MonoBehaviour
 //		SetState (UiScreen.Lobby);
 //	}
 
-	public void HandleEnteredRoom (List<string> userIds, string roomKey)
-	{
+	public void HandleEnteredRoom (List<string> userIds, string roomKey) {
 		lobby_AddressLabel.text = roomKey;
-		string s = "";
-		for(int i = 0; i < userIds.Count; i++) {
-			if (i != 0) {
-				s += "\n";
-			}
-			s += GetImpartialPlayerName (userIds [i]);
-		}
-		lobby_PlayersLabel.text = s;
+		HandlePlayersUpdated (userIds);
 		SetState (UiScreen.Lobby);
 	}
 

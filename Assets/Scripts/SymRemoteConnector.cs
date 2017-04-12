@@ -19,7 +19,7 @@ public abstract class SymRemoteConnector : MonoBehaviour { //Singleton instance 
 
 	public abstract void JoinSession(SymClient client, string name, string roomKey);
 
-	public abstract void StartGame (SymClient client);
+	public abstract void StartGame (SymClient client, StartGamePayload payload);
 
 	public abstract void BroadcastMessage(SymClient client, RemotePayload payload);
 

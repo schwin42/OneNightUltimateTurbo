@@ -17,17 +17,17 @@ public class GamePlayer : ILocation
 		}
 	}
 
+	private string _name;
+	public string name {
+		get {
+			return _name = userId.Split (':') [0];
+		}
+	}
+
 	private int _locationId = -1;
 	public int locationId { 
 		get {
 			return _locationId;
-		}
-	}
-
-	private string _name;
-	public string name { 
-		get {
-			return _name;
 		}
 	}
 

@@ -23,6 +23,7 @@ public class CustomLog : MonoBehaviour {
 		backer = transform.parent.Find("Image").GetComponent<Image>();
 		backer.color = new Color(0, 1, 0, alpha);
 
+		print ("Console initialized");
 	}
 
 	void HandleLog(string message, string stackTrace, LogType type) {
