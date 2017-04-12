@@ -47,7 +47,7 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(Dictionary<string, string> playerNamesByUserId, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame(List<string> userIds, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
@@ -65,35 +65,34 @@ public class GameMaster {
 //		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
 
 		//Validate configuration
-		if(gameDeck.Count != playerNamesByUserId.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + playerNamesByUserId.Count + ", " + playerNamesByUserId.Count + 
+		if(gameDeck.Count != userIds.Count + 3) {
+			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + userIds.Count + ", " + userIds.Count + 
 				", deck = " + gameDeck.Count + ", " + gameSettings.deckList.Count);
 			return;
 		}
 
 		//Create players
 		players = new List<GamePlayer>();
-		foreach(KeyValuePair<string, string> kvp in playerNamesByUserId) {
-			players.Add(new GamePlayer(this, kvp.Key, kvp.Value));
+		foreach(string s in userIds) {
+			players.Add(new GamePlayer(this, s));
 		}
 
-		string s = "Game deck: ";
+		string deckString = "Game deck: ";
 		for(int i = 0; i < gameDeck.Count; i++) {
 			RealCard card = gameDeck [i];
-			s += card.name;
+			deckString += card.name;
 			if (i < gameDeck.Count - 1) {
-				s += ", ";
+				deckString += ", ";
 			}
 		}
-		Debug.Log (s);
+		Debug.Log (deckString);
 
 		//Deal cards
 		foreach(GamePlayer player in players) {
 			player.ReceiveDealtCard(PullFirstCardFromDeck());
 		}
 
-		if(ui != null) ui.SetGamePlayers ();
-		if(ui != null) ui.WriteRoleToTitle ();
+		if(ui != null) ui.SetPlayer ();
 
 		centerSlots = new List<CenterCardSlot>();
 		for(int i = 0; i < 3; i++) {
@@ -112,6 +111,11 @@ public class GameMaster {
 			Debug.Log(slot.currentCard.data.role.ToString() + " is " + slot.name);
 		}
 
+		//Generate prompts
+		foreach(GamePlayer player in players) {
+			player.prompt = new RealizedPrompt(player.locationId, players, centerSlots); //Player and center card state is passed to give prompt concrete id choices
+		}
+
 		SetPhase(GamePhase.Night);
 	}
 
@@ -121,12 +125,6 @@ public class GameMaster {
 		Debug.Log("Entering " + targetPhase + " phase.");
 		switch(targetPhase) {
 		case GamePhase.Night:
-
-			//Prompt players for action and set controls
-			foreach(GamePlayer player in players) {
-				player.prompt = new RealizedPrompt(player.locationId, players, centerSlots); //Player and center card state is passed to give prompt concrete id choices
-			}
-
 			if(ui != null) ui.SetState(PlayerUi.UiScreen.Night);
 
 			//Wait for responses

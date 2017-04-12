@@ -33,18 +33,18 @@ public class AsymClient : MonoBehaviour, IClient {
 		}
 	}
 
-	public void BeginSession() {
+	public void BeginSession(string name) {
 		Debug.Log("Attempting to host room.");
 		SetupServer ();
 		SetupLocalClient ();
 	}
 
-	public void JoinSession(string networkAddress) {
+	public void JoinSession(string name, string networkAddress) {
 		Debug.LogError("I broke it.");
 //		SetupClient (networkAddress);
 	}
 
-	public void BeginGame() {
+	public void InitiateGame() {
 		print ("Begin game");
 		int randomSeed = Mathf.FloorToInt(Random.value * 1000000); //Used to achieve deterministic consistency across clients
 
@@ -165,8 +165,9 @@ public class AsymClient : MonoBehaviour, IClient {
 		print ("Start game received.");
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
 		gm = new GameMaster(ui); //Implement random seed
-		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByUserIds.Count + 3, message.randomSeed, true).ToList();
-		gm.StartGame(playerNamesByUserIds, new GameSettings(selectedDeckBlueprint));
+		Debug.LogError("I BROKE IT, OK??");
+//		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByUserIds.Count + 3, message.randomSeed, true).ToList();
+//		gm.StartGame(playerNamesByUserIds, new GameSettings(selectedDeckBlueprint));
 	}
 
 	private void OnNightActionReceived(NetworkMessage netMessage) {

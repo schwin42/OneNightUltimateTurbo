@@ -9,12 +9,14 @@ public class EditorSymConnector : SymRemoteConnector {
 	}
 
 	public override void JoinSession (SymClient client, string name, string roomKey) {
-		Debug.Log("Sending join session event for: " + name);
 		SymVirtualServer.instance.HandleClientNewUser(client, name);
 	}
 
+	public override void StartGame(SymClient client) {
+		Debug.LogError ("Not implemented");
+	}
+
 	public override void BroadcastMessage (SymClient client, RemotePayload payload) {
-		print("BROADCAST EVENT");
 		SymVirtualServer.instance.HandleClientSendEvent(payload);
 		//		Debug.Log(selfClientId.ToString() + " sent " + payload.ToString() + " to server");
 	}

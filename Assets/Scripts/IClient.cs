@@ -6,12 +6,11 @@ public interface IClient {
 
 	GameMaster Gm { get; }
 
-	string PlayerName { get; set; }
 	string UserId { get; }
 
-	void BeginSession();
-	void JoinSession(string roomKey);
-	void BeginGame();
+	void BeginSession(string name);
+	void JoinSession(string name, string roomKey);
+	void InitiateGame();
 
 	void SubmitNightAction(int[][] selection);
 	void SubmitVote(int votee);

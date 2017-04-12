@@ -12,9 +12,9 @@ public class WinTests {
 		//Arrange
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, "0", "A"),
-			new GamePlayer(gm, "1", "B"),
-			new GamePlayer(gm, "2", "C"),
+			new GamePlayer(gm, "A"),
+			new GamePlayer(gm, "B"),
+			new GamePlayer(gm, "C"),
 		};
 		foreach(GamePlayer player in gm.players) {
 			player.ReceiveDealtCard(new RealCard(gm, Role.Villager));
@@ -31,9 +31,9 @@ public class WinTests {
 	public void VillagersWinAndWerewolvesLoseIfAWerewolfDies() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, "0", "A"),
-			new GamePlayer(gm, "1", "B"),
-			new GamePlayer(gm, "2", "C"),
+			new GamePlayer(gm, "A"),
+			new GamePlayer(gm, "B"),
+			new GamePlayer(gm, "C"),
 		};
 
 		for(int i = 0; i < gm.players.Count; i++) {
@@ -57,9 +57,9 @@ public class WinTests {
 	public void WerewolvesWinAndVillagersLoseIfNoWerewolfIsKilled() {
 		GameMaster gm = new GameMaster();
 		gm.players = new List<GamePlayer> {
-			new GamePlayer(gm, "0", "A"),
-			new GamePlayer(gm, "1", "B"),
-			new GamePlayer(gm, "2", "C"),
+			new GamePlayer(gm, "A"),
+			new GamePlayer(gm, "B"),
+			new GamePlayer(gm, "C"),
 		};
 
 		for(int i = 0; i < gm.players.Count; i++) {
@@ -83,7 +83,7 @@ public class WinTests {
 	public void DrunkWinsIfSwappedForWerewolfAndWerewolvesWin() {
 		GameMaster gm = new GameMaster();
 
-		gm.StartGame(new Dictionary<string, string> { { "0", "0"  }, { "1", "1" }, {"2", "2" } },
+		gm.StartGame(new List<string> { "A", "B", "C" },
 			new GameSettings(new List<Role> {Role.Werewolf, Role.Villager, Role.Drunk, Role.Werewolf, Role.Mason, Role.Mason })
 		);
 			
@@ -106,7 +106,7 @@ public class WinTests {
 	public void VillagersWinAndWerewolvesWinIfBothDie() {
 		GameMaster gm = new GameMaster();
 
-		gm.StartGame(new Dictionary<string, string> { { "0", "0"  }, { "1", "1" }, {"2", "2" }, {"3", "3"}, {"4", "4"} },
+		gm.StartGame(new List<string> { "A", "B", "C", "D", "E" },
 			new GameSettings(new List<Role> {Role.Werewolf, Role.Werewolf, Role.Villager, Role.Villager, Role.Tanner, Role.Mason, Role.Mason, Role.Troublemaker })
 		);
 

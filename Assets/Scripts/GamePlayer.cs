@@ -66,10 +66,9 @@ public class GamePlayer : ILocation
 	//	public Mark currentMark;
 	//	public Artifact currentArtifact;
 
-	public GamePlayer (GameMaster gameMaster, string userId, string name)
+	public GamePlayer (GameMaster gameMaster, string userId)
 	{
 		this._userId = userId;
-		this._name = name;
 
 		this._locationId = gameMaster.RegisterLocation(this);
 		this.observations = new List<Observation>();

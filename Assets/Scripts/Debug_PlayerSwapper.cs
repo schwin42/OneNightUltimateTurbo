@@ -21,7 +21,6 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 			SymClient client = child.GetComponent<SymClient>();
 			clients.Add(client);
 			client.Start();
-			client.PlayerName = i.ToString();
 //			client.JoinSession();
 			i++;
 		}

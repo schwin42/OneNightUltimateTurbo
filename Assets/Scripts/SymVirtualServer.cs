@@ -32,26 +32,25 @@ public class SymVirtualServer : MonoBehaviour {
 		clientsByUserId.Add(newUserId, client);
 
 		playerNamesByUserId.Add(newUserId, name);
-		
-		foreach(KeyValuePair<string, string> kp in playerNamesByUserId) {
-//			Debug.Log("clientId key, self: " + kp.Key + ", " + selfClientId);
-			if(kp.Key == newUserId) { //Send welcome payload only to new player
-				client.HandleRemotePayload(new WelcomeBasketPayload(newUserId, playerNamesByUserId));
-			} else {
-//				Debug.Log("Sending update other, connector client id:" + selfClientId);
 
-				clientsByUserId[kp.Key].HandleRemotePayload(new UpdateOtherPayload(newUserId, playerNamesByUserId));
-			}
-		}
+		Debug.LogError ("broke it.");
+//		foreach(KeyValuePair<string, string> kp in playerNamesByUserId) {
+//			if(kp.Key == newUserId) { //Send welcome payload only to new player
+//				client.HandleRemotePayload(new WelcomeBasketPayload(newUserId, playerNamesByUserId));
+//			} else {
+//				clientsByUserId[kp.Key].HandleRemotePayload(new UpdateOtherPayload(newUserId, playerNamesByUserId));
+//			}
+//		}
 	}
 
 	public void HandleClientSendEvent(RemotePayload payload) {
 		if(payload is StartGamePayload) {
 		}
+		Debug.LogError ("Broke it.");
 		//Echo event to all players
-		foreach(KeyValuePair<string, SymClient> kp in clientsByUserId) {
-			kp.Value.HandleRemotePayload(payload);
-		}
+//		foreach(KeyValuePair<string, SymClient> kp in clientsByUserId) {
+//			kp.Value.HandleRemotePayload(payload);
+//		}
 	}
 
 	public void Disconnect(SymClient client) {

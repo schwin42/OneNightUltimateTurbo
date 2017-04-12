@@ -78,9 +78,7 @@ public class PlayerUi : MonoBehaviour
 	Text result_Title;
 	Text result_Description;
 
-	public void Initialize (IClient client)
-	{
-
+	public void Initialize (IClient client) {
 		this.client = client;
 
 		foreach (UiScreen screen in Enum.GetValues(typeof(UiScreen))) {
@@ -133,29 +131,6 @@ public class PlayerUi : MonoBehaviour
 		}
 	}
 
-	public void WriteRoleToTitle ()
-	{
-		night_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
-	}
-
-	private void AddActionButton (string label, int selectionId)
-	{
-		GameObject go = Instantiate (PrefabResource.instance.hiddenActionButton) as GameObject;
-		go.transform.SetParent (night_ButtonBox, false);
-		go.GetComponentInChildren<Text> ().text = label;
-		OnuButton onuButton = go.GetComponent<OnuButton> ();
-		onuButton.Initialize (this, selectionId);
-	}
-
-	private void AddVoteButton (string label, int selectionId)
-	{
-		GameObject go = Instantiate (PrefabResource.instance.voteButton) as GameObject;
-		go.transform.SetParent (day_VoteButtonBox, false);
-		go.GetComponentInChildren<Text> ().text = label;
-		OnuToggle onuToggle = go.GetComponent<OnuToggle> ();
-		onuToggle.Initialize (this, day_ToggleGroup, selectionId, -2); //Negative two indicates no selection
-	}
-
 	public void HandleButtonClick (Button button, int selection)
 	{
 		button.interactable = false;
@@ -178,90 +153,6 @@ public class PlayerUi : MonoBehaviour
 	{
 		currentVote = selection;
 		SubmitVote (selection);
-	}
-
-	private bool TryResolveSubActionSelection (List<SelectableObjectType> patients, List<int> pendingSelection, out List<int> subActionSelection)
-	{
-		subActionSelection = new List<int> ();
-		for (int i = 0; i < patients.Count; i++) {
-			switch (patients [i]) {
-			case SelectableObjectType.LastTarget:
-				subActionSelection.Add (lastSelection);
-				break;
-			case SelectableObjectType.TargetCenterCard:
-			case SelectableObjectType.TargetAnyPlayer:
-			case SelectableObjectType.TargetOtherPlayer:
-				if (pendingSelection.Count > 0) {
-					subActionSelection.Add (pendingSelection [0]);
-					pendingSelection.RemoveAt (0);	
-				} else {
-					Debug.Log ("Waiting for input...");
-					return false;
-				}
-				break;
-			case SelectableObjectType.TargetFork:
-				if (pendingSelection.Count > 0) {
-					subActionSelection.Add (pendingSelection [0]);
-					skippableSubactionIndeces.Add (pendingSelection [0]);
-					pendingSelection.RemoveAt (0);	
-				} else {
-					Debug.Log ("Waiting for input...");
-					return false;
-				}
-				break;
-			case SelectableObjectType.Self:
-				subActionSelection.Add (gamePlayer.locationId);
-				break;
-			default:
-				Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
-				break;
-			}
-		}
-		return true;
-	}
-
-	private void TryResolveSelection ()
-	{
-		//Iterate over button groups and try to fill in selections.
-		for (int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
-
-			if (_nightSelections.Count > i)
-				continue;
-			if (skippableSubactionIndeces.Contains (i)) {
-				_nightSelections.Add (new List<int> { -1 });
-				continue;
-			}
-			List<int> subActionSelection;
-			if (TryResolveSubActionSelection (gamePlayer.prompt.hiddenAction [i].targets, pendingSelection.ToList (), out subActionSelection)) {
-				pendingSelection = new List<int> ();
-				_nightSelections.Add (subActionSelection);
-				continue;
-			} else {
-				//create buttons and wait for input
-				ClearBox (night_ButtonBox);
-				foreach (ButtonInfo info in gamePlayer.prompt.buttonGroupsBySubactionIndex[i]) {
-					AddActionButton (info.label, info.locationId);
-				}
-				return;
-			}
-		}
-
-		//If selections are resolved, check lastSelection to see if player chose anything.
-		if (lastSelection == -2) {
-			//If not, give ready button which will in term submit full hidden action
-			ClearBox (night_ButtonBox);
-			AddActionButton ("Ready", -2);
-		} else {
-			//If so, submit full hidden action
-			CompleteNightAction (_nightSelections);
-		}
-	}
-
-	private void ClearBox (Transform box)
-	{
-		foreach (Transform child in box) {
-			Destroy (child.gameObject);
-		}
 	}
 
 	public void SetState (UiScreen targetScreen)
@@ -295,6 +186,8 @@ public class PlayerUi : MonoBehaviour
 					//Cohort players- Allen is a wersewolf.
 					//Location selection- You may look at the card of another player or two cards from the center.
 					//Selection controls- [Buttons for the three center cards]
+			night_Title.text = "You are the " + gamePlayer.dealtCard.data.role.ToString () + " " + gamePlayer.dealtCard.data.order.ToString ();
+
 			List<string> descriptionStrings = new List<string> ();
 			descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
 			descriptionStrings.Add (gamePlayer.prompt.promptText);
@@ -343,7 +236,7 @@ public class PlayerUi : MonoBehaviour
 			}
 				//Observation- "You observed center card #2 to be the seer at +2";
 			foreach (Observation observation in gamePlayer.observations) {
-				descriptionText += "You observed " + GetPlayerName (observation.locationId) + " to be the " +
+				descriptionText += "You observed " + GetPersonalPlayerName (observation.locationId) + " to be the " +
 				client.Gm.gamePiecesById [observation.gamePieceId].name + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 			}
 
@@ -359,7 +252,7 @@ public class PlayerUi : MonoBehaviour
 					if (_nightSelections [i] [0] == -1) {
 						descriptionText += "You chose not to swap cards.";
 					} else {
-						descriptionText += "You swapped cards between " + GetPlayerName (_nightSelections [i] [0]) + " and " + GetPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
+						descriptionText += "You swapped cards between " + GetPersonalPlayerName (_nightSelections [i] [0]) + " and " + GetPersonalPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 					}
 					break;
 				case ActionType.ViewOne:
@@ -415,31 +308,15 @@ public class PlayerUi : MonoBehaviour
 		currentScreen = targetScreen;
 	}
 
-	private void CompleteNightAction (List<List<int>> selection)
-	{
-		ClearBox (night_ButtonBox);
-
-		client.SubmitNightAction (selection.Select (a => a.ToArray ()).ToArray ());
-	}
-
-	private void SubmitVote (int locationId)
-	{
-		currentVote = locationId;
-		client.SubmitVote (locationId);
-	}
-
-	public void HandleJoinButtonPressed ()
-	{
-
+	public void HandleJoinButtonPressed () {
 		//Set persistent player name
-		client.PlayerName = title_NameField.text;
-		playerName.text = client.PlayerName;
+		playerName.text = title_NameField.text;
 
 		title_HostButton.interactable = false;
 		title_JoinButton.interactable = false;
 
 		//Join game
-		client.JoinSession(title_roomKey.text);
+		client.JoinSession(playerName.text, title_roomKey.text);
 	}
 
 	public void HandleHostButtonPressed ()
@@ -458,13 +335,10 @@ public class PlayerUi : MonoBehaviour
 		title_JoinButton.interactable = false;
 
 		playerName.text = title_NameField.text;
-		client.PlayerName = title_NameField.text;
 
-		client.BeginSession();
+		client.BeginSession(playerName.text);
 //
 //		asymClient.HostSession ();
-
-
 	}
 
 	public void HandlePlayersUpdated (List<string> playerNames)
@@ -482,30 +356,37 @@ public class PlayerUi : MonoBehaviour
 	public void HandleStartGameCommand ()
 	{
 		lobby_StartButton.interactable = false;
-		client.BeginGame ();
+		client.InitiateGame ();
 	}
 
-	public void SetGamePlayers ()
+	public void SetPlayer ()
 	{
 		gamePlayer = client.Gm.players.Single (gp => gp.userId == client.UserId);
 	}
 
-	public void HandleHostStarted (string hostPlayerName)
-	{
-		lobby_PlayersLabel.text = hostPlayerName;
-		SetState (UiScreen.Lobby);
-	}
+//	public void HandleHostStarted (string hostPlayerName)
+//	{
+//		lobby_PlayersLabel.text = hostPlayerName;
+//		SetState (UiScreen.Lobby);
+//	}
 
-	public void HandleEnteredRoom (string clientName, string roomKey)
+	public void HandleEnteredRoom (List<string> userIds, string roomKey)
 	{
 		lobby_AddressLabel.text = roomKey;
-		lobby_PlayersLabel.text = clientName;
+		string s = "";
+		for(int i = 0; i < userIds.Count; i++) {
+			if (i != 0) {
+				s += "\n";
+			}
+			s += GetImpartialPlayerName (userIds [i]);
+		}
+		lobby_PlayersLabel.text = s;
 		SetState (UiScreen.Lobby);
 	}
 
 	public void HandlePlayAgainButton ()
 	{
-		client.BeginGame ();
+		client.InitiateGame ();
 	}
 
 	public void HandleQuitToTitleButton ()
@@ -514,13 +395,16 @@ public class PlayerUi : MonoBehaviour
 		SetState (UiScreen.Title);
 	}
 
-	private string GetPlayerName (int locationId)
+	private string GetPersonalPlayerName (int locationId)
 	{
 		return locationId == gamePlayer.locationId ? "yourself" : client.Gm.locationsById [locationId].name;
 	}
 
-	private string GetTimerText (float seconds)
-	{
+	private string GetImpartialPlayerName(string userId) {
+		return userId.Split (':') [0];
+	}
+
+	private string GetTimerText (float seconds) {
 		if (seconds < 0.0f) {
 			return "00\"00'000";
 		} else {
@@ -530,5 +414,113 @@ public class PlayerUi : MonoBehaviour
 				t.Seconds, 
 				t.Milliseconds);
 		}
+	}
+
+	private void AddActionButton (string label, int selectionId) {
+		GameObject go = Instantiate (PrefabResource.instance.hiddenActionButton) as GameObject;
+		go.transform.SetParent (night_ButtonBox, false);
+		go.GetComponentInChildren<Text> ().text = label;
+		OnuButton onuButton = go.GetComponent<OnuButton> ();
+		onuButton.Initialize (this, selectionId);
+	}
+
+	private void AddVoteButton (string label, int selectionId) {
+		GameObject go = Instantiate (PrefabResource.instance.voteButton) as GameObject;
+		go.transform.SetParent (day_VoteButtonBox, false);
+		go.GetComponentInChildren<Text> ().text = label;
+		OnuToggle onuToggle = go.GetComponent<OnuToggle> ();
+		onuToggle.Initialize (this, day_ToggleGroup, selectionId, -2); //Negative two indicates no selection
+	}
+
+	private void ClearBox (Transform box) {
+		foreach (Transform child in box) {
+			Destroy (child.gameObject);
+		}
+	}
+
+	private bool TryResolveSubActionSelection (List<SelectableObjectType> patients, List<int> pendingSelection, out List<int> subActionSelection)
+	{
+		subActionSelection = new List<int> ();
+		for (int i = 0; i < patients.Count; i++) {
+			switch (patients [i]) {
+				case SelectableObjectType.LastTarget:
+					subActionSelection.Add (lastSelection);
+					break;
+				case SelectableObjectType.TargetCenterCard:
+				case SelectableObjectType.TargetAnyPlayer:
+				case SelectableObjectType.TargetOtherPlayer:
+					if (pendingSelection.Count > 0) {
+						subActionSelection.Add (pendingSelection [0]);
+						pendingSelection.RemoveAt (0);	
+					} else {
+						Debug.Log ("Waiting for input...");
+						return false;
+					}
+					break;
+				case SelectableObjectType.TargetFork:
+					if (pendingSelection.Count > 0) {
+						subActionSelection.Add (pendingSelection [0]);
+						skippableSubactionIndeces.Add (pendingSelection [0]);
+						pendingSelection.RemoveAt (0);	
+					} else {
+						Debug.Log ("Waiting for input...");
+						return false;
+					}
+					break;
+				case SelectableObjectType.Self:
+					subActionSelection.Add (gamePlayer.locationId);
+					break;
+				default:
+					Debug.LogError ("Unexpected target type: " + patients [i].ToString ());
+					break;
+			}
+		}
+		return true;
+	}
+
+	private void TryResolveSelection () {
+		//Iterate over button groups and try to fill in selections.
+		for (int i = 0; i < gamePlayer.prompt.hiddenAction.Count; i++) {
+
+			if (_nightSelections.Count > i)
+				continue;
+			if (skippableSubactionIndeces.Contains (i)) {
+				_nightSelections.Add (new List<int> { -1 });
+				continue;
+			}
+			List<int> subActionSelection;
+			if (TryResolveSubActionSelection (gamePlayer.prompt.hiddenAction [i].targets, pendingSelection.ToList (), out subActionSelection)) {
+				pendingSelection = new List<int> ();
+				_nightSelections.Add (subActionSelection);
+				continue;
+			} else {
+				//create buttons and wait for input
+				ClearBox (night_ButtonBox);
+				foreach (ButtonInfo info in gamePlayer.prompt.buttonGroupsBySubactionIndex[i]) {
+					AddActionButton (info.label, info.locationId);
+				}
+				return;
+			}
+		}
+
+		//If selections are resolved, check lastSelection to see if player chose anything.
+		if (lastSelection == -2) {
+			//If not, give ready button which will in term submit full hidden action
+			ClearBox (night_ButtonBox);
+			AddActionButton ("Ready", -2);
+		} else {
+			//If so, submit full hidden action
+			CompleteNightAction (_nightSelections);
+		}
+	}
+
+	private void CompleteNightAction (List<List<int>> selection) {
+		ClearBox (night_ButtonBox);
+		client.SubmitNightAction (selection.Select (a => a.ToArray ()).ToArray ());
+	}
+
+	private void SubmitVote (int locationId) {
+		currentVote = locationId;
+		client.SubmitVote (locationId);
 	}
 }

@@ -631,34 +631,9 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 224516922705972388, guid: 186a5b276c470456c9aeda97e80b18b3,
-        type: 2}
-      propertyPath: m_LocalScale.x
-      value: 0.9999994
-      objectReference: {fileID: 0}
-    - target: {fileID: 224516922705972388, guid: 186a5b276c470456c9aeda97e80b18b3,
-        type: 2}
-      propertyPath: m_LocalScale.y
-      value: 0.9999994
-      objectReference: {fileID: 0}
-    - target: {fileID: 224516922705972388, guid: 186a5b276c470456c9aeda97e80b18b3,
-        type: 2}
-      propertyPath: m_LocalScale.z
-      value: 0.9999994
-      objectReference: {fileID: 0}
     - target: {fileID: 1759863267467392, guid: 186a5b276c470456c9aeda97e80b18b3, type: 2}
       propertyPath: m_Name
       value: PlayerPanel (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 224975557617874312, guid: 186a5b276c470456c9aeda97e80b18b3,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: -81
-      objectReference: {fileID: 0}
-    - target: {fileID: 114689707100276338, guid: 186a5b276c470456c9aeda97e80b18b3,
-        type: 2}
-      propertyPath: m_Text
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 186a5b276c470456c9aeda97e80b18b3, type: 2}
