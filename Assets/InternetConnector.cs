@@ -10,7 +10,7 @@ public enum ErrorType
 	UnableToAuthenticate,
 }
 
-public class InternetSymConnector : SymRemoteConnector
+public class InternetConnector : RemoteConnector
 {
 
 	public enum RequestType
@@ -28,7 +28,7 @@ public class InternetSymConnector : SymRemoteConnector
 
 	//public
 
-	public override void BeginSession (SymClient client, string name)
+	public override void BeginSession (OnumClient client, string name)
 	{
 		Origin origin = new Origin (client);
 		JSONNode node = new JSONObject ();
@@ -39,7 +39,7 @@ public class InternetSymConnector : SymRemoteConnector
 		DispatchWebRequest (origin, json, RequestType.StartSession);
 	}
 
-	public override void JoinSession (SymClient client, string name, string roomKey)
+	public override void JoinSession (OnumClient client, string name, string roomKey)
 	{
 //		print ("Attempting to join session");
 		Origin origin = new Origin (client);
@@ -53,7 +53,7 @@ public class InternetSymConnector : SymRemoteConnector
 
 	}
 
-	public override void StartGame (SymClient client, StartGamePayload payload)
+	public override void StartGame (OnumClient client, StartGamePayload payload)
 	{
 		Origin origin = new Origin (client, payload);
 		JSONNode node = new JSONObject ();
@@ -64,13 +64,13 @@ public class InternetSymConnector : SymRemoteConnector
 		DispatchWebRequest (origin, json, RequestType.StartGame);
 	}
 
-	public override void BroadcastMessage (SymClient client, RemotePayload payload)
+	public override void BroadcastPayload (OnumClient client, RemotePayload payload)
 	{
 		Origin origin = new Origin (client);
 		DispatchBroadcast (origin, payload);
 	}
 
-	public override void Disconnect (SymClient client)
+	public override void Disconnect (OnumClient client)
 	{
 	}
 
@@ -257,15 +257,15 @@ public class InternetSymConnector : SymRemoteConnector
 
 	public class Origin
 	{
-		public SymClient client;
+		public OnumClient client;
 		public RemotePayload payload;
 
-		public Origin (SymClient client)
+		public Origin (OnumClient client)
 		{
 			this.client = client;
 		}
 
-		public Origin (SymClient client, RemotePayload payload)
+		public Origin (OnumClient client, RemotePayload payload)
 		{
 			this.client = client;
 			this.payload = payload;

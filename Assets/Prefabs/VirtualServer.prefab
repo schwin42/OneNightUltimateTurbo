@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4863232038321710}
-  - component: {fileID: 114402059091731940}
+  - component: {fileID: 114325999017192288}
   m_Layer: 5
   m_Name: VirtualServer
   m_TagString: Untagged
@@ -40,7 +40,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114402059091731940
+--- !u!114 &114325999017192288
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -48,6 +48,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1022771822994558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4cc3305daae040a69581a599f679f58, type: 3}
+  m_Script: {fileID: 11500000, guid: 38d70a780f3010f478ac02fb690682a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 
 [System.Serializable]
-public class SymClient : MonoBehaviour, IClient {
+public class OnumClient : MonoBehaviour, IClient {
 	
 	public string UserId { 
 		get { 
@@ -37,10 +37,10 @@ public class SymClient : MonoBehaviour, IClient {
 
 	bool hasInitialized = false;
 
-	public delegate void ClientHandler(SymClient client);
+	public delegate void ClientHandler(OnumClient client);
 	public event ClientHandler OnEnteredRoom;
-	public delegate void UserIdHandler(string userId);
-	public event UserIdHandler OnUserConnected;
+//	public delegate void UserIdHandler(string userId);
+//	public event UserIdHandler OnUserConnected;
 
 	public void Start() {
 		if(!hasInitialized) {
@@ -52,7 +52,7 @@ public class SymClient : MonoBehaviour, IClient {
 
 	public void InitiateGame() {
 		int randomSeed = Mathf.FloorToInt(UnityEngine.Random.value * 10000000);
-		SymRemoteConnector.instance.StartGame(this, new StartGamePayload(randomSeed));
+		RemoteConnector.instance.StartGame(this, new StartGamePayload(randomSeed));
 	}
 
 	public void HandleSessionStarted(string userId, string accessKey, string roomKey) {
@@ -81,13 +81,24 @@ public class SymClient : MonoBehaviour, IClient {
 		}
 	}
 
+	//Implementation to cohere with node server API
 	public void HandleOtherJoined(string userId) {
 		print (selfUserId + ": received handle other for " + userId);
 		connectedUsers.Add (userId);
 		ui.HandlePlayersUpdated (connectedUsers);
-		if(OnUserConnected != null) {
-			OnUserConnected.Invoke(userId);
-		}
+//		if(OnUserConnected != null) {
+//			OnUserConnected.Invoke(userId);
+//		}
+	}
+
+	//Preferred implementation
+	public void HandleOtherJoined(string[] userIds) {
+		print (selfUserId + ": received player update with player count: " + userIds.Length.ToString());
+		connectedUsers = userIds.ToList ();
+		ui.HandlePlayersUpdated (connectedUsers);
+//		if(OnUserConnected != null) {
+//			OnUserConnected.Invoke(userId);
+//		}
 	}
 
 	public void HandleStartGamePayload(int randomSeed) {
@@ -148,24 +159,24 @@ public class SymClient : MonoBehaviour, IClient {
 
 	public void BeginSession(string playerName) {
 		connectedUsers = new List<string> ();
-		SymRemoteConnector.instance.BeginSession(this, playerName);
+		RemoteConnector.instance.BeginSession(this, playerName);
 	}
 
 	public void JoinSession(string playerName, string roomKey)
 	{
 		connectedUsers = new List<string> ();
-		SymRemoteConnector.instance.JoinSession(this, playerName, roomKey);
+		RemoteConnector.instance.JoinSession(this, playerName, roomKey);
 	}
 
 	public void SubmitNightAction(int[][] selection) {
-		SymRemoteConnector.instance.BroadcastMessage (this, new ActionPayload (selfUserId, selection)); 
+		RemoteConnector.instance.BroadcastPayload (this, new ActionPayload (selfUserId, selection)); 
 	}
 
 	public void SubmitVote(int locationId) {
-		SymRemoteConnector.instance.BroadcastMessage (this, new VotePayload (selfUserId, locationId));
+		RemoteConnector.instance.BroadcastPayload (this, new VotePayload (selfUserId, locationId));
 	}
 
 	public void Disconnect() {
-		SymRemoteConnector.instance.Disconnect (this);
+		RemoteConnector.instance.Disconnect (this);
 	}
 }

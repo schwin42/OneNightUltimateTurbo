@@ -100,6 +100,7 @@ public class GameData : MonoBehaviour {
 		instance.cardData = instance.cardData.OrderBy(cd => cd.role.ToString()).ToList();
 	}
 
+	#pragma warning disable 0168 //Suppress unused variable "e" warnings
 	private static Selector ParseSelector(string selectorString) {
 		Selector selector = Selector.None;
 		if(!string.IsNullOrEmpty(selectorString)) {
@@ -120,6 +121,7 @@ public class GameData : MonoBehaviour {
 		}
 		return selector;
 	}
+	#pragma warning restore 0168
 
 	private static Order ParseOrder(string orderString) {
 		if(orderString.Length == 0) {

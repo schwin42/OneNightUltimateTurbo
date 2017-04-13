@@ -18,27 +18,27 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 
 	public const int playerCount = 5;
 
-	private SymVirtualServer _server;
-	public SymVirtualServer server { 
+	private VirtualServer _server;
+	public VirtualServer server { 
 		get {
 			return _server;
 		}
 	}
 
-	public List<SymClient> players;
+	public List<OnumClient> players;
 
 	public void LaunchGame(int playerCount, List<Role> deckTemplate) {
 
 		GameObject serverGo = new GameObject();
 		serverGo.name = "Server";
-		_server = serverGo.AddComponent<SymVirtualServer>();
+		_server = serverGo.AddComponent<VirtualServer>();
 
 
-		players = new List<SymClient>();
+		players = new List<OnumClient>();
 		for(int i = 0; i < playerCount; i++) {
 
 			GameObject go = new GameObject();
-			SymClient player = go.AddComponent<SymClient>();
+			OnumClient player = go.AddComponent<OnumClient>();
 			players.Add(player);
 		}
 			

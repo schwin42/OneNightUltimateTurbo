@@ -26,11 +26,11 @@ public class ActionPayload : GamePayload {
 
 public class VotePayload : GamePayload {
 	public override PayloadType type { get { return PayloadType.SubmitVote; }	}
-	public string sourceClientId;
+	public string sourceUserId;
 	public int voteeLocationId;
 
 	public VotePayload (string sourceUserId, int voteeLocationId) {
-		this.sourceClientId = sourceUserId;
+		this.sourceUserId = sourceUserId;
 		this.voteeLocationId = voteeLocationId;
 	}
 }
@@ -56,9 +56,9 @@ public class VotePayload : GamePayload {
 
 public class StartGamePayload : RemotePayload {
 	public override PayloadType type { get { return PayloadType.InitiateGame; }	}
-	public float randomSeed;
+	public int randomSeed;
 
-	public StartGamePayload (float randomSeed) {
+	public StartGamePayload (int randomSeed) {
 		this.randomSeed = randomSeed;
 	}
 }

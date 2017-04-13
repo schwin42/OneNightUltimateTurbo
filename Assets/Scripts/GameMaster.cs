@@ -338,7 +338,7 @@ public class GameMaster {
 			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceUserId), nightAction.selection);
 		} else if(payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
-			ReceiveVote(players.Single(gp => gp.userId == vote.sourceClientId), vote.voteeLocationId);
+			ReceiveVote(players.Single(gp => gp.userId == vote.sourceUserId), vote.voteeLocationId);
 		} else {
 			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
 		}

@@ -6,24 +6,24 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 
 	public List<Transform> playerPanels;
 	public List<PlayerUi> playerUis;
-	public List<SymClient> clients;
+	public List<OnumClient> clients;
 
-	public List<SymClient> pendingPlayers;
+	public List<OnumClient> pendingPlayers;
 
-	bool playersJoined = false;
-	bool playersConnected = false;
+//	bool playersJoined = false;
+//	bool playersConnected = false;
 
 	// Use this for initialization
 	void Start () {
 		playerPanels = new List<Transform>();
 		playerUis = new List<PlayerUi>();
-		clients = new List<SymClient>();
+		clients = new List<OnumClient>();
 		int i = 0;
 		foreach (Transform child in transform) {
 			playerPanels.Add(child);
 			playerPanels[i].gameObject.name = i.ToString();
 			playerUis.Add(child.GetComponent<PlayerUi>());
-			SymClient client = child.GetComponent<SymClient>();
+			OnumClient client = child.GetComponent<OnumClient>();
 			clients.Add(client);
 			client.Start();
 //			client.JoinSession();
@@ -74,18 +74,18 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 		}
 	}
 
-	void HandleSessionStarted(SymClient client) {
-		pendingPlayers = new List<SymClient>();
-		for(int i = 1; i < clients.Count; i++) {
-			clients[i].OnEnteredRoom += HandleSessionJoined;
-			clients[i].OnUserConnected += HandleUserConnected;
-			clients[i].JoinSession(i.ToString(), clients[0].RoomKey);
-			pendingPlayers.Add(clients[i]);
-		}
+//	void HandleSessionStarted(Client client) {
+//		pendingPlayers = new List<Client>();
+//		for(int i = 1; i < clients.Count; i++) {
+//			clients[i].OnEnteredRoom += HandleSessionJoined;
+//			clients[i].OnUserConnected += HandleUserConnected;
+//			clients[i].JoinSession(i.ToString(), clients[0].RoomKey);
+//			pendingPlayers.Add(clients[i]);
+//		}
+//
+//	}
 
-	}
-
-	void HandleSessionJoined(SymClient client) {
+	void HandleSessionJoined(OnumClient client) {
 
 //		pendingPlayers.Remove(client);
 //

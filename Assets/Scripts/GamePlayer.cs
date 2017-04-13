@@ -17,10 +17,9 @@ public class GamePlayer : ILocation
 		}
 	}
 
-	private string _name;
 	public string name {
 		get {
-			return _name = userId.Split (':') [0];
+			return userId.Split (':') [0];
 		}
 	}
 

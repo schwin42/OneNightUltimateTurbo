@@ -682,7 +682,7 @@ GameObject:
   - component: {fileID: 114360175324941440}
   - component: {fileID: 222152038427039916}
   - component: {fileID: 114635693234489958}
-  - component: {fileID: 114127529523674012}
+  - component: {fileID: 114843685304102204}
   m_Layer: 5
   m_Name: PlayerPanel
   m_TagString: Untagged
@@ -1000,21 +1000,6 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114127529523674012
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1759863267467392}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27282abb084b448adb85565ad8144945, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selfUserId: 
-  accessKey: 
-  roomKey: 
-  selectedDeckBlueprint: 030000000100000009000000010000000200000002000000
 --- !u!114 &114157433799121214
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2397,6 +2382,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Start Room
+--- !u!114 &114843685304102204
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1759863267467392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a16fa75b26328143bcfba98f29f70a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfUserId: 
+  accessKey: 
+  connectedUsers: []
+  selectedDeckBlueprint: 
 --- !u!114 &114873957030982634
 MonoBehaviour:
   m_ObjectHideFlags: 1
