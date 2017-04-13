@@ -14,7 +14,7 @@ public class UnityNetworkConnector : RemoteConnector {
 
 	public override void BeginSession(OnumClient client, string playerName) {
 		Debug.Log("Attempting to host room.");
-		InitializeServer ();
+		InitializeServer (client);
 		InitializeLocalClient (client, playerName);
 	}
 
@@ -62,15 +62,14 @@ public class UnityNetworkConnector : RemoteConnector {
 		//TODO Implement
 	}
 
-	private void InitializeServer() {
-		print ("Setting up server.");
+	private void InitializeServer(OnumClient client) {
 		NetworkServer.Listen (PORT);
 		NetworkServer.RegisterHandler (OnuMessage.Introduction, OnServerIntroductionReceived);
 		NetworkServer.RegisterHandler (OnuMessage.StartGame, ServerEchoMessage);
 		NetworkServer.RegisterHandler (OnuMessage.NightAction, ServerEchoMessage);
 		NetworkServer.RegisterHandler (OnuMessage.Vote, ServerEchoMessage);
 		//TODO Player disconnect
-		localServer = new Server ();
+		localServer = new Server (client);
 	}
 
 	private void InitializeLocalClient(OnumClient onumClient, string playerName) {
@@ -116,7 +115,7 @@ public class UnityNetworkConnector : RemoteConnector {
 		localServer.connectedUserIds.Add(userId);
 
 		netMessage.conn.Send (OnuMessage.Welcome, new WelcomeMessage () { userId = userId });
-		NetworkServer.SendToAll (OnuMessage.PlayersUpdated, new PlayersUpdatedMessage () {  });
+		NetworkServer.SendToAll (OnuMessage.PlayersUpdated, new PlayersUpdatedMessage () { userIds = localServer.connectedUserIds.ToArray()  });
 	}
 
 	private void OnClientConnected(NetworkClient client, NetworkMessage message, string playerName) {
@@ -125,7 +124,13 @@ public class UnityNetworkConnector : RemoteConnector {
 
 	private void OnWelcomeReceived(OnumClient client, NetworkMessage netMessage) {
 		WelcomeMessage message = netMessage.ReadMessage<WelcomeMessage> ();
-		client.selfUserId = message.userId;
+//		client.selfUserId = message.userId;
+		if (client == localServer.associatedClient) {
+			client.HandleSessionStarted (message.userId, null, Network.player.ipAddress);
+		} else {
+			client.HandleJoinedSession (message.userId, null, new List<string> { });
+		}
+
 	}
 
 	private void OnPlayerUpdateReceived(OnumClient client, NetworkMessage netMessage) {
@@ -134,11 +139,8 @@ public class UnityNetworkConnector : RemoteConnector {
 	}
 
 	private void OnStartGameRecieved(OnumClient client, NetworkMessage netMessage) {
-		Debug.LogError("I BROKE IT, OK??");
-		//		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
-		//		gm = new GameMaster(ui); //Implement random seed
-		//		List<Role> selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(playerNamesByUserIds.Count + 3, message.randomSeed, true).ToList();
-		//		gm.StartGame(playerNamesByUserIds, new GameSettings(selectedDeckBlueprint));
+		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
+		client.HandleGameStarted (message.randomSeed);
 	}
 
 	private void OnNightActionReceived(OnumClient client, NetworkMessage netMessage) {
@@ -154,9 +156,11 @@ public class UnityNetworkConnector : RemoteConnector {
 	}
 
 	public class Server {
+		public OnumClient associatedClient;
 		public List<string> connectedUserIds;
 
-		public Server () {
+		public Server (OnumClient associatedClient) {
+			this.associatedClient = associatedClient;
 			this.connectedUserIds = new List<string>();
 		}
 	}

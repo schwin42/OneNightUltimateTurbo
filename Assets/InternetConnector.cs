@@ -146,7 +146,7 @@ public class InternetConnector : RemoteConnector
 				break;
 			case "InitiateGame":
 				int randomSeed = node ["randomSeed"];
-				origin.client.HandleStartGamePayload (randomSeed);
+				origin.client.HandleGameStarted (randomSeed);
 				break;
 			case "SubmitAction":
 				List<List<int>> selection = new List<List<int>>();

@@ -16,6 +16,7 @@ public class IntroductionMessage : MessageBase { //Sent from client to server on
 
 public class WelcomeMessage : MessageBase {
 	public string userId;
+	public string[] allUserIds;
 }
 
 public class PlayersUpdatedMessage : MessageBase { //Sent from server to all clients on player join

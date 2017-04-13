@@ -39,7 +39,7 @@ public class VirtualServer : MonoBehaviour {
 	public void HandleClientSendEvent(RemotePayload payload) {
 		if (payload is StartGamePayload) {
 			foreach (KeyValuePair<string, OnumClient> kvp in clientsByUserId) {
-				kvp.Value.HandleStartGamePayload (((StartGamePayload)payload).randomSeed);
+				kvp.Value.HandleGameStarted (((StartGamePayload)payload).randomSeed);
 			}
 		} else if (payload is ActionPayload) {
 			foreach (KeyValuePair<string, OnumClient> kvp in clientsByUserId) {

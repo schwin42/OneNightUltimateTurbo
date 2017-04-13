@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4640086093449946}
-  - component: {fileID: 114600462733546090}
+  - component: {fileID: 114174250987606554}
   m_Layer: 0
   m_Name: InternetConnector
   m_TagString: Untagged
@@ -40,7 +40,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114600462733546090
+--- !u!114 &114174250987606554
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -48,6 +48,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1186339337933468}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 811a1661720bd214b91247623b5d418b, type: 3}
+  m_Script: {fileID: 11500000, guid: 7464ee0963b027e4db2046807889c0b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

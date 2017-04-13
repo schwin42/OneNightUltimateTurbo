@@ -56,7 +56,7 @@ public class OnumClient : MonoBehaviour, IClient {
 	}
 
 	public void HandleSessionStarted(string userId, string accessKey, string roomKey) {
-		Debug.Log(userId + ": received handle session started");
+		Debug.Log(userId + ": received handle session started at " + roomKey);
 		this.selfUserId = userId;
 		connectedUsers.Add (selfUserId);
 		this.accessKey = accessKey;
@@ -101,7 +101,7 @@ public class OnumClient : MonoBehaviour, IClient {
 //		}
 	}
 
-	public void HandleStartGamePayload(int randomSeed) {
+	public void HandleGameStarted(int randomSeed) {
 		if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
 			Debug.LogError ("Unable to start game. Game already in progress.");
 			return;
