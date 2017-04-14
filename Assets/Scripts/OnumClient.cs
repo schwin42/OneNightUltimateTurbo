@@ -165,7 +165,7 @@ public class OnumClient : MonoBehaviour, IClient {
 	public void JoinSession(string playerName, string roomKey)
 	{
 		connectedUsers = new List<string> ();
-		RemoteConnector.instance.JoinSession(this, playerName, roomKey);
+		RemoteConnector.instance.JoinSession(this, roomKey, playerName);
 	}
 
 	public void SubmitNightAction(int[][] selection) {

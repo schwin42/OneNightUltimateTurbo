@@ -80,10 +80,10 @@ public class UnityNetworkConnector : RemoteConnector {
 	}
 
 	private void InitializeClient(OnumClient onumClient, string hostAddress, string playerName) {
-		print ("Setting up client");
 		NetworkClient networkClient = new NetworkClient ();
 		networkClientsByOnumClients.Add (onumClient, networkClient);
 		SubscribeToClientMessages (networkClient, onumClient, playerName);
+		print ("connecting to host: " + hostAddress + ":" + PORT);
 		networkClient.Connect (hostAddress, PORT);
 	}
 
