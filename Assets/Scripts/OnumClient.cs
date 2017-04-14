@@ -109,7 +109,7 @@ public class OnumClient : MonoBehaviour, IClient {
 		gm = new GameMaster(ui); //Implement random seed
 		selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(connectedUsers.Count + 3, randomSeed, true);
 
-		selectedDeckBlueprint = new List<Role>() { Role.Villager, Role.Villager, Role.Villager, Role.Tanner, Role.Minion, Role.Werewolf };
+//		selectedDeckBlueprint = new List<Role>() { Role.Villager, Role.Villager, Role.Villager, Role.Tanner, Role.Minion, Role.Werewolf };
 //		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.MysticWolf, Role.Troublemaker, Role.Drunk, Role.Seer, Role.ApprenticeSeer };
 
 		selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);

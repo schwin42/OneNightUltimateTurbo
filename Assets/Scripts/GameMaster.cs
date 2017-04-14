@@ -4,29 +4,36 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-public class GameMaster {
+public class GameMaster
+{
 
-	public enum GamePhase {
-		Uninitialized = 0, //Actions: Player entry, select roles
-		Night = 1, //Actions: Take night action
-//		Night_Reveal = 2, //Actions: Confirm night reveal
-		Day = 4, //Actions: Manipulate tokens, vote for players
-		Result = 5, //Start new game, return to lobby
+	public enum GamePhase
+	{
+		Uninitialized = 0,
+		//Actions: Player entry, select roles
+		Night = 1,
+		//Actions: Take night action
+		//		Night_Reveal = 2, //Actions: Confirm night reveal
+		Day = 4,
+		//Actions: Manipulate tokens, vote for players
+		Result = 5,
+		//Start new game, return to lobby
 	}
 
 	public Role[] deckBlueprint;
 
-	public GameMaster()
+	public GameMaster ()
 	{
-		locationsById = new List<ILocation>();
-		gamePiecesById = new List<IGamePiece>();
+		locationsById = new List<ILocation> ();
+		gamePiecesById = new List<IGamePiece> ();
 	}
 
-	public GameMaster (PlayerUi ui) {
+	public GameMaster (PlayerUi ui)
+	{
 		this.ui = ui;
-		locationsById = new List<ILocation>();
-		gamePiecesById = new List<IGamePiece>();
-	} 
+		locationsById = new List<ILocation> ();
+		gamePiecesById = new List<IGamePiece> ();
+	}
 
 	public GamePhase currentPhase;
 
@@ -47,7 +54,8 @@ public class GameMaster {
 	public List<IGamePiece> gamePiecesById;
 	public List<ILocation> locationsById;
 
-	public void StartGame(List<string> userIds, GameSettings gameSettings) { //All games run in parallel, so these parameters must be identical across clients
+	public void StartGame (List<string> userIds, GameSettings gameSettings)
+	{ //All games run in parallel, so these parameters must be identical across clients
 		if (currentPhase != GamePhase.Uninitialized) {
 			Debug.LogWarning ("Start game called with game already in progress, aborting.");
 			return;
@@ -56,29 +64,29 @@ public class GameMaster {
 		this.gameSettings = gameSettings;
 
 		//Instantiate deck
-		gameDeck = new List<RealCard>();
-		foreach(Role role in gameSettings.deckList) {
-			gameDeck.Add(new RealCard(this, role));
+		gameDeck = new List<RealCard> ();
+		foreach (Role role in gameSettings.deckList) {
+			gameDeck.Add (new RealCard (this, role));
 		}
 
 		//Prune deck
 //		gameDeck = gameDeck.Take(playersByClientId.Count + 3).ToList();
 
 		//Validate configuration
-		if(gameDeck.Count != userIds.Count + 3) {
-			Debug.LogError("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + userIds.Count + ", " + userIds.Count + 
-				", deck = " + gameDeck.Count + ", " + gameSettings.deckList.Count);
+		if (gameDeck.Count != userIds.Count + 3) {
+			Debug.LogError ("Invalid configuration: there are not exactly three more cards than players: player names, player ids = " + userIds.Count + ", " + userIds.Count +
+			", deck = " + gameDeck.Count + ", " + gameSettings.deckList.Count);
 			return;
 		}
 
 		//Create players
-		players = new List<GamePlayer>();
-		foreach(string s in userIds) {
-			players.Add(new GamePlayer(this, s));
+		players = new List<GamePlayer> ();
+		foreach (string s in userIds) {
+			players.Add (new GamePlayer (this, s));
 		}
 
 		string deckString = "Game deck: ";
-		for(int i = 0; i < gameDeck.Count; i++) {
+		for (int i = 0; i < gameDeck.Count; i++) {
 			RealCard card = gameDeck [i];
 			deckString += card.name;
 			if (i < gameDeck.Count - 1) {
@@ -88,18 +96,19 @@ public class GameMaster {
 		Debug.Log (deckString);
 
 		//Deal cards
-		foreach(GamePlayer player in players) {
-			player.ReceiveDealtCard(PullFirstCardFromDeck());
+		foreach (GamePlayer player in players) {
+			player.ReceiveDealtCard (PullFirstCardFromDeck ());
 		}
 
-		if(ui != null) ui.SetPlayer ();
+		if (ui != null)
+			ui.SetPlayer ();
 
-		centerSlots = new List<CenterCardSlot>();
-		for(int i = 0; i < 3; i++) {
-			centerSlots.Add(new CenterCardSlot(this, i, PullFirstCardFromDeck()));
+		centerSlots = new List<CenterCardSlot> ();
+		for (int i = 0; i < 3; i++) {
+			centerSlots.Add (new CenterCardSlot (this, i, PullFirstCardFromDeck ()));
 		}
-		if(gameDeck.Count != 0) {
-			Debug.LogError("Deal left cards remaining in deck");
+		if (gameDeck.Count != 0) {
+			Debug.LogError ("Deal left cards remaining in deck");
 			return;
 		}
 
@@ -112,117 +121,129 @@ public class GameMaster {
 //		}
 
 		//Generate prompts
-		foreach(GamePlayer player in players) {
-			player.prompt = new RealizedPrompt(player.locationId, players, centerSlots); //Player and center card state is passed to give prompt concrete id choices
+		foreach (GamePlayer player in players) {
+			player.prompt = new RealizedPrompt (player.locationId, players, centerSlots); //Player and center card state is passed to give prompt concrete id choices
 		}
 
-		SetPhase(GamePhase.Night);
+		SetPhase (GamePhase.Night);
 	}
 
-	private void SetPhase(GamePhase targetPhase) {
-		if(targetPhase == currentPhase) return;
+	private void SetPhase (GamePhase targetPhase)
+	{
+		if (targetPhase == currentPhase)
+			return;
 		currentPhase = targetPhase;
-		Debug.Log("Entering " + targetPhase + " phase.");
-		switch(targetPhase) {
-		case GamePhase.Night:
-			if(ui != null) ui.SetState(PlayerUi.UiScreen.Night);
+		Debug.Log ("Entering " + targetPhase + " phase.");
+		switch (targetPhase) {
+			case GamePhase.Night:
+				if (ui != null)
+					ui.SetState (PlayerUi.UiScreen.Night);
 
 			//Wait for responses
-			playersAwaitingResponseFrom = new List<GamePlayer>(players);
+				playersAwaitingResponseFrom = new List<GamePlayer> (players);
 
-			break;
-		case GamePhase.Day:
-			ExecuteNightActionsInOrder();
+				break;
+			case GamePhase.Day:
+				ExecuteNightActionsInOrder ();
 
 				//Reveal information to seer roles
-			if(ui != null) ui.SetState(PlayerUi.UiScreen.Day);
+				if (ui != null)
+					ui.SetState (PlayerUi.UiScreen.Day);
 
-			playersAwaitingResponseFrom = new List<GamePlayer>(players);
-			break;
-		case GamePhase.Result:
-			KillPlayers();
-			DetermineWinners();
-			if(ui != null) ui.SetState(PlayerUi.UiScreen.Result);
-			break;
+				playersAwaitingResponseFrom = new List<GamePlayer> (players);
+				break;
+			case GamePhase.Result:
+				KillPlayers ();
+				DetermineWinners ();
+				if (ui != null)
+					ui.SetState (PlayerUi.UiScreen.Result);
+				break;
 		}
 	}
 
-	public void KillPlayers() {
+	public void KillPlayers ()
+	{
 		//Tally votes
-		List<Votee> votees = new List<Votee>();
-		foreach(GamePlayer voter in players) {
-			if(voter.votedLocation == -1) continue;
-			if(votees.Count(v => v.player == voter.votedLocation) > 0) { 
-				votees.Single(v => v.player == voter.votedLocation).count ++;
+		List<Votee> votees = new List<Votee> ();
+		foreach (GamePlayer voter in players) {
+			if (voter.votedLocation == -1)
+				continue;
+			if (votees.Count (v => v.player == voter.votedLocation) > 0) { 
+				votees.Single (v => v.player == voter.votedLocation).count++;
 			} else {
-				votees.Add(new Votee(voter.votedLocation));
+				votees.Add (new Votee (voter.votedLocation));
 			}
 		}
 
 		//Sort by descending votes
-		votees = votees.OrderByDescending(v => v.count).ToList();
+		votees = votees.OrderByDescending (v => v.count).ToList ();
 
-		for(int i = 0; i < votees.Count; i++ ) {
-			Votee votee = votees[i];
-			Debug.Log(locationsById[votee.player].name + " received " + votee.count + " votes.");
+		for (int i = 0; i < votees.Count; i++) {
+			Votee votee = votees [i];
+			Debug.Log (locationsById [votee.player].name + " received " + votee.count + " votes.");
 		}
 
 		//Determine most number of votes
-		if(votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
-			int mostVotes = votees[0].count;
-			Debug.Log("Most votes:" + locationsById[votees[0].player].name + " with " + votees[0].count);
+		if (votees.Count > 0) { //If nobody was voted to die, proceed to result evaluation
+			int mostVotes = votees [0].count;
+			Debug.Log ("Most votes:" + locationsById [votees [0].player].name + " with " + votees [0].count);
 
 			//Select votees with most number of votes over one
-			List<int> playersToKill = votees.Where(v => v.count == mostVotes && v.count > 1).Select(v => v.player).ToList();
+			List<int> playersToKill = votees.Where (v => v.count == mostVotes && v.count > 1).Select (v => v.player).ToList ();
 
 			//Kill all players with the highest number of votes (greater than one)
-			foreach(int locationId in playersToKill) {
-				GamePlayer playerToKill = players.Single(p => p.locationId == locationId);
+			foreach (int locationId in playersToKill) {
+				GamePlayer playerToKill = players.Single (p => p.locationId == locationId);
 				playerToKill.killed = true;
-				Debug.Log("Killed " + playerToKill.name);
+				Debug.Log ("Killed " + playerToKill.name);
 			}
 		}
 	}
 
-	public void DetermineWinners() {
-		foreach(GamePlayer player in players) {
-			player.didWin = EvaluateRequirementRecursive(player, player.currentCard.winRequirements);
-			if(player.didWin) { Debug.Log(player.name + " won."); } else {
-				Debug.Log(player.name + " lost.");
-			}
-		}
-	}
-
-	private bool EvaluateRequirementRecursive(GamePlayer evaluatedPlayer, WinRequirement[] requirements) {
-		Debug.Log("Evaluating for " + evaluatedPlayer.userId + ", " + evaluatedPlayer.dealtCard.data.role);
-		//Get requirement relevant players
-		foreach(WinRequirement requirement in requirements) {
-			if(requirement.isEmpty) continue;
-			bool passed;
-			List<GamePlayer> criteriaPlayers = SelectRelevantPlayers(evaluatedPlayer, requirement);
-			if(criteriaPlayers.Count == 0) { 
-				passed = requirement.fallback == null ? true : EvaluateRequirementRecursive(evaluatedPlayer, requirement.fallback);
+	public void DetermineWinners ()
+	{
+		foreach (GamePlayer player in players) {
+			player.didWin = EvaluateRequirementRecursive (player, player.currentCard.winRequirements);
+			if (player.didWin) {
+				Debug.Log (player.name + " won.");
 			} else {
-				bool relevantPlayerDied = criteriaPlayers.Count(p => p.killed) > 0;
-				if(requirement.predicate == WinPredicate.MustDie) {
-					if(relevantPlayerDied) {
+				Debug.Log (player.name + " lost.");
+			}
+		}
+	}
+
+	private bool EvaluateRequirementRecursive (GamePlayer evaluatedPlayer, WinRequirement[] requirements)
+	{
+		Debug.Log ("Evaluating for " + evaluatedPlayer.userId + ", " + evaluatedPlayer.dealtCard.data.role);
+		//Get requirement relevant players
+		foreach (WinRequirement requirement in requirements) {
+			if (requirement.isEmpty)
+				continue;
+			bool passed;
+			List<GamePlayer> criteriaPlayers = SelectRelevantPlayers (evaluatedPlayer, requirement);
+			if (criteriaPlayers.Count == 0) { 
+				passed = requirement.fallback == null ? true : EvaluateRequirementRecursive (evaluatedPlayer, requirement.fallback);
+			} else {
+				bool relevantPlayerDied = criteriaPlayers.Count (p => p.killed) > 0;
+				if (requirement.predicate == WinPredicate.MustDie) {
+					if (relevantPlayerDied) {
 						passed = true;
 					} else {
 						passed = false;
 					}
-				} else if(requirement.predicate == WinPredicate.MustNotDie) {
-					if(relevantPlayerDied) {
+				} else if (requirement.predicate == WinPredicate.MustNotDie) {
+					if (relevantPlayerDied) {
 						passed = false;
 					} else {
 						passed = true;
 					}
 				} else {
-					Debug.LogError("Unexpected predicate: " + requirement.predicate);
+					Debug.LogError ("Unexpected predicate: " + requirement.predicate);
 					return false;
 				}
 			}
 
-			if(passed) {
+			if (passed) {
 				continue;
 			} else {
 				return false;
@@ -231,31 +252,34 @@ public class GameMaster {
 		return true; //If evaluted all requirements without returning false, then return true
 	}
 
-	private List<GamePlayer> SelectRelevantPlayers(GamePlayer evaluatedPlayer, WinRequirement requirement) {
-		if(requirement.subject.nature != Nature.None) {
-			return players.Where(p => p.currentCard.data.nature == requirement.subject.nature).ToList();
+	private List<GamePlayer> SelectRelevantPlayers (GamePlayer evaluatedPlayer, WinRequirement requirement)
+	{
+		if (requirement.subject.nature != Nature.None) {
+			return players.Where (p => p.currentCard.data.nature == requirement.subject.nature).ToList ();
 		} else if (requirement.subject.role != Role.None) {
-			return players.Where(p => p.currentCard.data.role == requirement.subject.role).ToList();
+			return players.Where (p => p.currentCard.data.role == requirement.subject.role).ToList ();
 		} else if (requirement.subject.relation != Relation.None) {
-			if(requirement.subject.relation == Relation.Self) {
-			return players.Where(p => p.locationId == evaluatedPlayer.locationId).ToList();
+			if (requirement.subject.relation == Relation.Self) {
+				return players.Where (p => p.locationId == evaluatedPlayer.locationId).ToList ();
 			} else {
-				Debug.LogError("Unhandled relation: " + requirement.subject.relation);
+				Debug.LogError ("Unhandled relation: " + requirement.subject.relation);
 				return null;
 			}
 		} else {
-			Debug.LogError("Unhandled win requirement type.");
+			Debug.LogError ("Unhandled win requirement type.");
 			return null;
 		}
 	}
 
 	public void ExecuteNightActionsInOrder ()
 	{
+		Debug.Log ("execute");
 		List<GamePlayer> actingPlayersByTurnOrder = players.Where (p => !p.dealtCard.data.order.isEmpty).OrderBy (p => p.dealtCard.data.order.primary).
 			ThenBy (p => p.dealtCard.data.order.secondary).ToList ();
+		Debug.Log ("received acting players: " + actingPlayersByTurnOrder.Count);
 		for (int i = 0; i < actingPlayersByTurnOrder.Count; i++) {
 			GamePlayer actingPlayer = actingPlayersByTurnOrder [i];
-			List<int> skippableIndeces = new List<int>();
+			List<int> skippableIndeces = new List<int> ();
 			List<SubAction> hiddenAction;
 			if (actingPlayer.prompt.cohorts != null && actingPlayer.prompt.cohorts.Length > 0) {
 				hiddenAction = actingPlayer.dealtCard.data.hiddenActionIfCohort;
@@ -264,112 +288,121 @@ public class GameMaster {
 			}
 			for (int j = 0; j < hiddenAction.Count; j++) {
 				//check if skippable due to fork
-				if(skippableIndeces.Contains(j)) continue;
-				SubAction subAction = hiddenAction[j];
-				if(actingPlayer.nightLocationSelection[j][0] == -1) {
-					if(subAction.isMandatory) {
-						Debug.LogError("Action is mandatory, but no selection was received.");
+				if (skippableIndeces.Contains (j))
+					continue;
+				SubAction subAction = hiddenAction [j];
+				if (actingPlayer.nightLocationSelection [j] [0] == -1) {
+					if (subAction.isMandatory) {
+						Debug.LogError ("Action is mandatory, but no selection was received.");
 					}
 					break; //Player chose not to act, end night action processing for this player
 				}
-				if(subAction.actionType == ActionType.ChooseFork) { //Instead of location ID, selection is chosen fork - 0 or 1
+				if (subAction.actionType == ActionType.ChooseFork) { //Instead of location ID, selection is chosen fork - 0 or 1
 					//Add fork case
-					if(actingPlayer.nightLocationSelection[j].Length != 1) {
-						Debug.LogError("Unexpected number of subaction selections for ChooseFork: " + actingPlayer.nightLocationSelection[j].Length);
+					if (actingPlayer.nightLocationSelection [j].Length != 1) {
+						Debug.LogError ("Unexpected number of subaction selections for ChooseFork: " + actingPlayer.nightLocationSelection [j].Length);
 						continue;
 					} else {
-						skippableIndeces.Add((actingPlayer.nightLocationSelection[j][0]));
+						skippableIndeces.Add ((actingPlayer.nightLocationSelection [j] [0]));
 					}
-				} else if(subAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+				} else if (subAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
 
 					//Get jth sub action of selection, which should be an array with one location id
-					if(actingPlayer.nightLocationSelection[j].Length != 1) {
-						Debug.LogError("Unexpected number of subaction selections for ViewOne: " + actingPlayer.nightLocationSelection[j].Length);
+					if (actingPlayer.nightLocationSelection [j].Length != 1) {
+						Debug.LogError ("Unexpected number of subaction selections for ViewOne: " + actingPlayer.nightLocationSelection [j].Length);
 						continue;
 					}
-					int targetLocationId = actingPlayer.nightLocationSelection[j][0];
+					int targetLocationId = actingPlayer.nightLocationSelection [j] [0];
 
 
-						actingPlayer.observations.Add(new Observation(targetLocationId, locationsById[targetLocationId].currentCard.gamePieceId));
-				} else if(subAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
+					actingPlayer.observations.Add (new Observation (targetLocationId, locationsById [targetLocationId].currentCard.gamePieceId));
+				} else if (subAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
 					//Get cards to swap
-					int[] targetLocationIds = actingPlayer.nightLocationSelection[j];
+					int[] targetLocationIds = actingPlayer.nightLocationSelection [j];
 //					List<int> targetLocationIds = GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
 
-						ILocation firstTargetLocation = locationsById[targetLocationIds[0]];
-						ILocation secondTargetLocation = locationsById[targetLocationIds[1]];
-						RealCard firstTargetCard = firstTargetLocation.currentCard;
-						RealCard secondTargetCard = secondTargetLocation.currentCard;
-						firstTargetLocation.currentCard = secondTargetCard;
-						secondTargetLocation.currentCard = firstTargetCard;
+					ILocation firstTargetLocation = locationsById [targetLocationIds [0]];
+					ILocation secondTargetLocation = locationsById [targetLocationIds [1]];
+					RealCard firstTargetCard = firstTargetLocation.currentCard;
+					RealCard secondTargetCard = secondTargetLocation.currentCard;
+					firstTargetLocation.currentCard = secondTargetCard;
+					secondTargetLocation.currentCard = firstTargetCard;
 
-				} else if(subAction.actionType == ActionType.ViewTwo) { //Seer second option
-					int[] targetLocationIds = actingPlayer.nightLocationSelection[j];
-					actingPlayer.observations.Add(new Observation(targetLocationIds[0], locationsById[targetLocationIds[0]].currentCard.gamePieceId));
-					actingPlayer.observations.Add(new Observation(targetLocationIds[1], locationsById[targetLocationIds[1]].currentCard.gamePieceId));
+				} else if (subAction.actionType == ActionType.ViewTwo) { //Seer second option
+					int[] targetLocationIds = actingPlayer.nightLocationSelection [j];
+					actingPlayer.observations.Add (new Observation (targetLocationIds [0], locationsById [targetLocationIds [0]].currentCard.gamePieceId));
+					actingPlayer.observations.Add (new Observation (targetLocationIds [1], locationsById [targetLocationIds [1]].currentCard.gamePieceId));
 				} else {
-					Debug.LogError("Unhandled action type: " + subAction.actionType);
+					Debug.LogError ("Unhandled action type: " + subAction.actionType);
 				}
 			}
 		}
 	}
 
-	private RealCard PullFirstCardFromDeck() {
-		RealCard card = gameDeck[0];
-		gameDeck.Remove(card);
+	private RealCard PullFirstCardFromDeck ()
+	{
+		RealCard card = gameDeck [0];
+		gameDeck.Remove (card);
 		return card;
 	}
 
-	public int RegisterGamePiece(IGamePiece gamePiece) {
-		gamePiecesById.Add(gamePiece);
+	public int RegisterGamePiece (IGamePiece gamePiece)
+	{
+		gamePiecesById.Add (gamePiece);
 		return (gamePiecesById.Count - 1);
 	}
 
-	public int RegisterLocation(ILocation location) {
-		locationsById.Add(location);
+	public int RegisterLocation (ILocation location)
+	{
+		locationsById.Add (location);
 		return locationsById.Count - 1;
 	}
 
 
-	public void ReceiveDirective(GamePayload payload) {
-		if(payload is ActionPayload) {
+	public void ReceiveDirective (GamePayload payload)
+	{
+		if (payload is ActionPayload) {
 			ActionPayload nightAction = (ActionPayload)payload;
-			Debug.Log("Received night action from: " + nightAction.sourceUserId);
-			ReceiveNightAction(players.Single(gp => gp.userId == nightAction.sourceUserId), nightAction.selection);
-		} else if(payload is VotePayload) {
+			Debug.Log ("Received night action from: " + nightAction.sourceUserId);
+			ReceiveNightAction (players.Single (gp => gp.userId == nightAction.sourceUserId), nightAction.selection);
+		} else if (payload is VotePayload) {
 			VotePayload vote = (VotePayload)payload;
-			ReceiveVote(players.Single(gp => gp.userId == vote.sourceUserId), vote.voteeLocationId);
+			ReceiveVote (players.Single (gp => gp.userId == vote.sourceUserId), vote.voteeLocationId);
 		} else {
-			Debug.LogError("Unexpected type of game payload: " + payload.ToString());
+			Debug.LogError ("Unexpected type of game payload: " + payload.ToString ());
 		}
 	}
 
-	public void ReceiveNightAction(string sourceUserId, int[][] selection) {
+	public void ReceiveNightAction (string sourceUserId, int[][] selection)
+	{
 		GamePlayer player = players.Single (gp => gp.userId == sourceUserId);
 		ReceiveNightAction (player, selection);
 	}
 
-	public void ReceiveNightAction(GamePlayer player, int[][] selection) {
-		if(currentPhase != GamePhase.Night) {
-			Debug.LogError("Received night action outside of Night_Input phase");
+	public void ReceiveNightAction (GamePlayer player, int[][] selection)
+	{
+		if (currentPhase != GamePhase.Night) {
+			Debug.LogError ("Received night action outside of Night_Input phase");
 			return;
 		}
 		player.nightLocationSelection = selection;
-		playersAwaitingResponseFrom.Remove(player);
+		playersAwaitingResponseFrom.Remove (player);
 
-		if(playersAwaitingResponseFrom.Count == 0) {
-			SetPhase(GamePhase.Day);
+		if (playersAwaitingResponseFrom.Count == 0) {
+			SetPhase (GamePhase.Day);
 		}
 	}
 
-	public void ReceiveVote(string sourceUserId, int locationId) {
+	public void ReceiveVote (string sourceUserId, int locationId)
+	{
 		GamePlayer player = players.Single (gp => gp.userId == sourceUserId);
 		ReceiveVote (player, locationId);
 	}
 
-	public void ReceiveVote(GamePlayer player, int locationId) {
-		if(currentPhase != GamePhase.Day) {
-			Debug.LogError("Received vote outside of day phase");
+	public void ReceiveVote (GamePlayer player, int locationId)
+	{
+		if (currentPhase != GamePhase.Day) {
+			Debug.LogError ("Received vote outside of day phase");
 			return;
 		}
 
@@ -385,19 +418,20 @@ public class GameMaster {
 			}
 		}
 
-		if(playersAwaitingResponseFrom.Count == 0) {
-			SetPhase(GamePhase.Result);
+		if (playersAwaitingResponseFrom.Count == 0) {
+			SetPhase (GamePhase.Result);
 		}
 	}
 
-	private List<int> GetLocationIdsFromTargetInfo(int playerId, List<SelectableObjectType> targetTypes, List<int> specifiedTargets) {
-		List<int> locationsIds = new List<int>();
-		for(int i = 0; i < targetTypes.Count; i++) {
-			if(targetTypes[i] == SelectableObjectType.Self) {
-				locationsIds.Add(playerId);
+	private List<int> GetLocationIdsFromTargetInfo (int playerId, List<SelectableObjectType> targetTypes, List<int> specifiedTargets)
+	{
+		List<int> locationsIds = new List<int> ();
+		for (int i = 0; i < targetTypes.Count; i++) {
+			if (targetTypes [i] == SelectableObjectType.Self) {
+				locationsIds.Add (playerId);
 			} else {
-				locationsIds.Add(specifiedTargets[0]);
-				specifiedTargets.RemoveAt(0);
+				locationsIds.Add (specifiedTargets [0]);
+				specifiedTargets.RemoveAt (0);
 
 			}
 		}
@@ -407,105 +441,118 @@ public class GameMaster {
 }
 
 [System.Serializable]
-public class RealizedPrompt {
+public class RealizedPrompt
+{
 	public int[] cohorts = null;
 	public string promptText = "";
 	public List<SubAction> hiddenAction;
-	public List<List<ButtonInfo>> buttonGroupsBySubactionIndex = new List<List<ButtonInfo>>();
+	public List<List<ButtonInfo>> buttonGroupsBySubactionIndex = new List<List<ButtonInfo>> ();
 
-	public RealizedPrompt(int selfLocationId, List<GamePlayer> players, List<CenterCardSlot> centerCards) {
+	public RealizedPrompt (int selfLocationId, List<GamePlayer> players, List<CenterCardSlot> centerCards)
+	{
 		//Evalutate cohort and realize strings
-		GamePlayer self = players.Single(gp => gp.locationId == selfLocationId);
-		if(self.dealtCard.data.cohort.isEmpty) {
-			if(self.dealtCard.data.prompt != null) {
+		GamePlayer self = players.Single (gp => gp.locationId == selfLocationId);
+		if (self.dealtCard.data.cohort.isEmpty) {
+			if (self.dealtCard.data.prompt != null) {
 				promptText = self.dealtCard.data.prompt;
 				hiddenAction = self.dealtCard.data.hiddenAction;
 			}
 		} else {
-			List<GamePlayer> cohortPlayers = self.dealtCard.data.cohort.FilterPlayersByDealtCard(
-				players.Where(p => p.locationId != self.locationId).ToList()).ToList();
-			cohorts = cohortPlayers.Select(p => p.locationId).ToArray();
-			if(cohortPlayers.Count == 0) {
+			List<GamePlayer> cohortPlayers = self.dealtCard.data.cohort.FilterPlayersByDealtCard (
+				                                 players.Where (p => p.locationId != self.locationId).ToList ()).ToList ();
+			cohorts = cohortPlayers.Select (p => p.locationId).ToArray ();
+			if (cohortPlayers.Count == 0) {
 				promptText = self.dealtCard.data.prompt;
 				hiddenAction = self.dealtCard.data.hiddenAction;
 			} else {
-				for(int i = 0; i < cohortPlayers.Count; i++) {
-					if( i != 0) {
+				for (int i = 0; i < cohortPlayers.Count; i++) {
+					if (i != 0) {
 						promptText += " ";
 					}
-					promptText += string.Format(self.dealtCard.data.promptIfCohort, cohortPlayers[i].name);
+					promptText += string.Format (self.dealtCard.data.promptIfCohort, cohortPlayers [i].name);
 				}
 				hiddenAction = self.dealtCard.data.hiddenActionIfCohort;
 			}
 		}
 
-		for(int i = 0; i < hiddenAction.Count; i++) { //For each sub action
-			List<ButtonInfo> buttonGroup = new List<ButtonInfo>();
+		for (int i = 0; i < hiddenAction.Count; i++) { //For each sub action
+			List<ButtonInfo> buttonGroup = new List<ButtonInfo> ();
 			//Find option targets and generate options set
-			for(int j = 0; j < hiddenAction[i].targets.Count; j++) { //For each target type
-				if (hiddenAction[i].targets[j] == SelectableObjectType.TargetAnyPlayer) {
+			for (int j = 0; j < hiddenAction [i].targets.Count; j++) { //For each target type
+				if (hiddenAction [i].targets [j] == SelectableObjectType.TargetAnyPlayer) {
 					for (int k = 0; k < players.Count; k++) {
-						GamePlayer p = players[k];
-						buttonGroup.Add(new ButtonInfo(p.locationId, p.name));
+						GamePlayer p = players [k];
+						buttonGroup.Add (new ButtonInfo (p.locationId, p.name));
 					}
-					if(!hiddenAction[i].isMandatory) buttonGroup.Add(new ButtonInfo(-1, "Pass"));
+					if (!hiddenAction [i].isMandatory)
+						buttonGroup.Add (new ButtonInfo (-1, "Pass"));
 					break;
-				} else if (hiddenAction[i].targets[j] == SelectableObjectType.TargetOtherPlayer) {
+				} else if (hiddenAction [i].targets [j] == SelectableObjectType.TargetOtherPlayer) {
 					for (int k = 0; k < players.Count; k++) {
-						GamePlayer p = players[k];
-						if(p.locationId == self.locationId) continue;
-						buttonGroup.Add(new ButtonInfo(p.locationId, p.name));
+						GamePlayer p = players [k];
+						if (p.locationId == self.locationId)
+							continue;
+						buttonGroup.Add (new ButtonInfo (p.locationId, p.name));
 					}
-					if(!hiddenAction[i].isMandatory) buttonGroup.Add(new ButtonInfo(-1, "Pass"));
+					if (!hiddenAction [i].isMandatory)
+						buttonGroup.Add (new ButtonInfo (-1, "Pass"));
 					break;
-				} else if (hiddenAction[i].targets[j] == SelectableObjectType.TargetCenterCard) {
+				} else if (hiddenAction [i].targets [j] == SelectableObjectType.TargetCenterCard) {
 					for (int k = 0; k < centerCards.Count; k++) {
-						CenterCardSlot ccs = centerCards[k];
-						buttonGroup.Add(new ButtonInfo(ccs.locationId, ccs.name));
+						CenterCardSlot ccs = centerCards [k];
+						buttonGroup.Add (new ButtonInfo (ccs.locationId, ccs.name));
 					}
-					if(!hiddenAction[i].isMandatory) buttonGroup.Add(new ButtonInfo(-1, "Pass"));
+					if (!hiddenAction [i].isMandatory)
+						buttonGroup.Add (new ButtonInfo (-1, "Pass"));
 					break;
-				} else if(hiddenAction[i].targets[j] == SelectableObjectType.TargetFork) {
-					for(int k = 0; k < 2; k++) {
-						buttonGroup.Add(new ButtonInfo(j + 1 + (1 - k), "Option #" + (k + 1).ToString()));
+				} else if (hiddenAction [i].targets [j] == SelectableObjectType.TargetFork) {
+					for (int k = 0; k < 2; k++) {
+						buttonGroup.Add (new ButtonInfo (j + 1 + (1 - k), "Option #" + (k + 1).ToString ()));
 					}
-					if(!hiddenAction[i].isMandatory) buttonGroup.Add(new ButtonInfo(-1, "Pass"));
+					if (!hiddenAction [i].isMandatory)
+						buttonGroup.Add (new ButtonInfo (-1, "Pass"));
 					break;
 				}
 			}
-			buttonGroupsBySubactionIndex.Add(buttonGroup);
+			buttonGroupsBySubactionIndex.Add (buttonGroup);
 		}
 	}
 }
 
 [System.Serializable]
-public struct ButtonInfo {
+public struct ButtonInfo
+{
 	public int locationId;
 	public string label;
-	public ButtonInfo(int ogoId, string label) {
+
+	public ButtonInfo (int ogoId, string label)
+	{
 		this.locationId = ogoId;
 		this.label = label;
 	}
 }
 
 [System.Serializable]
-public class RealCard : IGamePiece {
+public class RealCard : IGamePiece
+{
 	
 	private int _gamePieceId;
+
 	public int gamePieceId {
 		get {
 			return _gamePieceId;
 		}
 	}
+
 	public string name {
 		get {
-			return data.role.ToString();
+			return data.role.ToString ();
 		}
 	}
 
 	public WinRequirement[] winRequirements {
 		get {
-			return data.winRequirement != null ? new WinRequirement[] { data.winRequirement } : Team.teams.Single(t => t.name == data.team).winRequirements;
+			return data.winRequirement != null ? new WinRequirement[] { data.winRequirement } : Team.teams.Single (t => t.name == data.team).winRequirements;
 		}
 	}
 
@@ -513,28 +560,31 @@ public class RealCard : IGamePiece {
 
 	public CardData data;
 
-	public RealCard(GameMaster gameMaster, Role role) {
+	public RealCard (GameMaster gameMaster, Role role)
+	{
 		data = GameData.instance.cardData.Single (cd => cd.role == role);
-		_gamePieceId = gameMaster.RegisterGamePiece(this);
+		_gamePieceId = gameMaster.RegisterGamePiece (this);
 //		Debug.Log("Registered " + role.ToString() + " as gamePieceId = " + gamePieceId);
 	}
 }
 
 [System.Serializable]
-public class CenterCardSlot : ILocation {
+public class CenterCardSlot : ILocation
+{
 	private int _locationId;
-	public int locationId { get {
-			return _locationId;
-		}
-	}
+
+	public int locationId { get { return _locationId; } }
+
 	public string name { 
 		get {
 			return "Center Card #" + (centerCardIndex + 1);
 		}
 	}
+
 	public int centerCardIndex;
 	public RealCard dealtCard;
 	private RealCard _currentCard;
+
 	public RealCard currentCard {
 		get {
 			return _currentCard;
@@ -543,30 +593,38 @@ public class CenterCardSlot : ILocation {
 			_currentCard = value;
 		}
 	}
-	public CenterCardSlot(GameMaster gameMaster, int index, RealCard card) {
+
+	public CenterCardSlot (GameMaster gameMaster, int index, RealCard card)
+	{
 		this.centerCardIndex = index;
 		this.dealtCard = card;
 		this._currentCard = card;
-		_locationId = gameMaster.RegisterLocation(this);
+		_locationId = gameMaster.RegisterLocation (this);
 //		Debug.Log("Registered center card #" + (index + 1) + " as locationId = " + _locationId);
 	}
 }
 
 [System.Serializable]
-public struct Observation {
+public struct Observation
+{
 	public int locationId;
 	public int gamePieceId;
-	public Observation(int locationId, int gamePieceId) {
+
+	public Observation (int locationId, int gamePieceId)
+	{
 		this.locationId = locationId;
 		this.gamePieceId = gamePieceId;
 	}
 }
 
 [System.Serializable]
-public class Votee {
+public class Votee
+{
 	public int player;
 	public int count;
-	public Votee(int player) {
+
+	public Votee (int player)
+	{
 		this.player = player;
 		this.count = 1;
 	}
