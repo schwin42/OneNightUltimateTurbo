@@ -23,86 +23,90 @@ public class InternetConnector : RemoteConnector
 		Wait,
 	}
 
-
-
 	private const string ENDPOINT = "http://54.224.112.1:3000";
 
-	//public
+	//State
+	public Dictionary<OnutClient, List<CoroutineInfo>> activeCoroutinesByClient = new Dictionary<OnutClient, List<CoroutineInfo>> ();
+	public int nextRequestId = 0;
 
-	public override void BeginSession (OnumClient client, string name)
-	{
-		Origin origin = new Origin (client);
+	public override void BeginSession (OnutClient client, string name) {
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "open");
 		node.Add ("user", name);
 		string json = node.ToString ();
 
-		DispatchWebRequest (origin, json, RequestType.StartSession);
+		DispatchWebRequest (client, json, RequestType.StartSession);
 	}
 
-	public override void JoinSession (OnumClient client, string name, string roomKey)
-	{
-//		print ("Attempting to join session");
-		Origin origin = new Origin (client);
+	public override void JoinSession (OnutClient client, string name, string roomKey) {
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "join");
 		node.Add ("user", name);
 		node.Add ("key", roomKey);
 		string json = node.ToString ();
 
-		DispatchWebRequest (origin, json, RequestType.JoinSession);
+		DispatchWebRequest (client, json, RequestType.JoinSession);
 
 	}
 
-	public override void StartGame (OnumClient client, StartGamePayload payload)
+	public override void StartGame (OnutClient client, StartGamePayload payload)
 	{
-		Origin origin = new Origin (client, payload);
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "start");
 		node.Add ("user", client.selfUserId);
 		JSONArray userArray = new JSONArray ();
-		for (int i = 0; i < origin.client.connectedUsers.Count; i++) {
-			userArray.Add (origin.client.connectedUsers [i]);
+		for (int i = 0; i < client.connectedUsers.Count; i++) {
+			userArray.Add (client.connectedUsers [i]);
 		}
 		node.Add ("users", userArray);
 		node.Add ("accessKey", client.accessKey);
 		JSONNode payloadNode = new JSONObject ();
 		if (payload is StartGamePayload) {
 			payloadNode.Add ("message", PayloadType.InitiateGame.ToString ());
-			payloadNode.Add ("randomSeed", ((StartGamePayload)origin.payload).randomSeed);
+			payloadNode.Add ("randomSeed", ((StartGamePayload)payload).randomSeed);
 		}
 		node.Add("payload", payloadNode);
 		string json = node.ToString ();
-		DispatchWebRequest (origin, json, RequestType.StartGame);
+		DispatchWebRequest (client, json, RequestType.StartGame);
 	}
 
-	public override void BroadcastPayload (OnumClient client, RemotePayload payload)
-	{
-		Origin origin = new Origin (client);
-		DispatchBroadcast (origin, payload);
+	public override void BroadcastPayload (OnutClient client, RemotePayload payload) {
+		DispatchBroadcast (client, payload);
 	}
 
-	public override void Disconnect (OnumClient client)
-	{
+	public override void Disconnect (OnutClient client) {
+		foreach(CoroutineInfo ci in activeCoroutinesByClient[client]) {
+			StopCoroutine(ci.iEnumerator);
+		}
+		activeCoroutinesByClient.Remove(client);
 	}
 
 	//	public void HandlePayloadReceived(RemotePayload payload) {
 	//		client.HandleRemotePayload(payload);
 	//	}
 
-	private void DispatchWebRequest (Origin origin, string postJson, RequestType request)
+	private void DispatchWebRequest (OnutClient client, string postJson, RequestType request)
 	{
-		StartCoroutine (SendWebRequest (origin, postJson, request));
+		int requestId = nextRequestId++;
+		Origin origin = new Origin(client, requestId);
+		CoroutineInfo coroutine = new CoroutineInfo(requestId, SendWebRequest (origin, postJson, request));
+		if(activeCoroutinesByClient.ContainsKey(client)) {
+			activeCoroutinesByClient[client].Add(coroutine);
+		} else {
+			List<CoroutineInfo> list = new List<CoroutineInfo>();
+			list.Add(coroutine);
+			activeCoroutinesByClient.Add(client, list);
+		}
+
+		StartCoroutine (coroutine.iEnumerator);
 	}
 	//add success and error callbacks
 
-	private IEnumerator SendWebRequest (Origin origin, string postJson, RequestType request)
-	{
+	private IEnumerator SendWebRequest (Origin origin, string postJson, RequestType request) {
 
 		Dictionary<string, string> headers = new Dictionary<string, string> ();
 		headers ["Accept"] = "application/json";
 		headers ["Content-type"] = "application/json";
-
 
 		byte[] postData = null;
 		if (postJson != null) {
@@ -111,9 +115,13 @@ public class InternetConnector : RemoteConnector
 		}
 
 		print (origin.client.selfUserId + "Sending web request: " + ENDPOINT + ", " + postJson);
+
 		WWW www = new WWW (ENDPOINT, postData, headers);
 
 		yield return www;
+
+		print("dequeuing coroutine with count for client: " + activeCoroutinesByClient[origin.client].Count);
+		activeCoroutinesByClient[origin.client].Remove(activeCoroutinesByClient[origin.client].Single(ci => ci.requestId == origin.requestId));
 
 		if (www.error != null) {
 			origin.client.HandleRemoteError(ErrorType.Generic, www.error + ", " + www.text);
@@ -129,7 +137,7 @@ public class InternetConnector : RemoteConnector
 			string accessKey = node ["accessKey"];
 			string roomKey = node ["key"];
 			origin.client.HandleSessionStarted (userId, accessKey, roomKey);
-			DispatchWait (origin);
+			DispatchWait (origin.client);
 			break;
 		case RequestType.JoinSession:
 			node = JSON.Parse (www.text);
@@ -144,7 +152,7 @@ public class InternetConnector : RemoteConnector
 				users.Add (node ["users"] [i]);
 			}
 			origin.client.HandleJoinedSession (userId, accessKey, users);
-			DispatchWait (origin);
+			DispatchWait (origin.client);
 			break;
 		case RequestType.Wait: //Receive payload
 			node = JSON.Parse (www.text);
@@ -153,6 +161,10 @@ public class InternetConnector : RemoteConnector
 			case "player joined":
 				userId = node ["userId"];
 				origin.client.HandleOtherJoined (userId);
+				break;
+			case "player left":
+				userId = node["userId"];
+				origin.client.HandleOtherLeft(userId);
 				break;
 //			case "start":
 //				//Game started, but I don't think we really care
@@ -189,7 +201,7 @@ public class InternetConnector : RemoteConnector
 
 			string payload = node ["payload"];
 //				client.HandleRemotePayload (payload);
-			DispatchWait (origin);
+			DispatchWait (origin.client);
 			break;
 		case RequestType.StartGame:
 			//Should be no need to do anything here
@@ -214,35 +226,35 @@ public class InternetConnector : RemoteConnector
 		}
 	}
 
-	private void DispatchWait (Origin origin)
+	private void DispatchWait (OnutClient client)
 	{
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "wait");
-		node.Add ("userId", origin.client.selfUserId);
-		node.Add ("accessKey", origin.client.accessKey);
+		node.Add ("userId", client.selfUserId);
+		node.Add ("accessKey", client.accessKey);
 		string json = node.ToString ();
-		DispatchWebRequest (origin, json, RequestType.Wait);
+		DispatchWebRequest (client, json, RequestType.Wait);
 	}
 
-	private void DispatchBroadcast (Origin origin, RemotePayload payload)
+	private void DispatchBroadcast (OnutClient client, RemotePayload payload)
 	{
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "tell");
-		node.Add ("accessKey", origin.client.accessKey);
+		node.Add ("accessKey", client.accessKey);
 		JSONArray userArray = new JSONArray ();
-		for (int i = 0; i < origin.client.connectedUsers.Count; i++) {
-			userArray.Add (origin.client.connectedUsers [i]);
+		for (int i = 0; i < client.connectedUsers.Count; i++) {
+			userArray.Add (client.connectedUsers [i]);
 		}
 		node.Add ("users", userArray);
 
 		JSONNode payloadNode = new JSONObject ();
 		if (payload is StartGamePayload) {
 			payloadNode.Add ("message", PayloadType.InitiateGame.ToString ());
-			payloadNode.Add ("randomSeed", ((StartGamePayload)origin.payload).randomSeed);
+			payloadNode.Add ("randomSeed", ((StartGamePayload)payload).randomSeed);
 		}else if(payload is ActionPayload) {
 			payloadNode.Add("message", PayloadType.SubmitAction.ToString());
 			JSONNode actionNode = new JSONObject();
-			actionNode.Add("sourceUserId", origin.client.selfUserId);
+			actionNode.Add("sourceUserId", client.selfUserId);
 
 			int[][] intSelection = ((ActionPayload)payload).selection;
 			JSONArray jsonSelection = new JSONArray();
@@ -260,7 +272,7 @@ public class InternetConnector : RemoteConnector
 			
 			payloadNode.Add("message", PayloadType.SubmitVote.ToString());
 			JSONNode voteNode = new JSONObject();
-			voteNode.Add("sourceUserId", origin.client.selfUserId);
+			voteNode.Add("sourceUserId", client.selfUserId);
 			voteNode.Add("votee", ((VotePayload)payload).voteeLocationId);
 			payloadNode.Add("vote", voteNode);
 		} else {
@@ -268,23 +280,27 @@ public class InternetConnector : RemoteConnector
 		}
 
 		node.Add("payload", payloadNode);
-		DispatchWebRequest (origin, node.ToString (), RequestType.BroadcastEvent);
+		DispatchWebRequest (client, node.ToString (), RequestType.BroadcastEvent);
 	}
 
 	public class Origin
 	{
-		public OnumClient client;
-		public RemotePayload payload;
+		public OnutClient client;
+		public int requestId;
 
-		public Origin (OnumClient client)
-		{
+		public Origin (OnutClient client, int requestId) {
 			this.client = client;
+			this.requestId = requestId;
 		}
+	}
 
-		public Origin (OnumClient client, RemotePayload payload)
-		{
-			this.client = client;
-			this.payload = payload;
+	public struct CoroutineInfo {
+		public int requestId;
+		public IEnumerator iEnumerator;
+
+		public CoroutineInfo (int requestId, IEnumerator coroutine) {
+			this.requestId = requestId;
+			this.iEnumerator = coroutine;
 		}
 	}
 }

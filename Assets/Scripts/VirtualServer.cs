@@ -19,15 +19,15 @@ public class VirtualServer : MonoBehaviour {
 	}
 
 	//State
-	public Dictionary<string, OnumClient> clientsByUserId = new Dictionary<string, OnumClient>();
+	public Dictionary<string, OnutClient> clientsByUserId = new Dictionary<string, OnutClient>();
 	
-	public void HandleClientNewUser(OnumClient client, string playerName) {
+	public void HandleClientNewUser(OnutClient client, string playerName) {
 		//Send players updated payload
 		string newUserId = playerName + ":" + Random.Range(0, 10000);
 
 		clientsByUserId.Add(newUserId, client);
 
-		foreach(KeyValuePair<string, OnumClient> kp in clientsByUserId) {
+		foreach(KeyValuePair<string, OnutClient> kp in clientsByUserId) {
 			if(kp.Key == newUserId) { //Send welcome payload only to new player
 				client.HandleJoinedSession(newUserId, null, clientsByUserId.Select(kvp => kvp.Key).ToList());
 			} else {
@@ -38,21 +38,21 @@ public class VirtualServer : MonoBehaviour {
 
 	public void HandleClientSendEvent(RemotePayload payload) {
 		if (payload is StartGamePayload) {
-			foreach (KeyValuePair<string, OnumClient> kvp in clientsByUserId) {
+			foreach (KeyValuePair<string, OnutClient> kvp in clientsByUserId) {
 				kvp.Value.HandleGameStarted (((StartGamePayload)payload).randomSeed);
 			}
 		} else if (payload is ActionPayload) {
-			foreach (KeyValuePair<string, OnumClient> kvp in clientsByUserId) {
+			foreach (KeyValuePair<string, OnutClient> kvp in clientsByUserId) {
 				kvp.Value.HandleActionMessage (((ActionPayload)payload).sourceUserId, ((ActionPayload)payload).selection);
 			}
 		} else if (payload is VotePayload) {
-			foreach (KeyValuePair<string, OnumClient> kvp in clientsByUserId) {
+			foreach (KeyValuePair<string, OnutClient> kvp in clientsByUserId) {
 				kvp.Value.HandleVoteMessage (((VotePayload)payload).sourceUserId, ((VotePayload)payload).voteeLocationId);
 			}
 		}
 	}
 
-	public void Disconnect(OnumClient client) {
+	public void Disconnect(OnutClient client) {
 		string userId = clientsByUserId.Single (kp => kp.Value == client).Key;
 		clientsByUserId.Remove (userId);
 	}

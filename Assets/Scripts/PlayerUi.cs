@@ -31,8 +31,16 @@ public class PlayerUi : MonoBehaviour
 
 	}
 
-	//Night State
+	public enum PopupState {
+		None = 0,
+		Error = 1,
+	}
+
+	//State
 	private UiScreen currentScreen = UiScreen.Uninitialized;
+	private PopupState currentPopup = PopupState.None;
+
+	//Night State
 	private List<int> pendingSelection;
 	private List<List<int>> _nightSelections;
 	private int lastSelection;
@@ -78,6 +86,10 @@ public class PlayerUi : MonoBehaviour
 	Text result_Title;
 	Text result_Description;
 
+	//Error
+	GameObject error_Popup;
+	Text error_Text;
+
 	public void Initialize (IClient client)
 	{
 		this.client = client;
@@ -85,40 +97,44 @@ public class PlayerUi : MonoBehaviour
 		foreach (UiScreen screen in Enum.GetValues(typeof(UiScreen))) {
 			if (screen == UiScreen.Uninitialized)
 				continue;
-			screenGosByEnum [screen] = transform.Find (screen.ToString ()).gameObject;
+			screenGosByEnum [screen] = transform.Find ("MainStates/" + screen.ToString ()).gameObject;
 		}
+
+		error_Popup = transform.Find("PopupStates/Error").gameObject;
 
 		playerName = transform.Find ("PlayerName").GetComponent<Text> ();
 
 		//Title
-		title_NameField = transform.Find ("Title/NameField").GetComponent<InputField> ();
-		title_roomKey = transform.Find ("Title/AddressField").GetComponent<InputField> ();
-		title_HostButton = transform.Find ("Title/HostButton").GetComponent<Button> ();
-		title_JoinButton = transform.Find ("Title/JoinButton").GetComponent<Button> ();
+		title_NameField = transform.Find ("MainStates/Title/NameField").GetComponent<InputField> ();
+		title_roomKey = transform.Find ("MainStates/Title/AddressField").GetComponent<InputField> ();
+		title_HostButton = transform.Find ("MainStates/Title/HostButton").GetComponent<Button> ();
+		title_JoinButton = transform.Find ("MainStates/Title/JoinButton").GetComponent<Button> ();
 
 		//Lobby
-		lobby_PlayersLabel = transform.Find ("Lobby/Description/Text").GetComponent<Text> ();
-		lobby_StartButton = transform.Find ("Lobby/StartButton").GetComponent<Button> ();
-		lobby_AddressLabel = transform.Find ("Lobby/Address").GetComponent<Text> ();
+		lobby_PlayersLabel = transform.Find ("MainStates/Lobby/Description/Text").GetComponent<Text> ();
+		lobby_StartButton = transform.Find ("MainStates/Lobby/StartButton").GetComponent<Button> ();
+		lobby_AddressLabel = transform.Find ("MainStates/Lobby/Address").GetComponent<Text> ();
 
 		//Night
-		night_Title = transform.Find ("Night/Title").GetComponent<Text> ();
-		night_Description = transform.Find ("Night/Description").GetComponent<Text> ();
-		night_ButtonBox = transform.Find ("Night/Grid").transform;
+		night_Title = transform.Find ("MainStates/Night/Title").GetComponent<Text> ();
+		night_Description = transform.Find ("MainStates/Night/Description").GetComponent<Text> ();
+		night_ButtonBox = transform.Find ("MainStates/Night/Grid").transform;
 
 		//Day
-		day_VoteButtonBox = transform.Find ("Day/Panel/Grid/");
-		day_Description = transform.Find ("Day/Description").GetComponent<Text> ();
-		day_TimeRemaining = transform.Find ("Day/TimeRemaining").GetComponent<Text> ();
-		day_DeckDisplay = transform.Find ("Day/Panel/DeckDisplay/Text").GetComponent<Text> ();
+		day_VoteButtonBox = transform.Find ("MainStates/Day/Panel/Grid/");
+		day_Description = transform.Find ("MainStates/Day/Description").GetComponent<Text> ();
+		day_TimeRemaining = transform.Find ("MainStates/Day/TimeRemaining").GetComponent<Text> ();
+		day_DeckDisplay = transform.Find ("MainStates/Day/Panel/DeckDisplay/Text").GetComponent<Text> ();
 		day_ToggleGroup = day_VoteButtonBox.GetComponent<ToggleGroup> ();
 
 		//Result
-		result_Title = transform.Find ("Result/Title").GetComponent<Text> ();
-		result_Description = transform.Find ("Result/Description").GetComponent<Text> ();
+		result_Title = transform.Find ("MainStates/Result/Title").GetComponent<Text> ();
+		result_Description = transform.Find ("MainStates/Result/Description").GetComponent<Text> ();
 
-		SetState (UiScreen.Title);
+		//Error
+		error_Text = transform.Find("PopupStates/Error/Backer/Text").GetComponent<Text>();
 
+		SetMainState (UiScreen.Title);
 	}
 
 	void Update ()
@@ -155,8 +171,8 @@ public class PlayerUi : MonoBehaviour
 		currentVote = selection;
 		SubmitVote (selection);
 	}
-
-	public void SetState (UiScreen targetScreen)
+		
+	public void SetMainState (UiScreen targetScreen)
 	{
 		if (targetScreen == currentScreen)
 			return;
@@ -300,6 +316,25 @@ public class PlayerUi : MonoBehaviour
 		currentScreen = targetScreen;
 	}
 
+	public void SetPopupState(PopupState targetState) {
+	
+		if(currentPopup == targetState) return;
+
+		switch(targetState) {
+		case PopupState.None:
+			error_Popup.SetActive(false);
+			break;
+		case PopupState.Error:
+			error_Popup.SetActive(true);
+			break;
+		default:
+			Debug.LogError("Unhandled popup state: " + targetState);
+			break;
+		}
+
+		currentPopup = targetState;
+	}
+
 	public void HandleJoinButtonPressed ()
 	{
 		//Set persistent player name
@@ -369,12 +404,7 @@ public class PlayerUi : MonoBehaviour
 	//		SetState (UiScreen.Lobby);
 	//	}
 
-	public void HandleEnteredRoom (List<string> userIds)
-	{
-		lobby_AddressLabel.text = client.RoomKey;
-		HandlePlayersUpdated (userIds);
-		SetState (UiScreen.Lobby);
-	}
+
 
 	public void HandlePlayAgainButton ()
 	{
@@ -384,7 +414,24 @@ public class PlayerUi : MonoBehaviour
 	public void HandleQuitToTitleButton ()
 	{
 		client.Disconnect ();
-		SetState (UiScreen.Title);
+		SetMainState (UiScreen.Title);
+	}
+
+	public void HandleDismissPopupCommand() {
+		SetPopupState(PopupState.None);
+		SetMainState(UiScreen.Title);
+	}
+
+	public void HandleEnteredRoom (List<string> userIds)
+	{
+		lobby_AddressLabel.text = client.RoomKey;
+		HandlePlayersUpdated (userIds);
+		SetMainState (UiScreen.Lobby);
+	}
+
+	public void ThrowError(string error) {
+		error_Text.text = error;
+		SetPopupState(PopupState.Error);
 	}
 
 	private string GetPersonalPlayerName (int locationId)

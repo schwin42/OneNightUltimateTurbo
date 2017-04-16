@@ -6,9 +6,9 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 
 	public List<Transform> playerPanels;
 	public List<PlayerUi> playerUis;
-	public List<OnumClient> clients;
+	public List<OnutClient> clients;
 
-	public List<OnumClient> pendingPlayers;
+	public List<OnutClient> pendingPlayers;
 
 //	bool playersJoined = false;
 //	bool playersConnected = false;
@@ -17,13 +17,13 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 	void Start () {
 		playerPanels = new List<Transform>();
 		playerUis = new List<PlayerUi>();
-		clients = new List<OnumClient>();
+		clients = new List<OnutClient>();
 		int i = 0;
 		foreach (Transform child in transform) {
 			playerPanels.Add(child);
 			playerPanels[i].gameObject.name = i.ToString();
 			playerUis.Add(child.GetComponent<PlayerUi>());
-			OnumClient client = child.GetComponent<OnumClient>();
+			OnutClient client = child.GetComponent<OnutClient>();
 			clients.Add(client);
 			client.Start();
 //			client.JoinSession();
@@ -85,7 +85,7 @@ public class Debug_PlayerSwapper : MonoBehaviour {
 //
 //	}
 
-	void HandleSessionJoined(OnumClient client) {
+	void HandleSessionJoined(OnutClient client) {
 
 //		pendingPlayers.Remove(client);
 //

@@ -25,7 +25,7 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 		}
 	}
 
-	public List<OnumClient> players;
+	public List<OnutClient> players;
 
 	public void LaunchGame(int playerCount, List<Role> deckTemplate) {
 
@@ -34,11 +34,11 @@ public class SimulatedRoom : MonoBehaviour { //Analogous to having n devices in 
 		_server = serverGo.AddComponent<VirtualServer>();
 
 
-		players = new List<OnumClient>();
+		players = new List<OnutClient>();
 		for(int i = 0; i < playerCount; i++) {
 
 			GameObject go = new GameObject();
-			OnumClient player = go.AddComponent<OnumClient>();
+			OnutClient player = go.AddComponent<OnutClient>();
 			players.Add(player);
 		}
 			

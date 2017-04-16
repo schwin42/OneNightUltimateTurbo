@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 
 [System.Serializable]
-public class OnumClient : MonoBehaviour, IClient {
+public class OnutClient : MonoBehaviour, IClient {
 	
 	public string UserId { 
 		get { 
@@ -37,7 +37,7 @@ public class OnumClient : MonoBehaviour, IClient {
 
 	bool hasInitialized = false;
 
-	public delegate void ClientHandler(OnumClient client);
+	public delegate void ClientHandler(OnutClient client);
 	public event ClientHandler OnEnteredRoom;
 //	public delegate void UserIdHandler(string userId);
 //	public event UserIdHandler OnUserConnected;
@@ -81,7 +81,7 @@ public class OnumClient : MonoBehaviour, IClient {
 		}
 	}
 
-	//Implementation to cohere with node server API
+	//Additive implementation to cohere with node server API
 	public void HandleOtherJoined(string userId) {
 		print (selfUserId + ": received handle other for " + userId);
 		connectedUsers.Add (userId);
@@ -91,7 +91,18 @@ public class OnumClient : MonoBehaviour, IClient {
 //		}
 	}
 
-	//Preferred implementation
+	public void HandleOtherLeft(string userId) {
+		print(selfUserId + " received other left for " + userId);
+		if(gm == null ) {
+			connectedUsers.Remove(userId);
+			ui.HandlePlayersUpdated(connectedUsers);
+		} else {
+			ui.ThrowError(userId.Split(':')[0] + " disconnected during game, returning to title.");
+		}
+
+	}
+
+	//Preferred aggregative implementation
 	public void HandleOtherJoined(string[] userIds) {
 		print (selfUserId + ": received player update with player count: " + userIds.Length.ToString());
 		connectedUsers = userIds.ToList ();
@@ -100,6 +111,8 @@ public class OnumClient : MonoBehaviour, IClient {
 //			OnUserConnected.Invoke(userId);
 //		}
 	}
+
+
 
 	public void HandleGameStarted(int randomSeed) {
 		if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {

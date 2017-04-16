@@ -10,24 +10,24 @@ public class UnityNetworkConnector : RemoteConnector {
 
 	//State
 	public Server localServer = null;
-	public Dictionary<OnumClient, NetworkClient> networkClientsByOnumClients = new Dictionary<OnumClient, NetworkClient>();
+	public Dictionary<OnutClient, NetworkClient> networkClientsByOnumClients = new Dictionary<OnutClient, NetworkClient>();
 
-	public override void BeginSession(OnumClient client, string playerName) {
+	public override void BeginSession(OnutClient client, string playerName) {
 		Debug.Log("Attempting to host room.");
 		InitializeServer (client);
 		InitializeLocalClient (client, playerName);
 	}
 
-	public override void JoinSession(OnumClient client, string hostAddress, string playerName) {
+	public override void JoinSession(OnutClient client, string hostAddress, string playerName) {
 		InitializeClient (client, hostAddress, playerName);
 	}
 
-	public override void StartGame (OnumClient client, StartGamePayload payload) {
+	public override void StartGame (OnutClient client, StartGamePayload payload) {
 //		OnuBroadcastMessage(OnuMessage.StartGame, new StartGameMessage () { randomSeed = randomSeed });
 		OnumBroadcastMessage(client, OnuMessage.StartGame, new StartGameMessage() { randomSeed = payload.randomSeed });
 	}
 
-	public override void BroadcastPayload(OnumClient client, RemotePayload payload) {
+	public override void BroadcastPayload(OnutClient client, RemotePayload payload) {
 		short msgType;
 		MessageBase message;
 		if (payload is ActionPayload) {
@@ -50,7 +50,7 @@ public class UnityNetworkConnector : RemoteConnector {
 		OnumBroadcastMessage (client, msgType, message);
 	}
 
-	private void OnumBroadcastMessage(OnumClient client, short msgType, MessageBase message) {
+	private void OnumBroadcastMessage(OnutClient client, short msgType, MessageBase message) {
 		if(msgType == OnuMessage.NightAction) {
 			string nightActionString = "";
 			int[][] selection = ((NightActionMessage)message).selection;
@@ -70,11 +70,11 @@ public class UnityNetworkConnector : RemoteConnector {
 		}
 	}
 
-	public override void Disconnect(OnumClient client) {
+	public override void Disconnect(OnutClient client) {
 		//TODO Implement
 	}
 
-	private void InitializeServer(OnumClient client) {
+	private void InitializeServer(OnutClient client) {
 		NetworkServer.Listen (PORT);
 		NetworkServer.RegisterHandler (OnuMessage.Introduction, OnServerIntroductionReceived);
 		NetworkServer.RegisterHandler (OnuMessage.StartGame, ServerEchoMessage);
@@ -84,14 +84,14 @@ public class UnityNetworkConnector : RemoteConnector {
 		localServer = new Server (client);
 	}
 
-	private void InitializeLocalClient(OnumClient onumClient, string playerName) {
+	private void InitializeLocalClient(OnutClient onumClient, string playerName) {
 		print ("Setting up local client");
 		NetworkClient networkClient = ClientScene.ConnectLocalServer ();
 		networkClientsByOnumClients.Add (onumClient, networkClient);
 		SubscribeToClientMessages (networkClient, onumClient, playerName);
 	}
 
-	private void InitializeClient(OnumClient onumClient, string hostAddress, string playerName) {
+	private void InitializeClient(OnutClient onumClient, string hostAddress, string playerName) {
 		NetworkClient networkClient = new NetworkClient ();
 		networkClientsByOnumClients.Add (onumClient, networkClient);
 		SubscribeToClientMessages (networkClient, onumClient, playerName);
@@ -112,7 +112,7 @@ public class UnityNetworkConnector : RemoteConnector {
 		}
 	}
 
-	private void SubscribeToClientMessages(NetworkClient networkClient, OnumClient onumClient, string playerName) {
+	private void SubscribeToClientMessages(NetworkClient networkClient, OnutClient onumClient, string playerName) {
 		networkClient.RegisterHandler (MsgType.Connect, (networkMessage) => OnClientConnected(networkClient, networkMessage, playerName));
 		networkClient.RegisterHandler (OnuMessage.Welcome, (networkMessage) => OnWelcomeReceived(onumClient, networkMessage));
 		networkClient.RegisterHandler (OnuMessage.PlayersUpdated, (networkMessage) => OnPlayerUpdateReceived(onumClient, networkMessage));
@@ -134,7 +134,7 @@ public class UnityNetworkConnector : RemoteConnector {
 		client.Send (OnuMessage.Introduction, new IntroductionMessage () { playerName = playerName });
 	}
 
-	private void OnWelcomeReceived(OnumClient client, NetworkMessage netMessage) {
+	private void OnWelcomeReceived(OnutClient client, NetworkMessage netMessage) {
 		WelcomeMessage message = netMessage.ReadMessage<WelcomeMessage> ();
 //		client.selfUserId = message.userId;
 		if (client == localServer.associatedClient) {
@@ -145,17 +145,17 @@ public class UnityNetworkConnector : RemoteConnector {
 
 	}
 
-	private void OnPlayerUpdateReceived(OnumClient client, NetworkMessage netMessage) {
+	private void OnPlayerUpdateReceived(OnutClient client, NetworkMessage netMessage) {
 		PlayersUpdatedMessage message = netMessage.ReadMessage<PlayersUpdatedMessage> ();
 		client.HandleOtherJoined (message.userIds);
 	}
 
-	private void OnStartGameRecieved(OnumClient client, NetworkMessage netMessage) {
+	private void OnStartGameRecieved(OnutClient client, NetworkMessage netMessage) {
 		StartGameMessage message = netMessage.ReadMessage<StartGameMessage> ();
 		client.HandleGameStarted (message.randomSeed);
 	}
 
-	private void OnNightActionReceived(OnumClient client, NetworkMessage netMessage) {
+	private void OnNightActionReceived(OnutClient client, NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
 		if(netMessage.msgType == OnuMessage.NightAction) {
@@ -175,17 +175,17 @@ public class UnityNetworkConnector : RemoteConnector {
 		client.HandleActionMessage (message.sourceUserId, message.selection);
 	}
 
-	private void OnVoteReceived(OnumClient client, NetworkMessage netMessage) {
+	private void OnVoteReceived(OnutClient client, NetworkMessage netMessage) {
 		print ("Vote received");
 		VoteMessage message = netMessage.ReadMessage<VoteMessage> ();
 		client.HandleVoteMessage (message.sourceUserId, message.voteeLocationId);
 	}
 
 	public class Server {
-		public OnumClient associatedClient;
+		public OnutClient associatedClient;
 		public List<string> connectedUserIds;
 
-		public Server (OnumClient associatedClient) {
+		public Server (OnutClient associatedClient) {
 			this.associatedClient = associatedClient;
 			this.connectedUserIds = new List<string>();
 		}

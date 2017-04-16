@@ -137,7 +137,7 @@ public class GameMaster
 		switch (targetPhase) {
 			case GamePhase.Night:
 				if (ui != null)
-					ui.SetState (PlayerUi.UiScreen.Night);
+					ui.SetMainState (PlayerUi.UiScreen.Night);
 
 			//Wait for responses
 				playersAwaitingResponseFrom = new List<GamePlayer> (players);
@@ -148,7 +148,7 @@ public class GameMaster
 
 				//Reveal information to seer roles
 				if (ui != null)
-					ui.SetState (PlayerUi.UiScreen.Day);
+					ui.SetMainState (PlayerUi.UiScreen.Day);
 
 				playersAwaitingResponseFrom = new List<GamePlayer> (players);
 				break;
@@ -156,7 +156,7 @@ public class GameMaster
 				KillPlayers ();
 				DetermineWinners ();
 				if (ui != null)
-					ui.SetState (PlayerUi.UiScreen.Result);
+					ui.SetMainState (PlayerUi.UiScreen.Result);
 				break;
 		}
 	}

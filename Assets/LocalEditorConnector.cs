@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class LocalEditorConnector : RemoteConnector {
 
-	public override void BeginSession(OnumClient client, string name) {
+	public override void BeginSession(OnutClient client, string name) {
 		VirtualServer.instance.HandleClientNewUser(client, name);
 	}
 
-	public override void JoinSession (OnumClient client, string name, string roomKey) {
+	public override void JoinSession (OnutClient client, string name, string roomKey) {
 		VirtualServer.instance.HandleClientNewUser(client, name);
 	}
 
-	public override void StartGame(OnumClient client, StartGamePayload payload) {
+	public override void StartGame(OnutClient client, StartGamePayload payload) {
 		VirtualServer.instance.HandleClientSendEvent (payload);
 	}
 
-	public override void BroadcastPayload (OnumClient client, RemotePayload payload) {
+	public override void BroadcastPayload (OnutClient client, RemotePayload payload) {
 		VirtualServer.instance.HandleClientSendEvent(payload);
 	}
 
-	public override void Disconnect(OnumClient client) {
+	public override void Disconnect(OnutClient client) {
 		VirtualServer.instance.Disconnect (client);
 	}
 }
