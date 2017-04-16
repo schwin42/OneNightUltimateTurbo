@@ -309,7 +309,13 @@ public class PlayerUi : MonoBehaviour
 		title_JoinButton.interactable = false;
 
 		//Join game
-		client.JoinSession (playerName.text, title_roomKey.text);
+		if(RemoteConnector.instance is UnityNetworkConnector) {
+			client.JoinSession (playerName.text, "192.168.0." + title_roomKey.text); //TODO Remove magic number
+		} else if (RemoteConnector.instance is InternetConnector) {
+			client.JoinSession (playerName.text, title_roomKey.text);
+		}
+
+
 	}
 
 	public void HandleHostButtonPressed ()

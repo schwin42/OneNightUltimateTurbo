@@ -7,6 +7,7 @@ using System.Linq;
 
 public enum ErrorType
 {
+	Generic,
 	UnableToAuthenticate,
 }
 
@@ -59,7 +60,18 @@ public class InternetConnector : RemoteConnector
 		JSONNode node = new JSONObject ();
 		node.Add ("action", "start");
 		node.Add ("user", client.selfUserId);
+		JSONArray userArray = new JSONArray ();
+		for (int i = 0; i < origin.client.connectedUsers.Count; i++) {
+			userArray.Add (origin.client.connectedUsers [i]);
+		}
+		node.Add ("users", userArray);
 		node.Add ("accessKey", client.accessKey);
+		JSONNode payloadNode = new JSONObject ();
+		if (payload is StartGamePayload) {
+			payloadNode.Add ("message", PayloadType.InitiateGame.ToString ());
+			payloadNode.Add ("randomSeed", ((StartGamePayload)origin.payload).randomSeed);
+		}
+		node.Add("payload", payloadNode);
 		string json = node.ToString ();
 		DispatchWebRequest (origin, json, RequestType.StartGame);
 	}
@@ -104,7 +116,8 @@ public class InternetConnector : RemoteConnector
 		yield return www;
 
 		if (www.error != null) {
-			print ("Error received: " + www.error + ", " + www.text);
+			origin.client.HandleRemoteError(ErrorType.Generic, www.error + ", " + www.text);
+			yield break;
 		}
 
 		print (origin.client.UserId + " received www: " + www.text);
@@ -141,9 +154,9 @@ public class InternetConnector : RemoteConnector
 				userId = node ["userId"];
 				origin.client.HandleOtherJoined (userId);
 				break;
-			case "start":
-				//Game started, but I don't think we really care
-				break;
+//			case "start":
+//				//Game started, but I don't think we really care
+//				break;
 			case "InitiateGame":
 				int randomSeed = node ["randomSeed"];
 				origin.client.HandleGameStarted (randomSeed);
@@ -179,15 +192,18 @@ public class InternetConnector : RemoteConnector
 			DispatchWait (origin);
 			break;
 		case RequestType.StartGame:
-				//Check for game started message, and dispatch start game payload if it exists
-			node = JSON.Parse (www.text);
-			message = node ["message"];
-			if (message == "started") {
-				DispatchBroadcast (origin, origin.payload);
-			} else {
-				Debug.LogError ("Unexpected start game response: " + message);
-			}
-//				client.HandleRemotePayload (payload);
+			//Should be no need to do anything here
+
+
+//				//Check for game started message, and dispatch start game payload if it exists
+//			node = JSON.Parse (www.text);
+//			message = node ["message"];
+//			if (message == "started") {
+////				DispatchBroadcast (origin, origin.payload);
+//			} else {
+//				Debug.LogError ("Unexpected start game response: " + message);
+//			}
+////				client.HandleRemotePayload (payload);
 			break;
 		case RequestType.BroadcastEvent:
 				//Will be received by wait call, do nothing

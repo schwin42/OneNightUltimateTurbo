@@ -109,10 +109,9 @@ public class OnumClient : MonoBehaviour, IClient {
 		gm = new GameMaster(ui); //Implement random seed
 		selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(connectedUsers.Count + 3, randomSeed, true);
 
-//		selectedDeckBlueprint = new List<Role>() { Role.Villager, Role.Villager, Role.Villager, Role.Tanner, Role.Minion, Role.Werewolf };
-//		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.MysticWolf, Role.Troublemaker, Role.Drunk, Role.Seer, Role.ApprenticeSeer };
-
 		selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
+//		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.Seer, Role.Troublemaker, Role.Drunk, Role.Werewolf, Role.ApprenticeSeer };
+
 		connectedUsers = connectedUsers.OrderBy(s => s).ToList();
 		gm.StartGame (connectedUsers, new GameSettings (selectedDeckBlueprint));
 	}
@@ -128,34 +127,16 @@ public class OnumClient : MonoBehaviour, IClient {
 		gm.ReceiveVote(userId, votee);
 	}
 
-	public void HandleRemoteError(ErrorType error) {
+	public void HandleRemoteError(ErrorType error, string s = null) {
 		switch(error) {
 			case ErrorType.UnableToAuthenticate: //TODO Throw error dialog
 				Debug.LogWarning ("Unable to authenticate. Check your room key.");
 				break;
+		case ErrorType.Generic:
+			Debug.LogWarning(s);
+			break;
 		}
 	}
-
-//	public void HandleRemotePayload(RemotePayload payload) {
-////		Debug.Log("self: " + selfClientId);
-//		//If game event, pass to GameMaster
-//		if(payload is GamePayload) {
-//			gm.ReceiveDirective((GamePayload)payload);
-//		} else if(payload is WelcomeBasketPayload) { 
-//
-//		} else if(payload is UpdateOtherPayload) {
-//			UpdateOtherPayload update = ((UpdateOtherPayload)payload);
-//			this.playerNamesByUserId = update.playerNamesByClientId;
-////			Debug.Log("Update other payload received by " + this.selfClientId + ": source, players, ids: " + this.playerNames.Count + ", " + this.playerNames.Count);
-//			ui.HandlePlayersUpdated(playerNamesByUserId.Select(kp => kp.Value).ToList());
-////			print("update other for " + this.PlayerName + ". Player names: " + playerNames.Count);
-//		} else if (payload is StartGamePayload) {
-//			Debug.Log("Start game received by: " + selfUserId);
-//			}
-//		} else {
-//			Debug.LogError("Unexpected payload type: " + payload.ToString());
-//		}
-//	}
 
 	public void BeginSession(string playerName) {
 		connectedUsers = new List<string> ();
@@ -165,7 +146,7 @@ public class OnumClient : MonoBehaviour, IClient {
 	public void JoinSession(string playerName, string roomKey)
 	{
 		connectedUsers = new List<string> ();
-		RemoteConnector.instance.JoinSession(this, roomKey, playerName);
+		RemoteConnector.instance.JoinSession(this, playerName, roomKey);
 	}
 
 	public void SubmitNightAction(int[][] selection) {

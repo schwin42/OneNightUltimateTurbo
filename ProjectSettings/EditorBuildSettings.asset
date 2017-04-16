@@ -15,8 +15,8 @@ EditorBuildSettings:
     path: Assets/Scenes/SymInternet.unity
     guid: c48aaeb910f1343009f07cec7d052000
   - enabled: 1
-    path: Assets/Internet.unity
+    path: Assets/Scenes/InternetDeployment.unity
     guid: 8bad775db2a0c22418a8490d88974835
   - enabled: 0
-    path: Assets/UnityNetworkLan.unity
+    path: Assets/Scenes/UnityNetworkLan.unity
     guid: 76e5b70e33fbdcc4aa46bb900e41f644

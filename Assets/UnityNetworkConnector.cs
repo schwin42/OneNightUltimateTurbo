@@ -51,6 +51,18 @@ public class UnityNetworkConnector : RemoteConnector {
 	}
 
 	private void OnumBroadcastMessage(OnumClient client, short msgType, MessageBase message) {
+		if(msgType == OnuMessage.NightAction) {
+			string nightActionString = "";
+			int[][] selection = ((NightActionMessage)message).selection;
+			for(int i = 0; i < selection.Length; i++) {
+				nightActionString += " { ";
+				for(int j = 0; j < selection[i].Length; j++) {
+					nightActionString += selection[i][j].ToString();
+				}
+				nightActionString += " } ";
+			}
+			print("Night action sent: " + nightActionString);
+		}
 		if (localServer != null) {
 			NetworkServer.SendToAll (msgType, message);
 		} else {
@@ -146,6 +158,20 @@ public class UnityNetworkConnector : RemoteConnector {
 	private void OnNightActionReceived(OnumClient client, NetworkMessage netMessage) {
 		print ("Night action received.");
 		NightActionMessage message = netMessage.ReadMessage<NightActionMessage> ();
+		if(netMessage.msgType == OnuMessage.NightAction) {
+			string nightActionString = "";
+			int[][] selection = ((NightActionMessage)message).selection;
+			for(int i = 0; i < selection.Length; i++) {
+				nightActionString += " { ";
+				for(int j = 0; j < selection[i].Length; j++) {
+					nightActionString += selection[i][j].ToString();
+				}
+				nightActionString += " } ";
+			}
+			print("Night action received: " + nightActionString);
+		}
+
+
 		client.HandleActionMessage (message.sourceUserId, message.selection);
 	}
 
