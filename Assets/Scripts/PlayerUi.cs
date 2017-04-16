@@ -74,6 +74,7 @@ public class PlayerUi : MonoBehaviour
 	Text night_Title;
 	Text night_Description;
 	Transform night_ButtonBox;
+	Text night_DeckDisplay;
 
 	//Day voting
 	Transform day_VoteButtonBox;
@@ -118,7 +119,8 @@ public class PlayerUi : MonoBehaviour
 		//Night
 		night_Title = transform.Find ("MainStates/Night/Title").GetComponent<Text> ();
 		night_Description = transform.Find ("MainStates/Night/Description").GetComponent<Text> ();
-		night_ButtonBox = transform.Find ("MainStates/Night/Grid").transform;
+		night_ButtonBox = transform.Find ("MainStates/Night/Panel/Grid").transform;
+		night_DeckDisplay = transform.Find("MainStates/Night/Panel/DeckDisplay/Text").GetComponent<Text>();
 
 		//Day
 		day_VoteButtonBox = transform.Find ("MainStates/Day/Panel/Grid/");
@@ -200,6 +202,8 @@ public class PlayerUi : MonoBehaviour
 				descriptionStrings.Add (Team.teams.Single (t => t.name == gamePlayer.dealtCard.data.team).description);
 				descriptionStrings.Add (gamePlayer.prompt.promptText);
 				night_Description.text = string.Join (" ", descriptionStrings.ToArray ());
+				List<Role> randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
+				night_DeckDisplay.text = GetDeckString(randomDeckList);
 
 				_nightSelections = new List<List<int>> ();
 				pendingSelection = new List<int> ();
@@ -276,16 +280,8 @@ public class PlayerUi : MonoBehaviour
 				day_Description.text = descriptionText;
 
 			//Set deck display
-				List<Role> randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
-				string deckString = "";
-				for (int i = 0; i < randomDeckList.Count; i++) {
-				
-					if (i != 0) {
-						deckString += "\n";
-					}
-					deckString += randomDeckList [i].ToString ();
-				}
-				day_DeckDisplay.text = deckString;
+				randomDeckList = client.Gm.gameSettings.deckList.OrderBy (x => UnityEngine.Random.value).ToList ();
+				day_DeckDisplay.text = GetDeckString(randomDeckList);;
 				break;
 			case UiScreen.Result:
 				result_Title.text = gamePlayer.didWin ? "You won!" : "You lost!";
@@ -455,6 +451,18 @@ public class PlayerUi : MonoBehaviour
 				t.Seconds, 
 				t.Milliseconds);
 		}
+	}
+
+	private string GetDeckString(List<Role> deckList) {
+		string deckString = "";
+		for (int i = 0; i < deckList.Count; i++) {
+
+			if (i != 0) {
+				deckString += "\n";
+			}
+			deckString += deckList [i].ToString ();
+		}
+		return deckString;
 	}
 
 	private void AddActionButton (string label, int selectionId)
