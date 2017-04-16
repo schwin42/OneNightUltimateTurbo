@@ -11,10 +11,10 @@ public static class DeckGenerator {
 		List<int> replacementIndeces;
 		for(int i = 0; i < 100; i++) { //Iterate to 100 instead of while loop, to prevent infinite loops
 			deck = GenerateNewUnfixedDeck(cardCount, out instancePool, out replacementIndeces, randomSeed, readyOnly);
-			int werewolfOrVampireCount = deck.Count(cd => cd.nature == Nature.Werewolf || cd.nature == Nature.Vampire);
+			int werewolfOrVampireCount = deck.Count(cd => cd.team == TeamName.WerewolfTeam || cd.team == TeamName.VampireTeam);
 			if (werewolfOrVampireCount < 2) {
-				//Not enough werewolves/villagers
-				if(replacementIndeces.Count < 2 - werewolfOrVampireCount) {
+				//Not enough or too many werewolves/vampire
+				if(replacementIndeces.Count < 2 - werewolfOrVampireCount || werewolfOrVampireCount > cardCount / 2) {
 					randomSeed++;
 					continue; //Invalid deck, try again
 				} else {
