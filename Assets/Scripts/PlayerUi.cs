@@ -265,15 +265,15 @@ public class PlayerUi : MonoBehaviour
 						case ActionType.ChooseFork:
 							skippableIndeces.Add (_nightSelections [i] [0]);
 							break;
-						case ActionType.SwapTwo:
+						case ActionType.SwapCards:
 							if (_nightSelections [i] [0] == -1) {
 								descriptionText += "You chose not to swap cards.";
 							} else {
 								descriptionText += "You swapped cards between " + GetPersonalPlayerName (_nightSelections [i] [0]) + " and " + GetPersonalPlayerName (_nightSelections [i] [1]) + " at " + gamePlayer.dealtCard.data.order.ToString () + ".";
 							}
 							break;
-						case ActionType.ViewOne:
-						case ActionType.ViewTwo:
+						case ActionType.ViewOneCard:
+						case ActionType.ViewTwoCards:
 							//Observations already handled, do nothing.
 							break;
 						default:
@@ -465,7 +465,7 @@ public class PlayerUi : MonoBehaviour
 			if (i != 0) {
 				deckString += "\n";
 			}
-			deckString += deckList [i].ToString ();
+			deckString += (deckList [i].ToString () + GameData.instance.cardData.Single(cd => cd.role == deckList[i]).order.ToString());
 		}
 		return deckString;
 	}

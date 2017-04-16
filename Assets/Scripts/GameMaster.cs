@@ -305,7 +305,7 @@ public class GameMaster
 					} else {
 						skippableIndeces.Add ((actingPlayer.nightLocationSelection [j] [0]));
 					}
-				} else if (subAction.actionType == ActionType.ViewOne) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
+				} else if (subAction.actionType == ActionType.ViewOneCard) { //Lone werewolf, robber 2nd, insomniac, mystic wolf, apprentice seer
 
 					//Get jth sub action of selection, which should be an array with one location id
 					if (actingPlayer.nightLocationSelection [j].Length != 1) {
@@ -316,7 +316,7 @@ public class GameMaster
 
 
 					actingPlayer.observations.Add (new Observation (targetLocationId, locationsById [targetLocationId].currentCard.gamePieceId));
-				} else if (subAction.actionType == ActionType.SwapTwo) { //Robber 1st, troublemaker, drunk
+				} else if (subAction.actionType == ActionType.SwapCards) { //Robber 1st, troublemaker, drunk
 					//Get cards to swap
 					int[] targetLocationIds = actingPlayer.nightLocationSelection [j];
 //					List<int> targetLocationIds = GetLocationIdsFromTargetInfo(actingPlayer.locationId, hiddenAction.targets, actingPlayer.nightLocationSelection.locationIds.ToList());
@@ -328,7 +328,7 @@ public class GameMaster
 					firstTargetLocation.currentCard = secondTargetCard;
 					secondTargetLocation.currentCard = firstTargetCard;
 
-				} else if (subAction.actionType == ActionType.ViewTwo) { //Seer second option
+				} else if (subAction.actionType == ActionType.ViewTwoCards) { //Seer second option
 					int[] targetLocationIds = actingPlayer.nightLocationSelection [j];
 					actingPlayer.observations.Add (new Observation (targetLocationIds [0], locationsById [targetLocationIds [0]].currentCard.gamePieceId));
 					actingPlayer.observations.Add (new Observation (targetLocationIds [1], locationsById [targetLocationIds [1]].currentCard.gamePieceId));

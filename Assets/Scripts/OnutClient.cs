@@ -7,7 +7,7 @@ using System;
 [System.Serializable]
 public class OnutClient : MonoBehaviour, IClient {
 
-	public const string VERSION = "1.0.1";
+	public const string VERSION = "1.0.2";
 
 	public string UserId { 
 		get { 

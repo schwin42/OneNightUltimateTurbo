@@ -71,7 +71,6 @@ public class GameData : MonoBehaviour {
 			}
 
 			string cardPrompt = dict["PromptText"];
-			string cardDuskActions = dict["DuskActions"];
 			int cardMaxQuantity = int.Parse(dict["MaxQuantity"]);
 
 			CardData card = new CardData(cardRole) {
@@ -83,8 +82,7 @@ public class GameData : MonoBehaviour {
 				promptIfCohort = dict["PromptIfCohortText"],
 				prompt = cardPrompt,
 				hiddenAction = ParseHiddenActionSeries(dict["NightAction"]),
-//				nightActionsIfCohort = cardNightActionsIfCohort;
-				duskActions = cardDuskActions,
+				hiddenActionIfCohort = ParseHiddenActionSeries(dict["NightActionIfCohort"]),
 				seedRequirement = ParseSelector(dict["SeedRequirement"]),
 				maxQuantity = cardMaxQuantity,
 			};
@@ -145,10 +143,10 @@ public class GameData : MonoBehaviour {
 	private static List<SubAction> ParseHiddenActionSeries(string hiddenActionSeries) {
 		List<SubAction> hiddenActions = new List<SubAction>();
 		if(hiddenActionSeries != "") {
-			string[] nightActionStrings = hiddenActionSeries.Split(';');
-			for(int i = 0; i < nightActionStrings.Length; i++) {
-				string[] nightActionComponents = nightActionStrings[i].Split('(');
-				string nightActionTypeAndOption = nightActionComponents[0];
+			string[] nightSubactions = hiddenActionSeries.Split(';');
+			for(int i = 0; i < nightSubactions.Length; i++) {
+				string[] nightSubactionComponents = nightSubactions[i].Trim().Split('(');
+				string nightActionTypeAndOption = nightSubactionComponents[0];
 				string[] disectedActionType = nightActionTypeAndOption.Split('_');
 				bool isMandatory;
 				if(disectedActionType[0] == "May") {
@@ -159,12 +157,18 @@ public class GameData : MonoBehaviour {
 					Debug.LogError("Unexpected option string: " + disectedActionType[0]);
 					continue;
 				}
-				string targetString = nightActionComponents[1].Remove(nightActionComponents[1].IndexOf(')'));
-				string[] stringTargets = targetString.Split(',');
 				List<SelectableObjectType> actionTargets = new List<SelectableObjectType>();
-				for(int j = 0; j < stringTargets.Length; j++) {
-					SelectableObjectType objectType = (SelectableObjectType)Enum.Parse(typeof(SelectableObjectType), stringTargets[j]);
-					actionTargets.Add(objectType);
+				string targetString = nightSubactionComponents[1].Remove(nightSubactionComponents[1].IndexOf(')'));
+				if(targetString != "") {
+					string[] stringTargets = targetString.Split(',');
+					for(int j = 0; j < stringTargets.Length; j++) {
+						try {
+							SelectableObjectType objectType = (SelectableObjectType)Enum.Parse(typeof(SelectableObjectType), stringTargets[j].Trim());
+							actionTargets.Add(objectType);
+						} catch (Exception e) {
+							Debug.LogError("Unable to parse selectable object from: " + hiddenActionSeries);
+						}
+					}
 				}
 				ActionType actionType = (ActionType)Enum.Parse(typeof(ActionType), disectedActionType[1]);
 				hiddenActions.Add(new SubAction(actionType, actionTargets, isMandatory));

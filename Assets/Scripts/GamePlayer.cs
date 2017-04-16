@@ -49,6 +49,7 @@ public class GamePlayer : ILocation
 		}
 	}
 	//public Mark currentMark;
+	//TODO To accommodate marks, add team, nature, and win condition properties to derive status from card and mark (mark overrides in  most if not all cases)
 
 	//5. Notify seers
 	public List<Observation> observations;

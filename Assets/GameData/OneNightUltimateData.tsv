@@ -1,45 +1,45 @@
-Role	Value	Feature Set	Status	Team	Nature	Order	WinRequirements	Cohort	PromptText	PromptIfCohortText	DuskActions	NightAction	NightActionsIfCohort	VoteAction	SeedRequirement	MaxQuantity	Expansion
-Apprentice Seer	Low	Done	Implemented	Village	Villageperson	5B			You may view a card from the center.			May_ViewOne(TargetCenterCard)				1	Daybreak
-Dream Wolf	Low	Done	Implemented	Werewolf	Werewolf				If any werewolves or minions exist, they know you're a werewolf.						NatureWerewolf	1	Daybreak
-Drunk	Done	Done	Implemented	Village	Villageperson	8			You must choose a center card to swap cards with.			Must_SwapTwo(Self,TargetCenterCard)				1	Werewolf
-Insomniac	Done	Done	Implemented	Village	Villageperson	9			The Insomniac views their own card.			Must_ViewOne(Self)			CardSwapper	1	Werewolf
-Mason	Done	Done	Implemented	Village	Villageperson	4		Mason	You observed no other mason.	{0} was dealt the other mason					Mason	2	Werewolf
-Minion	Done	Done	Implemented	Werewolf	Villageperson	3		NatureWerewolf	The Minion is not a werewolf. If there is at least one werewolf, the Minion wins if  none of them die. If there are no werewolves, the Minion wins if another player dies						NatureWerewolf	1	Werewolf
-Mystic Wolf	Medium	Done	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You observed no other werewolves. You may view another player's card.	{0} was dealt a werewolf. You may view another player's car		May_ViewOne(TargetOtherPlayer)	May_ViewOne(TargetOtherPlayer)			1	Daybreak
-Robber	Done	Done	Implemented	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.			May_ViewOne(TargetOtherPlayer);Must_SwapTwo(Self,LastTarget)				1	Werewolf
-Seer	Very High	Done	Implemented	Village	Villageperson	5			You may view another player's card or two cards from the center.			May_ChooseFork(TargetFork);Must_ViewOne(TargetOtherPlayer);Must_ViewTwo(TargetCenterCard,TargetCenterCard)				1	Werewolf
-Tanner	Done	Broken WinRequirement	Encoded	NoTeam	Villageperson		Role.Tanner_MustDie		The Tanner only wins if s/he dies.							1	Werewolf
-Troublemaker	Done	Done	Implemented	Village	Villageperson	7			You may choose two other players to swap cards between.			May_SwapTwo(TargetOtherPlayer,TargetOtherPlayer)				1	Werewolf
-Villager	Done	Done	Implemented	Village	Villageperson				The Villager has no action.						Villager	3	Werewolf
-Werewolf	Done	Done	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	{0} was dealt a werewolf.		May_ViewOne(TargetCenterCard)				2	Werewolf
-Witch	High	Sequential Flow & View Before Act	IncompleteEntry	Village	Villageperson	6B			You may choose to view a card from the center. If you do, you must swap that with a player's card.			May_ViewOne(TargetCenterCard);Must_SwapTwo(LastTarget,TargetAnyPlayer)				1	Daybreak
-Alpha Wolf	Low	4th Center Card	IncompleteEntry	Werewolf	Werewolf	2B										1	Daybreak
-Apprentice Assassin	High	Marks & Assassin Team	IncompleteEntry	NoTeam	Villageperson	-1B									Assassin	1	Vampire
-Assassin	High	Marks & Assassin Team	IncompleteEntry	NoTeam	Villageperson	-1					PlaceAssassin					1	Vampire
-Aura Seer	High	View or Move Detection	IncompleteEntry	Village	Villageperson	7C									MoveOrViewer	1	Bonus Pack 1
-Beholder	Medium	Seer Cohort and Acting on Cohort	IncompleteEntry	Village	Villageperson	9Z									SeerOrApprenticeSeer	1	Bonus Pack 2
-Bodyguard	Low	Vote Modifiers	IncompleteEntry	Village	Villageperson									VoteeCantDie		1	Daybreak
-Copycat	Low	Variable Nature	IncompleteEntry	NoTeam	Variable	-8										1	Vampire
-Cupid	High	Marks	IncompleteEntry	Village	Villageperson	-4					PlaceLove					1	Vampire
-Curator	Low	Sequential Flow & Artifacts	IncompleteEntry	Village	Villageperson	11										1	Daybreak
-Cursed	Very Low	Vote Modifiers	IncompleteEntry	NoTeam	Variable											1	Bonus Pack 1
-Diseased	Medium	Marks	IncompleteEntry	Village	Villageperson	-5					PlaceDisease					1	Vampire
-Doppelgänger	Medium	Action Copying	IncompleteEntry	NoTeam	Variable	-7										1	Werewolf
-Gremlin	Medium	Marks	IncompleteEntry	Village	Villageperson	7D									MarkPlacer	1	Vampire
-Instigator	High	Marks	IncompleteEntry	Village	Villageperson	-3					PlaceTraitor					1	Vampire
-Marksman	High	Marks	IncompleteEntry	Village	Villageperson	5D									MarkPlacer	1	Vampire
-Paranormal Investigator	Very High	Sequential Flow & Nature Determination	IncompleteEntry	NoTeam	Variable	5C										1	Daybreak
-Pickpocket	High	Marks	IncompleteEntry	Village	Villageperson	6C									MarkPlacer	1	Vampire
-Priest	Medium	Marks	IncompleteEntry	Village	Villageperson	-2					PlaceClarity				MarkPlacer	1	Vampire
-Prince	Low	Vote Modifiers	IncompleteEntry	Village	Villageperson											1	Bonus Pack 1
-Renfield	High	Marks	IncompleteEntry	Werewolf	Villageperson	-6C									NatureVampire	1	Vampire
-Revealer	Medium	Revealing	IncompleteEntry	Village	Villageperson	10										1	Daybreak
-Sentinel	Low	Sequential Flow & Selection Limiting	IncompleteEntry	Village	Villageperson	0										1	Daybreak
-Squire	High	Acting on Cohort	IncompleteEntry	Werewolf	Villageperson	9C									NatureWerewolf	1	Bonus Pack 2
-The Count	High	Marks	IncompleteEntry	Vampire	Vampire	-6B					PlaceVampire					1	Vampire
-The Master	High	Marks	IncompleteEntry	Vampire	Vampire						PlaceVampire				NatureVampire	1	Vampire
-Thing	Low	ShoulderTap	IncompleteEntry	Village	Villageperson	4B										1	Bonus Pack 2
-Vampire	High	Marks	IncompleteEntry	Vampire	Vampire	-6					PlaceVampire					1	Vampire
-Village Idiot	Very Low	Advanced Swap	IncompleteEntry	Village	Villageperson	7B										1	Daybreak
-Apprentice Tanner	Medium	Easy	Encoded	NoTeam	Villageperson	3B	Role.Tanner_MustDie;Relation.Self_MustDie								Tanner	1	Bonus Pack 2
-Hunter	High	Vote Modifiers	Slated	Village	Villageperson									KillsVoteeIfKilled		1	Werewolf
+Role	Value	Feature Set	Status	Team	Nature	Order	WinRequirements	Cohort	PromptText	PromptIfCohortText	NightAction	NightActionIfCohort	VoteAction	SeedRequirement	MaxQuantity	Expansion
+Apprentice Seer	Low	Done	Implemented	Village	Villageperson	5B			You may view a card from the center.		May_ViewOneCard(TargetCenterCard)				1	Daybreak
+Dream Wolf	Low	Done	Implemented	Werewolf	Werewolf				If any werewolves or minions exist, they know you're a werewolf.					NatureWerewolf	1	Daybreak
+Drunk	Done	Done	Implemented	Village	Villageperson	8			You must choose a center card to swap cards with.		Must_SwapCards(Self,TargetCenterCard)				1	Werewolf
+Insomniac	Done	Done	Implemented	Village	Villageperson	9			The Insomniac views their own card.		Must_ViewOneCard(Self)			CardSwapper	1	Werewolf
+Mason	Done	Done	Implemented	Village	Villageperson	4		Mason	You observed no other mason.	{0} was dealt the other mason				Mason	2	Werewolf
+Minion	Done	Done	Implemented	Werewolf	Villageperson	3		NatureWerewolf	The Minion is not a werewolf. If there is at least one werewolf, the Minion wins if  none of them die. If there are no werewolves, the Minion wins if another player dies					NatureWerewolf	1	Werewolf
+Mystic Wolf	Medium	Done	Implemented	Werewolf	Werewolf	2C		NatureWerewolf	You observed no other werewolves. You may view another player's card.	{0} was dealt a werewolf. You may view another player's car	May_ViewOneCard(TargetOtherPlayer)	May_ViewOneCard(TargetOtherPlayer)			1	Daybreak
+Robber	Done	Done	Implemented	Village	Villageperson	6			You may choose another player to swap cards with and view your new card.		May_ViewOneCard(TargetOtherPlayer);Must_SwapCards(Self,LastTarget)				1	Werewolf
+Seer	Very High	Done	Implemented	Village	Villageperson	5			You may view another player's card or two cards from the center.		May_ChooseFork(TargetFork);Must_ViewOneCard(TargetOtherPlayer);Must_ViewTwoCards(TargetCenterCard,TargetCenterCard)				1	Werewolf
+Tanner	Done	Broken WinRequirement	Encoded	NoTeam	Villageperson		Role.Tanner_MustDie		The Tanner only wins if s/he dies.						1	Werewolf
+Troublemaker	Done	Done	Implemented	Village	Villageperson	7			You may choose two other players to swap cards between.		May_SwapCards(TargetOtherPlayer,TargetOtherPlayer)				1	Werewolf
+Villager	Done	Done	Implemented	Village	Villageperson				The Villager has no action.					Villager	3	Werewolf
+Werewolf	Done	Done	Implemented	Werewolf	Werewolf	2		NatureWerewolf	There are no other werewolves. You may look at a card from the center.	{0} was dealt a werewolf.	May_ViewOneCard(TargetCenterCard)				2	Werewolf
+Witch	High	Sequential Flow & View Before Act	Unencoded	Village	Villageperson	6B			You may choose to view a card from the center. If you do, you must swap that with a player's card.		May_ViewOneCard(TargetCenterCard);Must_SwapCards(LastTarget,TargetAnyPlayer)				1	Daybreak
+Alpha Wolf	Low	4th Center Card	Unencoded	Werewolf	Werewolf	2B					Must_SwapCards(CenterCardFour,TargetOtherPlayer)				1	Daybreak
+Apprentice Assassin	High	Marks & Assassin Team	Unencoded	NoTeam	Villageperson	-1B		Assassin			Must_PlaceMark(MarkAssassin, TargetAnyPlayer)			Assassin	1	Vampire
+Assassin	High	Marks & Assassin Team	Unencoded	NoTeam	Villageperson	-1					Must_PlaceMark(MarkAssassin, TargetAnyPlayer)				1	Vampire
+Aura Seer	High	View or Move Detection	Unencoded	Village	Villageperson	7C								MoveOrViewer	1	Bonus Pack 1
+Beholder	Medium	Seer Cohort and Acting on Cohort	Unencoded	Village	Villageperson	9Z						Must_ViewCohort()		SeerOrApprenticeSeer	1	Bonus Pack 2
+Bodyguard	Low	Vote Modifiers	HipEncode	Village	Villageperson								VoteeCantDie		1	Daybreak
+Copycat	Low	Variable Nature	HipEncode	NoTeam	Variable	-8					Must_SwapCards(TargetCenterCard,Self)				1	Vampire
+Cupid	High	Marks	HipEncode	Village	Villageperson	-4					Must_PlaceMark(MarkLove, TargetOtherPlayer); Must_PlaceMark(MarkLove, TargetOtherPlayer)				1	Vampire
+Curator	Low	Sequential Flow & Artifacts	HipEncode	Village	Villageperson	11					Must_PlaceArtifact(TargetAnyPlayer)				1	Daybreak
+Cursed	Very Low	Vote Modifiers	Unencoded	NoTeam	Variable										1	Bonus Pack 1
+Diseased	Medium	Marks	HipEncode	Village	Villageperson	-5					Must_PlaceMark(MarkDisease,TargetOtherPlayer)				1	Vampire
+Doppelgänger	Medium	Action Copying	Unencoded	NoTeam	Variable	-7									1	Werewolf
+Gremlin	Medium	Marks	HipEncode	Village	Villageperson	7D					May_SwapMarks(TargetOtherPlayer,TargetOtherPlayer)			MarkPlacer	1	Vampire
+Instigator	High	Marks	HipEncode	Village	Villageperson	-3					Must_PlaceMark(MarkTraitor, TargetOtherPlayer)				1	Vampire
+Marksman	High	Marks	Unencoded	Village	Villageperson	5D								MarkPlacer	1	Vampire
+Paranormal Investigator	Very High	Sequential Flow & Nature Determination	HipEncode	NoTeam	Variable	5C					May_Assume(TargetOtherPlayer); May_Assume(TargetNewOtherPlayer)				1	Daybreak
+Pickpocket	High	Marks	HipEncode	Village	Villageperson	6C					May_SwapMarks(TargetOtherPlayer,Self)			MarkPlacer	1	Vampire
+Priest	Medium	Marks	HipEncode	Village	Villageperson	-2					Must_PlaceMark(MarkClarity, Self);Must_PlaceMark(MarkClarity, TargetOtherPlayer)			MarkPlacer	1	Vampire
+Prince	Low	Vote Modifiers	HipEncode	Village	Villageperson								SelfCantDie		1	Bonus Pack 1
+Renfield	High	Marks	HipEncode	Werewolf	Villageperson	-6C					Must_PlaceMark(MarkBat, Self)			NatureVampire	1	Vampire
+Revealer	Medium	Revealing	HipEncode	Village	Villageperson	10					May_RevealCard(TargetOtherPlayer)				1	Daybreak
+Sentinel	Low	Sequential Flow & Selection Limiting	Unencoded	Village	Villageperson	0									1	Daybreak
+Squire	High	Acting on Cohort	HipEncode	Werewolf	Villageperson	9C						Must_ViewCohort()		NatureWerewolf	1	Bonus Pack 2
+The Count	High	Marks	HipEncode	Vampire	Vampire	-6B					Must_PlaceMark(MarkVampire, TargetNonVampire); Must_PlaceMark(MarkFear, TargetNonVampire)		SelfCantDieIfVampireVotesForSelf		1	Vampire
+The Master	High	Marks	HipEncode	Vampire	Vampire						Must_PlaceMark(MarkVampire, TargetNonVampire)			NatureVampire	1	Vampire
+Thing	Low	ShoulderTap	HipEncode	Village	Villageperson	4B					May_Tap(TargetAdjacentPlayer)				1	Bonus Pack 2
+Vampire	High	Marks	HipEncode	Vampire	Vampire	-6					Must_PlaceMark(MarkVampire, TargetNonVampire)				1	Vampire
+Village Idiot	Very Low	Advanced Swap	Unencoded	Village	Villageperson	7B									1	Daybreak
+Apprentice Tanner	Medium	Easy	Encoded	NoTeam	Villageperson	3B	Role.Tanner_MustDie;Relation.Self_MustDie							Tanner	1	Bonus Pack 2
+Hunter	High	Vote Modifiers	Encoded	Village	Villageperson								VoteeDiesIfSelfDies		1	Werewolf

@@ -97,8 +97,6 @@ public class CardData
 	public string prompt = null;
 	public List<SubAction> hiddenAction = new List<SubAction>();
 	public List<SubAction> hiddenActionIfCohort = new List<SubAction>();
-	public string duskActions = null;
-	public string duskActionsIfCohort = null;
 
 	//Deckbuilding
 	public Selector seedRequirement = null;
@@ -225,15 +223,37 @@ public enum SelectableObjectType {
 	TargetAnyPlayer = 3,
 	LastTarget = 4,
 	TargetFork = 5,
+	//Not implemented
+	TargetNonVampire = 15,
+	TargetNewOtherPlayer = 16,
+	TargetAdjacentPlayer = 17,
+	CenterCardFour = 6,
+	MarkAssassin = 7,
+	MarkLove = 8,
+	MarkDisease = 9,
+	MarkTraitor = 10,
+	MarkClarity = 11,
+	MarkBat = 12,
+	MarkFear = 13,
+	MarkVampire = 14,
+
 }
 
 [System.Serializable]
 public enum ActionType {
 	None = -1,
-	ViewOne = 0,
-	SwapTwo = 1,
-	ViewTwo = 2,
+	ViewOneCard = 0,
+	SwapCards = 1,
+	ViewTwoCards = 2,
 	ChooseFork = 3,
+	//Not implemented
+	PlaceMark = 4,
+	SwapMarks = 5,
+	PlaceArtifact = 6,
+	Assume = 7,
+	RevealCard = 8,
+	Tap = 9,
+	ViewCohort = 10,
 }
 
 [System.Serializable]
@@ -329,7 +349,7 @@ public class Selector {
 		} else if (specialSelection != SpecialSelection.None) {
 			switch(specialSelection) {
 			case SpecialSelection.MarkPlacer:
-				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.duskActions.Contains("Place"));
+				cardAtFirstIndex = cardData.FirstOrDefault(cd => cd.hiddenAction.Count > 0 && cd.hiddenAction[0].actionType == ActionType.PlaceMark);
 				break;
 			case SpecialSelection.CardSwapper:
 				Debug.Log("Special selection not handled: " + specialSelection);
@@ -364,7 +384,7 @@ public class Selector {
 		} else if (specialSelection != SpecialSelection.None) {
 			switch(specialSelection) {
 			case SpecialSelection.MarkPlacer:
-				return players.Where(p => p.dealtCard.data.duskActions.Contains("Place")).ToList();
+				return players.Where(p => p.dealtCard.data.hiddenAction.Count > 0 && p.dealtCard.data.hiddenAction[0].actionType == ActionType.PlaceMark).ToList();
 			case SpecialSelection.CardSwapper:
 				Debug.Log("Special selection not handled: " + specialSelection);
 				return new List<GamePlayer>();
