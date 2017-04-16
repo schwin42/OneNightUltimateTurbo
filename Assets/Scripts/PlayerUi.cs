@@ -32,13 +32,14 @@ public class PlayerUi : MonoBehaviour
 	}
 
 	public enum PopupState {
+		Uninitialized = -1,
 		None = 0,
 		Error = 1,
 	}
 
 	//State
 	private UiScreen currentScreen = UiScreen.Uninitialized;
-	private PopupState currentPopup = PopupState.None;
+	private PopupState currentPopup = PopupState.Uninitialized;
 
 	//Night State
 	private List<int> pendingSelection;
@@ -58,6 +59,7 @@ public class PlayerUi : MonoBehaviour
 	GamePlayer gamePlayer;
 
 	Text playerName;
+	Text version;
 
 	//Player Entry
 	InputField title_NameField;
@@ -104,6 +106,8 @@ public class PlayerUi : MonoBehaviour
 		error_Popup = transform.Find("PopupStates/Error").gameObject;
 
 		playerName = transform.Find ("PlayerName").GetComponent<Text> ();
+		version = transform.Find("Version").GetComponent<Text>();
+		version.text = "v" + OnutClient.VERSION;
 
 		//Title
 		title_NameField = transform.Find ("MainStates/Title/NameField").GetComponent<InputField> ();
@@ -136,6 +140,7 @@ public class PlayerUi : MonoBehaviour
 		//Error
 		error_Text = transform.Find("PopupStates/Error/Backer/Text").GetComponent<Text>();
 
+		SetPopupState(PopupState.None);
 		SetMainState (UiScreen.Title);
 	}
 
