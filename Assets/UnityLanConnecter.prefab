@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1186339337933468}
+  m_RootGameObject: {fileID: 1925953287544272}
   m_IsPrefabParent: 1
---- !u!1 &1186339337933468
+--- !u!1 &1925953287544272
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4640086093449946}
-  - component: {fileID: 114671857132200026}
+  - component: {fileID: 4675729365476304}
+  - component: {fileID: 114154961898283902}
   m_Layer: 0
-  m_Name: InternetConnector
+  m_Name: UnityLanConnecter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4640086093449946
+--- !u!4 &4675729365476304
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1186339337933468}
+  m_GameObject: {fileID: 1925953287544272}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,14 +40,14 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114671857132200026
+--- !u!114 &114154961898283902
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1186339337933468}
+  m_GameObject: {fileID: 1925953287544272}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 811a1661720bd214b91247623b5d418b, type: 3}
+  m_Script: {fileID: 11500000, guid: 7464ee0963b027e4db2046807889c0b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

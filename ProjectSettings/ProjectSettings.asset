@@ -118,7 +118,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.1
+  bundleVersion: 1.0
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -139,7 +139,7 @@ PlayerSettings:
     Android: com.PersonalSingularity.OneNightUltimateTurbo
     Standalone: unity.DefaultCompany.OneNightUltimateMobile
     Tizen: com.Company.ProductName
-    iOS: com.Company.ProductName
+    iOS: com.PersonalSingularity.OneNightUltimateTurbo
     tvOS: com.Company.ProductName
   buildNumber:
     iOS: 0
@@ -209,7 +209,7 @@ PlayerSettings:
   iOSMetalForceHardShadows: 0
   metalEditorSupport: 0
   metalAPIValidation: 1
-  appleDeveloperTeamID: 
+  appleDeveloperTeamID: 9HPP879637
   iOSManualSigningProvisioningProfileID: 
   tvOSManualSigningProvisioningProfileID: 
   appleEnableAutomaticSigning: 0
