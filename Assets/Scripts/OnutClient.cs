@@ -160,6 +160,9 @@ public class OnutClient : MonoBehaviour, IClient
 	{
 		switch (error) {
 		case ErrorType.UnableToAuthenticate: //TODO Throw error dialog
+			s = "Unable to connect: " + s;
+			print(s);
+			ui.ThrowError (s);
 			ui.ThrowError ("Invalid room key");
 			break;
 		case ErrorType.Generic:

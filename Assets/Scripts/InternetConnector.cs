@@ -23,7 +23,9 @@ public class InternetConnector : RemoteConnector
 		Wait,
 	}
 
+	//Config
 	private const string ENDPOINT = "http://54.224.112.1:3000";
+	private const float REGEN_INTERVAL = 30.0f;
 
 	//State
 	public Dictionary<OnutClient, List<CoroutineInfo>> activeCoroutinesByClient = new Dictionary<OnutClient, List<CoroutineInfo>> ();
@@ -117,11 +119,23 @@ public class InternetConnector : RemoteConnector
 		print (origin.client.selfUserId + "Sending web request: " + ENDPOINT + ", " + postJson);
 
 		WWW www = new WWW (ENDPOINT, postData, headers);
+		float waitTimer = 0f;
+		while(!www.isDone) {
+			waitTimer += Time.deltaTime;
+			if(request == RequestType.Wait && waitTimer > REGEN_INTERVAL) { //If long polling, renew connection before it auto times out
+				print("regenerating connection");
+				DispatchWebRequest(origin.client, postJson, RequestType.Wait);
+				DequeueWebRequest(origin);
+				yield break;
+			}
+			yield return null;
+		}
 
-		yield return www;
+//		yield return www;
 
 		print("dequeuing coroutine with count for client: " + activeCoroutinesByClient[origin.client].Count);
-		activeCoroutinesByClient[origin.client].Remove(activeCoroutinesByClient[origin.client].Single(ci => ci.requestId == origin.requestId));
+		DequeueWebRequest(origin);
+
 
 		if (www.error != null) {
 			origin.client.HandleRemoteError(ErrorType.Generic, www.error + ", " + www.text);
@@ -281,6 +295,14 @@ public class InternetConnector : RemoteConnector
 
 		node.Add("payload", payloadNode);
 		DispatchWebRequest (client, node.ToString (), RequestType.BroadcastEvent);
+	}
+
+	public void DequeueWebRequest(Origin origin) {
+		activeCoroutinesByClient[origin.client].Remove(activeCoroutinesByClient[origin.client].Single(ci => ci.requestId == origin.requestId));
+	}
+
+	public void EnqueueWebRequest() {
+		Debug.LogError("Not implemented");
 	}
 
 	public class Origin
