@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/AymmetricalMultiplayer.unity
     guid: 00000000000000000000000000000000
   - enabled: 0
-    path: Assets/Scenes/SymInternet.unity
+    path: 
     guid: c48aaeb910f1343009f07cec7d052000
   - enabled: 1
     path: Assets/Scenes/InternetDeployment.unity

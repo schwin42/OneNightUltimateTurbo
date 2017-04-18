@@ -2,26 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class CustomLog : MonoBehaviour {
+public class CustomLog : EventTrigger {
 
-	List<string> log = new List<string>();
-
+	//Configuration
 	public const float alpha = 0.2f;
-
-	private Text console;
-	private int MESSAGES_TO_DISPLAY = 5;
+	private int MESSAGES_TO_DISPLAY = 15;
 
 	private Image backer;
+	private Text console;
+	private RectTransform rectTransform;
+	private Vector2 startOffset;
+
+	//Status
+	private bool isExtended = false;
+	List<string> log = new List<string>();
 
 	// Use this for initialization
 	void Start () {
-		console = GetComponent<Text> ();
+		console = GetComponentInChildren<Text> ();
 		console.text = "";
 		Application.logMessageReceived += HandleLog;
 
-		backer = transform.parent.Find("Image").GetComponent<Image>();
+		backer = transform.GetComponent<Image>();
 		backer.color = new Color(0, 1, 0, alpha);
+
+		rectTransform = (RectTransform)transform;
+
+		startOffset = rectTransform.offsetMax;
 
 		print ("Console initialized");
 	}
@@ -48,5 +57,19 @@ public class CustomLog : MonoBehaviour {
 		}
 		console.text = consoleText;
 
+	}
+
+	public override void OnPointerClick(PointerEventData data)
+	{
+//		print("position: " + rectTransform.sizeDelta);
+		if(isExtended) {
+			rectTransform.offsetMax = startOffset;
+			isExtended = false;
+		} else {
+			rectTransform.offsetMax = new Vector2( 0, rectTransform.offsetMax.y);
+
+			isExtended = true;
+		}
+//		print("position: " + rectTransform.sizeDelta);
 	}
 }

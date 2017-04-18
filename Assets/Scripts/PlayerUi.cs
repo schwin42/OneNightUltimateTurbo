@@ -179,13 +179,11 @@ public class PlayerUi : MonoBehaviour
 		SubmitVote (selection);
 	}
 		
-	public void SetMainState (UiScreen targetScreen)
-	{
-		if (targetScreen == currentScreen)
-			return;
-
+	public void SetMainState (UiScreen targetScreen) {
 		switch (targetScreen) {
 			case UiScreen.Title:
+				title_NameField.interactable = true;
+				title_roomKey.interactable = true;
 				title_HostButton.interactable = true;
 				title_JoinButton.interactable = true;
 				break;
@@ -322,7 +320,10 @@ public class PlayerUi : MonoBehaviour
 
 	public void SetPopupState(PopupState targetState) {
 	
-		if(currentPopup == targetState) return;
+		if(currentPopup == targetState) { 
+			Debug.LogWarning("Already in popup state: " + targetState);
+			return;
+		}
 
 		switch(targetState) {
 		case PopupState.None:
@@ -344,6 +345,8 @@ public class PlayerUi : MonoBehaviour
 		//Set persistent player name
 		playerName.text = title_NameField.text;
 
+		title_NameField.interactable = false;
+		title_roomKey.interactable = false;
 		title_HostButton.interactable = false;
 		title_JoinButton.interactable = false;
 
@@ -369,6 +372,8 @@ public class PlayerUi : MonoBehaviour
 //		playerName.text = client.PlayerName;
 //
 		//Disable button
+		title_NameField.interactable = false;
+		title_roomKey.interactable = false;
 		title_HostButton.interactable = false;
 		title_JoinButton.interactable = false;
 
