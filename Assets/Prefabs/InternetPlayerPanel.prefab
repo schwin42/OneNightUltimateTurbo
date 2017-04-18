@@ -42,7 +42,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1040337879260218
 GameObject:
   m_ObjectHideFlags: 1
@@ -452,7 +452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1413357140059152
 GameObject:
   m_ObjectHideFlags: 1
@@ -878,7 +878,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1859886256597100
 GameObject:
   m_ObjectHideFlags: 1
@@ -2082,7 +2082,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: One Night Ultimate Mobile
+  m_Text: One Night Ultimate Turbo
 --- !u!114 &114304989016592374
 MonoBehaviour:
   m_ObjectHideFlags: 1

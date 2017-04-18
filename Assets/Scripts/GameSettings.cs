@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameSettings {
 	
 	public List<Role> deckList;
-	public int gameTimer = 120; //In minutes
+	public int gameTimer = 300; //In seconds
 
 	public GameSettings (List<Role> deckList) {
 		this.deckList = deckList;
