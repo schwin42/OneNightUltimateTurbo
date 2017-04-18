@@ -7,7 +7,7 @@ using System;
 [System.Serializable]
 public class OnutClient : MonoBehaviour, IClient {
 
-	public const string VERSION = "1.0.2";
+	public const string VERSION = "1.0.3";
 
 	public string UserId { 
 		get { 
@@ -114,8 +114,6 @@ public class OnutClient : MonoBehaviour, IClient {
 //		}
 	}
 
-
-
 	public void HandleGameStarted(int randomSeed) {
 		if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
 			Debug.LogError ("Unable to start game. Game already in progress.");
@@ -125,7 +123,7 @@ public class OnutClient : MonoBehaviour, IClient {
 		selectedDeckBlueprint = DeckGenerator.GenerateRandomizedDeck(connectedUsers.Count + 3, randomSeed, true);
 
 		selectedDeckBlueprint = Utility.ShuffleListBySeed (selectedDeckBlueprint, randomSeed);
-//		selectedDeckBlueprint = new List<Role>() { Role.Robber, Role.Seer, Role.Troublemaker, Role.Drunk, Role.Werewolf, Role.ApprenticeSeer };
+//		selectedDeckBlueprint = new List<Role>() { Role.Hunter, Role.Werewolf, Role.Troublemaker, Role.Drunk, Role.Werewolf, Role.ApprenticeSeer };
 
 		connectedUsers = connectedUsers.OrderBy(s => s).ToList();
 		gm.StartGame (connectedUsers, new GameSettings (selectedDeckBlueprint));
