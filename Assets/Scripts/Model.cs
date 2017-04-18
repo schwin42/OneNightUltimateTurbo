@@ -97,6 +97,7 @@ public class CardData
 	public string prompt = null;
 	public List<SubAction> hiddenAction = new List<SubAction>();
 	public List<SubAction> hiddenActionIfCohort = new List<SubAction>();
+	public VoteModifier voteModifier = VoteModifier.None;
 
 	//Deckbuilding
 	public Selector seedRequirement = null;
@@ -254,6 +255,16 @@ public enum ActionType {
 	RevealCard = 8,
 	Tap = 9,
 	ViewCohort = 10,
+}
+
+[System.Serializable]
+public enum VoteModifier {
+	None = -1,
+	VoteeDiesIfSelfDies = 3,
+	//Not implemented
+	VoteeCantDie = 0,
+	SelfCantDie = 1,
+	SelfCantDieIfVampireVotesForSelf = 2,
 }
 
 [System.Serializable]

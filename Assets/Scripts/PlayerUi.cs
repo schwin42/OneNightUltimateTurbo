@@ -299,8 +299,11 @@ public class PlayerUi : MonoBehaviour
 				for (int i = 0; i < killedPlayers.Length; i++) {
 					descriptionString += killedPlayers [i].name + " the " + killedPlayers [i].currentCard.name + " died with " + client.Gm.players.Count (gp => gp.votedLocation == killedPlayers [i].locationId) + " votes. ";
 				}
+				foreach (GamePlayer player in client.Gm.players.Where(gp => gp.currentCard.data.voteModifier == VoteModifier.VoteeDiesIfSelfDies && gp.killed)) {
+					descriptionString += (player.name + " the " + player.currentCard.name + " died and killed " + client.Gm.locationsById[player.votedLocation].name + ". "); 
+				}
 				if (killedPlayers.Length == 0) {
-					descriptionString += "No one received enough votes to be killed.";
+					descriptionString += "No one received enough votes to be killed. ";
 				}
 				result_Description.text = descriptionString;
 				break;

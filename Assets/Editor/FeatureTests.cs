@@ -22,7 +22,7 @@ public class FeatureTests {
 		gm.KillPlayers();
 		gm.DetermineWinners();
 
-		Assert.IsTrue(!VillagersDidWin(gm.players) && !WerewolvesDidWin(gm.players) && tannerDealtPlayer.didWin);
+		Assert.IsTrue(!WinTests.VillagersDidWin(gm.players) && !WinTests.WerewolvesDidWin(gm.players) && tannerDealtPlayer.didWin);
 	}
 
 	[Test]
@@ -41,7 +41,7 @@ public class FeatureTests {
 		gm.KillPlayers();
 		gm.DetermineWinners();
 
-		Assert.IsTrue(!VillagersDidWin(gm.players) && WerewolvesDidWin(gm.players) && !tannerDealtPlayer.didWin);
+		Assert.IsTrue(!WinTests.VillagersDidWin(gm.players) && WinTests.WerewolvesDidWin(gm.players) && !tannerDealtPlayer.didWin);
 	}
 
 	[Test]
@@ -59,27 +59,6 @@ public class FeatureTests {
 		gm.KillPlayers();
 		gm.DetermineWinners();
 
-		Assert.IsTrue(!VillagersDidWin(gm.players) && WerewolvesDidWin(gm.players) && !tannerDealtPlayer.didWin);
-	}
-
-
-	private static bool VillagersDidWin(List<GamePlayer> players) {
-		List<bool> villagerWins = new List<bool>();
-		foreach(GamePlayer player in players) {
-			if(player.currentCard.data.nature == Nature.Villageperson) {
-				villagerWins.Add(player.didWin);
-			}
-		}
-		return villagerWins.All(p => p == true);
-	}
-
-	private static bool WerewolvesDidWin(List<GamePlayer> players) {
-		List<bool> werewolfWins = new List<bool>();
-		foreach(GamePlayer player in players) {
-			if(player.currentCard.data.nature == Nature.Werewolf) {
-				werewolfWins.Add(player.didWin);
-			}
-		}
-		return werewolfWins.All(p => p == true);
+		Assert.IsTrue(!WinTests.VillagersDidWin(gm.players) && WinTests.WerewolvesDidWin(gm.players) && !tannerDealtPlayer.didWin);
 	}
 }

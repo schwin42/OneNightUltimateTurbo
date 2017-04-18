@@ -139,7 +139,7 @@ public class WinTests {
 
 
 
-	private static bool VillagersDidWin(List<GamePlayer> players) {
+	public static bool VillagersDidWin(List<GamePlayer> players) {
 		List<bool> villagerWins = new List<bool>();
 		foreach(GamePlayer player in players) {
 			if(player.currentCard.data.nature == Nature.Villageperson) {
@@ -149,7 +149,7 @@ public class WinTests {
 		return villagerWins.All(p => p == true);
 	}
 
-	private static bool WerewolvesDidWin(List<GamePlayer> players) {
+	public static bool WerewolvesDidWin(List<GamePlayer> players) {
 		List<bool> werewolfWins = new List<bool>();
 		foreach(GamePlayer player in players) {
 			if(player.currentCard.data.nature == Nature.Werewolf) {
@@ -157,5 +157,28 @@ public class WinTests {
 			}
 		}
 		return werewolfWins.All(p => p == true);
+	}
+
+	[Test]
+	public void VillagersWinIfHunterVotingForWerewolfDies() {
+		GameMaster gm = new GameMaster();
+		gm.StartGame(new List<string> { "A", "B", "C" }, 
+			new GameSettings(new List<Role> { Role.Hunter, Role.Villager, Role.Werewolf, Role.Mason, Role.Mason, Role.Minion }));
+
+		GamePlayer hunterDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Hunter);
+		GamePlayer werewolfDealtPlayer = gm.players.Single(p => p.dealtCard.data.role == Role.Werewolf);
+
+		foreach(GamePlayer player in gm.players) {
+			if (player == hunterDealtPlayer) {
+				player.votedLocation = werewolfDealtPlayer.locationId;
+			} else {
+				player.votedLocation = hunterDealtPlayer.locationId;
+			}
+		}
+
+		gm.KillPlayers();
+		gm.DetermineWinners();
+
+		Assert.IsTrue(WinTests.VillagersDidWin(gm.players) && !WinTests.WerewolvesDidWin(gm.players) && hunterDealtPlayer.didWin);
 	}
 }

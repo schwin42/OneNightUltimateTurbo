@@ -198,6 +198,11 @@ public class GameMaster
 				Debug.Log ("Killed " + playerToKill.name);
 			}
 		}
+
+		//Kill bonus players
+		foreach (GamePlayer player in players.Where(gp => gp.currentCard.data.voteModifier == VoteModifier.VoteeDiesIfSelfDies && gp.killed)) {
+			players.Single (gp => gp.locationId == player.votedLocation).killed = true;
+		}
 	}
 
 	public void DetermineWinners ()

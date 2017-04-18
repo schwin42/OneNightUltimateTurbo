@@ -1,4 +1,4 @@
-Role	Value	Feature Set	Status	Team	Nature	Order	WinRequirements	Cohort	PromptText	PromptIfCohortText	NightAction	NightActionIfCohort	VoteAction	SeedRequirement	MaxQuantity	Expansion
+Role	Value	Feature Set	Status	Team	Nature	Order	WinRequirements	Cohort	PromptText	PromptIfCohortText	NightAction	NightActionIfCohort	VoteModifier	SeedRequirement	MaxQuantity	Expansion
 Apprentice Seer	Low	Done	Implemented	Village	Villageperson	5B			You may view a card from the center.		May_ViewOneCard(TargetCenterCard)				1	Daybreak
 Dream Wolf	Low	Done	Implemented	Werewolf	Werewolf				If any werewolves or minions exist, they know you're a werewolf.					NatureWerewolf	1	Daybreak
 Drunk	Done	Done	Implemented	Village	Villageperson	8			You must choose a center card to swap cards with.		Must_SwapCards(Self,TargetCenterCard)				1	Werewolf
@@ -42,4 +42,4 @@ Thing	Low	ShoulderTap	HipEncode	Village	Villageperson	4B					May_Tap(TargetAdjac
 Vampire	High	Marks	HipEncode	Vampire	Vampire	-6					Must_PlaceMark(MarkVampire, TargetNonVampire)				1	Vampire
 Village Idiot	Very Low	Advanced Swap	Unencoded	Village	Villageperson	7B									1	Daybreak
 Apprentice Tanner	Medium	Easy	Encoded	NoTeam	Villageperson	3B	Role.Tanner_MustDie;Relation.Self_MustDie							Tanner	1	Bonus Pack 2
-Hunter	High	Vote Modifiers	Encoded	Village	Villageperson								VoteeDiesIfSelfDies		1	Werewolf
+Hunter	High	Vote Modifiers	Implemented	Village	Villageperson				If the Hunter dies, whoever s/he votes for will die as well.				VoteeDiesIfSelfDies		1	Werewolf

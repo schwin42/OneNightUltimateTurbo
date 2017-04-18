@@ -83,6 +83,7 @@ public class GameData : MonoBehaviour {
 				prompt = cardPrompt,
 				hiddenAction = ParseHiddenActionSeries(dict["NightAction"]),
 				hiddenActionIfCohort = ParseHiddenActionSeries(dict["NightActionIfCohort"]),
+				voteModifier = dict["VoteModifier"] == "" ? VoteModifier.None : ((VoteModifier)Enum.Parse(typeof(VoteModifier), dict["VoteModifier"])),
 				seedRequirement = ParseSelector(dict["SeedRequirement"]),
 				maxQuantity = cardMaxQuantity,
 			};
@@ -119,7 +120,6 @@ public class GameData : MonoBehaviour {
 		}
 		return selector;
 	}
-	#pragma warning restore 0168
 
 	private static Order ParseOrder(string orderString) {
 		if(orderString.Length == 0) {
@@ -176,6 +176,7 @@ public class GameData : MonoBehaviour {
 		}
 		return hiddenActions;
 	}
+	#pragma warning restore 0168
 
 	private static WinRequirement ParseWinRequirementSeries(string winRequirementSeries) { //Series is nested in a single win requirement, with subsequent ones treated as fallbacks
 		List<Selector> subjects = new List<Selector>();
