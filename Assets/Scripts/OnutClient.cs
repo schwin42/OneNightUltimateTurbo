@@ -130,7 +130,7 @@ public class OnutClient : MonoBehaviour, IClient
 	public void HandleGameStarted (int randomSeed)
 	{
 		if (!(gm == null || gm.currentPhase == GameMaster.GamePhase.Result)) {
-			Debug.LogError ("Unable to start game. Game already in progress.");
+			Debug.LogWarning ("Unable to start game. Game already in progress.");
 			return;
 		}
 		gm = new GameMaster (ui); //Implement random seed
@@ -160,10 +160,11 @@ public class OnutClient : MonoBehaviour, IClient
 	{
 		switch (error) {
 		case ErrorType.UnableToAuthenticate: //TODO Throw error dialog
-			ui.ThrowError ("Invalid room key");
+			ui.ThrowError (s);
+			ui.ThrowError ("Invalid room key, dingus");
 			break;
 		case ErrorType.Generic:
-			s = "Unable to connect: " + s;
+			s = "Connection error: " + s;
 			print(s);
 			ui.ThrowError (s);
 			break;
@@ -178,6 +179,7 @@ public class OnutClient : MonoBehaviour, IClient
 
 	public void JoinSession (string playerName, string roomKey)
 	{
+		this.roomKey = roomKey;
 		connectedUsers = new List<string> ();
 		RemoteConnector.instance.JoinSession (this, playerName, roomKey);
 	}
