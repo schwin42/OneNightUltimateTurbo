@@ -8,7 +8,7 @@ using System;
 public class OnutClient : MonoBehaviour, IClient
 {
 
-	public const string VERSION = "1.0.4";
+	public const string VERSION = "1.0.5";
 
 	public string UserId { 
 		get { 
