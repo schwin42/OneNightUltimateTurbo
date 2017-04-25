@@ -1,3 +1,5 @@
-OneNightUltimateMobile
+One Night Ultimate Turbo
 
-In order to run the server, install Node.js, cd into Server, and run "node ."
+Tested on iOS, Android, Windows Standalone, OSX Standalone
+
+To build to device, specify UnetLanDeployment as the sole scene in the Build Settings and click Build.
